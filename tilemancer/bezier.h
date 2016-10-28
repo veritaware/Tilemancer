@@ -27,8 +27,8 @@
 class Bezier {
  public:
   Bezier();
-  bPoint getTangent(float t);
-  bPoint getPoint(float t);
+  bPoint getTangent(float t) const;
+  bPoint getPoint(float t) const;
   void create();
   void update();
   int d = 100;

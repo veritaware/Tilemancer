@@ -20,20 +20,8 @@
 
 #include "tilemancer/color.h"
 
-Color::~Color() {}
+Color::Color(int ar, int ag, int ab) : r(ar), g(ag), b(ab), a(255), disabled(false) { }
 
-Color::Color(int r, int g, int b) {
-  this->r = r;
-  this->g = g;
-  this->b = b;
-  this->a = 255;
-  disabled = false;
-}
-
-bool Color::equals(Color* c) const {
-  if (c->r == this->r && c->g == this->g && c->b == this->b) {
-    return true;
-  } else {
-    return false;
-  }
+bool Color::operator==(const Color& rhs) const {
+  return r == rhs.r && g == rhs.g && b == rhs.b;
 }

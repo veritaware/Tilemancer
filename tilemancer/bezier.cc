@@ -29,7 +29,7 @@ void Bezier::create() {
   update();
 }
 
-bPoint Bezier::getPoint(float t) {
+bPoint Bezier::getPoint(float t) const {
   float x = pow(1 - t, 3) * P0.x + 3 * pow(1 - t, 2) * t * P1.x +
             3 * (1 - t) * pow(t, 2) * P2.x + pow(t, 3) * P3.x;
   float y = pow(1 - t, 3) * P0.y + 3 * pow(1 - t, 2) * t * P1.y +
@@ -37,7 +37,7 @@ bPoint Bezier::getPoint(float t) {
   return bPoint(x, y);
 }
 
-bPoint Bezier::getTangent(float t) {
+bPoint Bezier::getTangent(float t) const {
   float x = 3 * pow(1 - t, 2) * (P1.x - P0.x) +
             6 * (1 - t) * t * (P2.x - P1.x) + 3 * pow(t, 2) * (P3.x - P2.x);
   float y = 3 * pow(1 - t, 2) * (P1.y - P0.y) +

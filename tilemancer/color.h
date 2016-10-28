@@ -24,9 +24,8 @@
 class Color {
  public:
   Color(int r, int g, int b);
-  ~Color();
+  bool operator==(const Color& rhs) const;
 
-  bool equals(Color*) const;
   int r;
   int g;
   int b;

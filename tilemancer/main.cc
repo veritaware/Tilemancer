@@ -1115,7 +1115,7 @@ void paletteChanged() {
             Color* final = getPalColor(H, S, V);
             for (int col = 0; col < palette.size(); col++) {
               Color* color = palette.at(col);
-              if (final->equals(color)) {
+              if (*final == *color) {
                 param->value4 = col;
               }
             }
@@ -1140,7 +1140,7 @@ void paletteChanged() {
               Color* final = getPalColor(H, S, V);
               for (int col = 0; col < palette.size(); col++) {
                 Color* color = palette.at(col);
-                if (final->equals(color)) {
+                if (*final == *color) {
                   param->points.at(cp)->i = col;
                 }
               }
@@ -1186,7 +1186,7 @@ void loadPalette() {
       bool alreadyIn = false;
       for (int c2 = 0; c2 < palette.size(); c2++) {
         Color* color2 = palette.at(c2);
-        if (color->equals(color2)) {
+        if (*color == *color2) {
           alreadyIn = true;
         }
       }
@@ -5671,7 +5671,7 @@ Parameter::Parameter(int ID, string name, float x, float y, float w, float h,
     Color* final = getPalColor(H, S, V);
     for (int col = 0; col < palette.size(); col++) {
       Color* color = palette.at(col);
-      if (final->equals(color)) {
+      if (*final == *color) {
         value4 = col;
       }
     }
@@ -5754,7 +5754,7 @@ void Parameter::mouseDown(int mx, int my, int ex, int ey, int layer,
       Color* final = getPalColor(H, S, V);
       for (int col = 0; col < palette.size(); col++) {
         Color* color = palette.at(col);
-        if (final->equals(color)) {
+        if (*final == *color) {
           value4 = col;
         }
       }
@@ -6122,7 +6122,7 @@ void Parameter::mouseMove(int mx, int my, int ex, int ey, int layer,
       Color* final = getPalColor(H, S, V);
       for (int col = 0; col < palette.size(); col++) {
         Color* color = palette.at(col);
-        if (final->equals(color)) {
+        if (*final == *color) {
           value4 = col;
         }
       }
