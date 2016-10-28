@@ -42,6 +42,7 @@
 #include "lua.hpp"
 
 #include "tilemancer/file.h"
+#include "tilemancer/bpoint.h"
 
 using namespace std;
 
@@ -52,14 +53,6 @@ const int Vrevision = 1;
 SDL_Window* window = NULL;
 SDL_GLContext gContext = NULL;
 SDL_Renderer* gRenderer = NULL;
-
-class bPoint {
- public:
-  bPoint();
-  bPoint(float x, float y);
-  float x;
-  float y;
-};
 
 class cBezier {
  public:
@@ -5753,13 +5746,6 @@ void Parameter::render(int ex, int ey) {  // renderparam
   } else if (ID == 9) {
     renderIcon(ex + x, ey + y, 8, 8, iconImg13, 1);
   }
-}
-
-bPoint::bPoint() {}
-
-bPoint::bPoint(float x, float y) {
-  this->x = x;
-  this->y = y;
 }
 
 cBezier::cBezier() {}
