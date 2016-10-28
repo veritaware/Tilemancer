@@ -46,6 +46,7 @@
 #include "tilemancer/bezier.h"
 #include "tilemancer/color.h"
 #include "tilemancer/cpoint.h"
+#include "tilemancer/text.h"
 
 using namespace std;
 
@@ -117,12 +118,6 @@ class Socket {
   GLuint texture;
   string lastTexDir;
   string lastTexName;
-};
-
-class Text {
- public:
-  string name;
-  float y;
 };
 
 class Effect {
