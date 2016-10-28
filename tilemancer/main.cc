@@ -61,7 +61,7 @@ class Layer;
 
 class Socket;
 
-class nEffect;
+class Effect;
 
 class Parameter {
  public:
@@ -69,9 +69,9 @@ class Parameter {
             int value2, int value3, string tt);
   ~Parameter();
   void render(int ex, int ey);
-  void mouseDown(int mx, int my, int ex, int ey, int layer, nEffect* fx);
-  void mouseMove(int mx, int my, int ex, int ey, int layer, nEffect* fx);
-  void mouseUp(int mx, int my, int ex, int ey, int layer, nEffect* fx);
+  void mouseDown(int mx, int my, int ex, int ey, int layer, Effect* fx);
+  void mouseMove(int mx, int my, int ex, int ey, int layer, Effect* fx);
+  void mouseUp(int mx, int my, int ex, int ey, int layer, Effect* fx);
   int ID;
   string tt;
   string name;
@@ -112,7 +112,7 @@ class Socket {
   float py;
   int futureN;
   int futureS;
-  nEffect* parent;
+  Effect* parent;
   vector<float> texData;
   GLuint texture;
   string lastTexDir;
@@ -125,10 +125,10 @@ class Text {
   float y;
 };
 
-class nEffect {
+class Effect {
  public:
-  nEffect(string luafn, string fxname, bool preset = false);
-  ~nEffect();
+  Effect(string luafn, string fxname, bool preset = false);
+  ~Effect();
   lua_State* L;
   unsigned int seed;
   std::thread side;
@@ -138,7 +138,7 @@ class nEffect {
   vector<Socket*> outputs;
   vector<Parameter*> params;
   vector<Text*> texts;
-  vector<nEffect*> presetFxs;
+  vector<Effect*> presetFxs;
   string luafn;
   string fxname;
   string name;
@@ -191,7 +191,7 @@ class Texture {
   bool done;
   int doneTimer;
   bool abort;
-  vector<nEffect*> fxs;
+  vector<Effect*> fxs;
   string lastTexDir;
   string lastTexName;
 };
@@ -244,14 +244,14 @@ static Color rampB(54, 42, 96);
 static int selectedColor = 0;
 static vector<Parameter*> colorParams;
 static Parameter* textType;
-static nEffect* textTypeFx;
+static Effect* textTypeFx;
 static int textTypeLayer;
 static Parameter* textTypeTemp;
-static nEffect* textTypeFxTemp;
+static Effect* textTypeFxTemp;
 static int textTypeLayerTemp;
 static int blinkTimer;
 static vector<Texture*> texs;
-static vector<nEffect*> newEffects;
+static vector<Effect*> newEffects;
 static int collH = 18;
 static int expH = 92;
 static int currentTexture;
@@ -594,7 +594,7 @@ Parameter::~Parameter() {}
 
 Texture::~Texture() {}
 
-void nEffect::sideUpdate() {
+void Effect::sideUpdate() {
   luaL_dofile(this->L, luafn.c_str());
   lua_settop(this->L, 0);
   lua_getglobal(this->L, "apply");
@@ -602,7 +602,7 @@ void nEffect::sideUpdate() {
   loaded = true;
 }
 
-void nEffect::clearTree() {
+void Effect::clearTree() {
   cleared = true;
   done = false;
   doneTimer = 0;
@@ -618,7 +618,7 @@ void nEffect::clearTree() {
     }
   }
   for (int i = 0; i < texs.at(currentTexture)->fxs.size(); i++) {
-    nEffect* fx = texs.at(currentTexture)->fxs.at(i);
+    Effect* fx = texs.at(currentTexture)->fxs.at(i);
     for (int in = 0; in < fx->inputs.size(); in++) {
       Socket* input = fx->inputs.at(in);
       if (input->s != NULL && input->s->parent == this) {
@@ -656,7 +656,7 @@ void Texture::genTex(bool first) {
         if (ready) {
           if (!fxs.at(i)->loading) {
             fxs.at(i)->loading = true;
-            fxs.at(i)->side = std::thread(&nEffect::sideUpdate, fxs.at(i));
+            fxs.at(i)->side = std::thread(&Effect::sideUpdate, fxs.at(i));
           }
         }
       }
@@ -909,7 +909,7 @@ void paletteChanged() {
     Texture* t = texs.at(i);
     bool updateTex = false;
     for (int e = 0; e < t->fxs.size(); e++) {
-      nEffect* fx = t->fxs.at(e);
+      Effect* fx = t->fxs.at(e);
       for (int p = 0; p < fx->params.size(); p++) {
         Parameter* param = fx->params.at(p);
         if (param->ID == 0) {
@@ -1031,7 +1031,7 @@ void initLua() {
 
 // LUA - C++ INTERACTION ------------------------
 
-int nEffect::setName(lua_State* L) {
+int Effect::setName(lua_State* L) {
   int n = lua_gettop(L);
   if (n > 0) {
     name = lua_tostring(L, 1);
@@ -1039,7 +1039,7 @@ int nEffect::setName(lua_State* L) {
   return 0;
 }
 
-int nEffect::setDesc(lua_State* L) {
+int Effect::setDesc(lua_State* L) {
   int n = lua_gettop(L);
   if (n > 0) {
     desc = lua_tostring(L, 1);
@@ -1047,7 +1047,7 @@ int nEffect::setDesc(lua_State* L) {
   return 0;
 }
 
-int nEffect::setSize(lua_State* L) {
+int Effect::setSize(lua_State* L) {
   int n = lua_gettop(L);
   if (n > 1) {
     w = lua_tonumber(L, 1);
@@ -1056,7 +1056,7 @@ int nEffect::setSize(lua_State* L) {
   return 0;
 }
 
-int nEffect::addInput(lua_State* L) {
+int Effect::addInput(lua_State* L) {
   int n = lua_gettop(L);
   if (n > 1) {
     Socket* s = new Socket();
@@ -1074,7 +1074,7 @@ int nEffect::addInput(lua_State* L) {
   return 0;
 }
 
-int nEffect::addParameter(lua_State* L) {
+int Effect::addParameter(lua_State* L) {
   int n = lua_gettop(L);
   if (n > 5) {
     int offset = 4;
@@ -1096,7 +1096,7 @@ int nEffect::addParameter(lua_State* L) {
   return 0;
 }
 
-int nEffect::addInputParameter(lua_State* L) {
+int Effect::addInputParameter(lua_State* L) {
   int n = lua_gettop(L);
   if (n > 5) {
     Socket* s = new Socket();
@@ -1124,7 +1124,7 @@ int nEffect::addInputParameter(lua_State* L) {
   return 0;
 }
 
-int nEffect::addOutput(lua_State* L) {
+int Effect::addOutput(lua_State* L) {
   int n = lua_gettop(L);
   if (n > 0) {
     Socket* s = new Socket();
@@ -1135,7 +1135,7 @@ int nEffect::addOutput(lua_State* L) {
   return 0;
 }
 
-int nEffect::addCRamp(lua_State* L) {
+int Effect::addCRamp(lua_State* L) {
   int n = lua_gettop(L);
   if (n > 0) {
     int offset = 0;
@@ -1165,7 +1165,7 @@ int nEffect::addCRamp(lua_State* L) {
   return 0;
 }
 
-int nEffect::setPixel(lua_State* L) {
+int Effect::setPixel(lua_State* L) {
   int n = lua_gettop(L);
   if (n > 5) {
     Socket* a = outputs.at((int)lua_tonumber(L, 1));
@@ -1177,7 +1177,7 @@ int nEffect::setPixel(lua_State* L) {
   return 0;
 }
 
-int nEffect::getValue(lua_State* L) {
+int Effect::getValue(lua_State* L) {
   float r = 0;
   float g = 0;
   float b = 0;
@@ -1226,7 +1226,7 @@ int nEffect::getValue(lua_State* L) {
   return 3;
 }
 
-int nEffect::finalize(lua_State* L) {
+int Effect::finalize(lua_State* L) {
   for (int i = 0; i < texSizeX; i++) {
     for (int j = 0; j < texSizeY; j++) {
       Color c(0, 0, 0);
@@ -1241,12 +1241,12 @@ int nEffect::finalize(lua_State* L) {
   return 0;
 }
 
-int nEffect::getTileSize(lua_State* L) {
+int Effect::getTileSize(lua_State* L) {
   lua_pushnumber(L, texSizeX);
   return 1;
 }
 
-int nEffect::addNode(lua_State* L) {
+int Effect::addNode(lua_State* L) {
   int n = lua_gettop(L);
   if (n > 2) {
     string name = "";
@@ -1256,7 +1256,7 @@ int nEffect::addNode(lua_State* L) {
       }
     }
     if (name.size() > 0) {
-      nEffect* fx = new nEffect(name, lua_tostring(L, 1));
+      Effect* fx = new Effect(name, lua_tostring(L, 1));
       fx->x += lua_tonumber(L, 2);
       fx->y += lua_tonumber(L, 3);
       presetFxs.push_back(fx);
@@ -1275,11 +1275,11 @@ int nEffect::addNode(lua_State* L) {
   return 0;
 }
 
-int nEffect::setParameter(lua_State* L) {
+int Effect::setParameter(lua_State* L) {
   int n = lua_gettop(L);
   if (n > 2) {
     if (!presetError) {
-      nEffect* fx = presetFxs.at((int)lua_tonumber(L, 1));
+      Effect* fx = presetFxs.at((int)lua_tonumber(L, 1));
       Parameter* param = fx->params.at((int)lua_tonumber(L, 2));
       param->value = (int)lua_tonumber(L, 3);
     }
@@ -1287,12 +1287,12 @@ int nEffect::setParameter(lua_State* L) {
   return 0;
 }
 
-int nEffect::addConnection(lua_State* L) {
+int Effect::addConnection(lua_State* L) {
   int n = lua_gettop(L);
   if (n > 3) {
     if (!presetError) {
-      nEffect* fx1 = presetFxs.at((int)lua_tonumber(L, 1));
-      nEffect* fx2 = presetFxs.at((int)lua_tonumber(L, 3));
+      Effect* fx1 = presetFxs.at((int)lua_tonumber(L, 1));
+      Effect* fx2 = presetFxs.at((int)lua_tonumber(L, 3));
       Socket* output = fx1->outputs.at((int)lua_tonumber(L, 2));
       Socket* input = fx2->inputs.at((int)lua_tonumber(L, 4));
       input->s = output;
@@ -1306,7 +1306,7 @@ int my_rand(unsigned int* nextp) {  // custom RNG for consistency between OSes
   return (unsigned int)(*nextp / 65536) % 32768;
 }
 
-int nEffect::luaSeed(lua_State* L) {
+int Effect::luaSeed(lua_State* L) {
   int n = lua_gettop(L);
   if (n > 0) {
     seed = (unsigned int)lua_tonumber(L, 1);
@@ -1315,7 +1315,7 @@ int nEffect::luaSeed(lua_State* L) {
   return 0;
 }
 
-int nEffect::luaRand(lua_State* L) {
+int Effect::luaRand(lua_State* L) {
   int rm = 32767;
   float r = my_rand(&seed) % rm / (float)rm;
   switch (lua_gettop(L)) {
@@ -1342,7 +1342,7 @@ int nEffect::luaRand(lua_State* L) {
   return 1;
 }
 
-void nEffect::AbortLua(lua_State* L, lua_Debug* ar) {
+void Effect::AbortLua(lua_State* L, lua_Debug* ar) {
   if (abort) {
     luaL_error(L, "Too Many Lines Error");
   }
@@ -1407,7 +1407,7 @@ void importFxs() {
             }
             if (OK) {
               // cout << "Success" << endl;
-              newEffects.push_back(new nEffect(fullfn, fn));
+              newEffects.push_back(new Effect(fullfn, fn));
             }
           }
         }
@@ -1456,7 +1456,7 @@ void importPresets() {
             }
             if (OK) {
               // cout << "Success" << endl;
-              newEffects.push_back(new nEffect(fullfn, fn, true));
+              newEffects.push_back(new Effect(fullfn, fn, true));
             }
           }
         }
@@ -1511,7 +1511,7 @@ void importFxs() {
           }
           if (OK) {
             // cout << "Success" << endl;
-            newEffects.push_back(new nEffect(fullfn, fn));
+            newEffects.push_back(new Effect(fullfn, fn));
           }
         }
       }
@@ -1562,7 +1562,7 @@ void importPresets() {
           }
           if (OK) {
             // cout << "Success" << endl;
-            newEffects.push_back(new nEffect(fullfn, fn, true));
+            newEffects.push_back(new Effect(fullfn, fn, true));
           }
         }
       }
@@ -1574,7 +1574,7 @@ void importPresets() {
 
 Socket::~Socket() { delete b; }
 
-nEffect::~nEffect() {
+Effect::~Effect() {
   for (int toDel = 0; toDel < params.size(); toDel++) {
     delete params.at(toDel);
   }
@@ -1590,18 +1590,18 @@ nEffect::~nEffect() {
 }
 
 // wizardry shit
-typedef int (nEffect::*mem_func)(lua_State* L);
+typedef int (Effect::*mem_func)(lua_State* L);
 template <mem_func func>
 int dispatch(lua_State* L) {
-  nEffect* ptr = *static_cast<nEffect**>(lua_getextraspace(L));
+  Effect* ptr = *static_cast<Effect**>(lua_getextraspace(L));
   return ((*ptr).*func)(L);
 }
 
 // what the fuck?
-typedef void (nEffect::*mem_func2)(lua_State* L, lua_Debug* ar);
+typedef void (Effect::*mem_func2)(lua_State* L, lua_Debug* ar);
 template <mem_func2 func2>
 void dispatch2(lua_State* L, lua_Debug* ar) {
-  nEffect* ptr = *static_cast<nEffect**>(lua_getextraspace(L));
+  Effect* ptr = *static_cast<Effect**>(lua_getextraspace(L));
   return ((*ptr).*func2)(L, ar);
 }
 
@@ -1797,8 +1797,8 @@ static const luaL_Reg mathlib[] = {{"abs", math_abs},
                                    {"modf", math_modf},
                                    {"pow", math_pow},
                                    {"rad", math_rad},
-                                   {"random", &dispatch<&nEffect::luaRand>},
-                                   {"randomseed", &dispatch<&nEffect::luaSeed>},
+                                   {"random", &dispatch<&Effect::luaRand>},
+                                   {"randomseed", &dispatch<&Effect::luaSeed>},
                                    {"sinh", math_sinh},
                                    {"sin", math_sin},
                                    {"sqrt", math_sqrt},
@@ -1830,7 +1830,7 @@ LUALIB_API void luaL_requiref2(lua_State* L, const char* modname,
   }
 }
 
-nEffect::nEffect(string luafn, string fxname, bool preset) {
+Effect::Effect(string luafn, string fxname, bool preset) {
   this->isPreset = preset;
   this->fxname = fxname;
   this->nextP = 0;
@@ -1843,33 +1843,33 @@ nEffect::nEffect(string luafn, string fxname, bool preset) {
   this->undone = true;
   this->L = luaL_newstate();
   luaL_openlibs(this->L);
-  *static_cast<nEffect**>(lua_getextraspace(L)) = this;
+  *static_cast<Effect**>(lua_getextraspace(L)) = this;
   if (!isPreset) {
-    lua_register(this->L, "setName", &dispatch<&nEffect::setName>);
-    lua_register(this->L, "setDesc", &dispatch<&nEffect::setDesc>);
-    lua_register(this->L, "setSize", &dispatch<&nEffect::setSize>);
-    lua_register(this->L, "addInput", &dispatch<&nEffect::addInput>);
-    lua_register(this->L, "addParameter", &dispatch<&nEffect::addParameter>);
+    lua_register(this->L, "setName", &dispatch<&Effect::setName>);
+    lua_register(this->L, "setDesc", &dispatch<&Effect::setDesc>);
+    lua_register(this->L, "setSize", &dispatch<&Effect::setSize>);
+    lua_register(this->L, "addInput", &dispatch<&Effect::addInput>);
+    lua_register(this->L, "addParameter", &dispatch<&Effect::addParameter>);
     lua_register(this->L, "addInputParameter",
-                 &dispatch<&nEffect::addInputParameter>);
-    lua_register(this->L, "addOutput", &dispatch<&nEffect::addOutput>);
-    lua_register(this->L, "getTileSize", &dispatch<&nEffect::getTileSize>);
-    lua_register(this->L, "getValue", &dispatch<&nEffect::getValue>);
-    lua_register(this->L, "setPixel", &dispatch<&nEffect::setPixel>);
+                 &dispatch<&Effect::addInputParameter>);
+    lua_register(this->L, "addOutput", &dispatch<&Effect::addOutput>);
+    lua_register(this->L, "getTileSize", &dispatch<&Effect::getTileSize>);
+    lua_register(this->L, "getValue", &dispatch<&Effect::getValue>);
+    lua_register(this->L, "setPixel", &dispatch<&Effect::setPixel>);
 
-    lua_register(this->L, "addCRamp", &dispatch<&nEffect::addCRamp>);
-    lua_register(this->L, "colorize", &dispatch<&nEffect::finalize>);
+    lua_register(this->L, "addCRamp", &dispatch<&Effect::addCRamp>);
+    lua_register(this->L, "colorize", &dispatch<&Effect::finalize>);
   } else {
-    lua_register(this->L, "setName", &dispatch<&nEffect::setName>);
-    lua_register(this->L, "setDesc", &dispatch<&nEffect::setDesc>);
-    lua_register(this->L, "addNode", &dispatch<&nEffect::addNode>);
-    lua_register(this->L, "setParameter", &dispatch<&nEffect::setParameter>);
-    lua_register(this->L, "addConnection", &dispatch<&nEffect::addConnection>);
+    lua_register(this->L, "setName", &dispatch<&Effect::setName>);
+    lua_register(this->L, "setDesc", &dispatch<&Effect::setDesc>);
+    lua_register(this->L, "addNode", &dispatch<&Effect::addNode>);
+    lua_register(this->L, "setParameter", &dispatch<&Effect::setParameter>);
+    lua_register(this->L, "addConnection", &dispatch<&Effect::addConnection>);
   }
 
   luaL_requiref2(this->L, "math", luaopen_math2, 1);
 
-  lua_sethook(this->L, &dispatch2<&nEffect::AbortLua>, LUA_MASKCOUNT, 2);
+  lua_sethook(this->L, &dispatch2<&Effect::AbortLua>, LUA_MASKCOUNT, 2);
   this->luafn = luafn;
   name = "";
   desc = "";
@@ -2195,7 +2195,7 @@ void loadStuff(string str, bool newFile) {
               }
             }
             if (name.size() > 0) {
-              nEffect* fx = new nEffect(name, a.at(1));
+              Effect* fx = new Effect(name, a.at(1));
               bool nodeFinished = false;
               int param = 0;
               while (!nodeFinished) {
@@ -2257,7 +2257,7 @@ void loadStuff(string str, bool newFile) {
         }
       }
       for (int i = 0; i < texs.at(currentTexture)->fxs.size(); i++) {
-        nEffect* fx = texs.at(currentTexture)->fxs.at(i);
+        Effect* fx = texs.at(currentTexture)->fxs.at(i);
         for (int in = 0; in < fx->inputs.size(); in++) {
           Socket* input = fx->inputs.at(in);
           if (input->futureN != -1) {
@@ -2341,7 +2341,7 @@ string saveStuff() {
   out << "Camera " << nodeCX << " " << nodeCY << endl;
   Texture* t = texs.at(currentTexture);
   for (int i = 0; i < t->fxs.size(); i++) {
-    nEffect* fx = t->fxs.at(i);
+    Effect* fx = t->fxs.at(i);
     out << "Node {" << endl;
     out << "Name " << fx->fxname << endl;
     out << "Position " << fx->x << " " << fx->y << endl;
@@ -3192,7 +3192,7 @@ void update() {  // update
     t->fxs.at(draggedNode)->r = dx;
   }
   for (int i = 0; i < t->fxs.size(); i++) {
-    nEffect* fx = t->fxs.at(i);
+    Effect* fx = t->fxs.at(i);
     float d = 1.5;
     fx->x += fx->sx;
     fx->y += fx->sy;
@@ -3313,7 +3313,7 @@ void update() {  // update
     float dy = (mouseY - mouseOY) / d;
     mouseOX += dx;
     mouseOY += dy;
-    nEffect* fx = t->fxs.at(draggedNode);
+    Effect* fx = t->fxs.at(draggedNode);
     Socket* output = fx->outputs.at(draggedSocket);
     float xa = output->parent->x + output->parent->w;
     float ya = output->parent->y + output->y + 4;
@@ -3333,7 +3333,7 @@ void update() {  // update
     output->b->P3.y = output->py;
     float expand = 2;
     for (int i = 0; i < t->fxs.size(); i++) {
-      nEffect* fx2 = t->fxs.at(i);
+      Effect* fx2 = t->fxs.at(i);
       if (i != draggedNode) {
         for (int in = 0; in < fx2->inputs.size(); in++) {
           if (mouseX > fx2->x + nodeCX - 4 - expand &&
@@ -4331,12 +4331,12 @@ void renderGL() {
     model =
         glm::translate(model, glm::vec3(0, screenH * (screenScale - 1.0), 0.0));
     if (draggingSocket) {
-      nEffect* fx = t->fxs.at(draggedNode);
+      Effect* fx = t->fxs.at(draggedNode);
       Socket* out = fx->outputs.at(draggedSocket);
       renderBezier(out->b, bezierFill);
     }
     for (int i = 0; i < t->fxs.size(); i++) {
-      nEffect* fx = t->fxs.at(i);
+      Effect* fx = t->fxs.at(i);
       for (int in = 0; in < fx->inputs.size(); in++) {
         if (fx->inputs.at(in)->s != NULL) {
           if (fx->inputs.at(in)->infloop) {
@@ -4348,7 +4348,7 @@ void renderGL() {
       }
     }
     for (int i = 0; i < t->fxs.size(); i++) {
-      nEffect* fx = t->fxs.at(i);
+      Effect* fx = t->fxs.at(i);
       if (fx->x + fx->w + 4 + int(nodeCX) > barX &&
           fx->x - 4 + int(nodeCX) < screenW - barXRight &&
           fx->y + fx->h + 4 + int(nodeCY) > 0 &&
@@ -4422,7 +4422,7 @@ void renderGL() {
   if (view == 0) {
     int newEScrolli = newEScroll;
     for (int i = 0; i < newEffects.size(); i++) {
-      nEffect* fx = newEffects.at(i);
+      Effect* fx = newEffects.at(i);
       if (draggingFX && draggedLayer == -1 && i == newEffects.size() - 1) {
       } else {
         renderUI(0, collH * i - newEScrolli, barX - scrollW - 1, collH,
@@ -5348,7 +5348,7 @@ Parameter::Parameter(int ID, string name, float x, float y, float w, float h,
 }
 
 void Parameter::mouseDown(int mx, int my, int ex, int ey, int layer,
-                          nEffect* fx) {
+                          Effect* fx) {
   mx -= ex;
   my -= ey;
   if (ID == 0 || ID == 4) {
@@ -5624,7 +5624,7 @@ void Parameter::mouseDown(int mx, int my, int ex, int ey, int layer,
   }
 }
 
-void updateDrag(int layer, nEffect* fx, Parameter* param) {
+void updateDrag(int layer, Effect* fx, Parameter* param) {
   if (layer != -1) {
     Texture* t = texs.at(currentTexture);
     fx->undone = true;
@@ -5713,7 +5713,7 @@ void updateDrag(int layer, nEffect* fx, Parameter* param) {
 }
 
 void Parameter::mouseMove(int mx, int my, int ex, int ey, int layer,
-                          nEffect* fx) {
+                          Effect* fx) {
   mx -= ex;
   my -= ey;
   if (ID == 0 || ID == 4) {
@@ -5883,7 +5883,7 @@ void Parameter::mouseMove(int mx, int my, int ex, int ey, int layer,
 }
 
 void Parameter::mouseUp(int mx, int my, int ex, int ey, int layer,
-                        nEffect* fx) {
+                        Effect* fx) {
   mx -= ex;
   my -= ey;
   dragging = false;
@@ -6201,7 +6201,7 @@ int main(int argc, char* args[]) {
                 } else {
                   for (int n = texs.at(currentTexture)->fxs.size() - 1; n >= 0;
                        n--) {
-                    nEffect* fx = texs.at(currentTexture)->fxs.at(n);
+                    Effect* fx = texs.at(currentTexture)->fxs.at(n);
                     bool breaking = false;
                     bool noMove = false;
                     for (int in = 0; in < fx->inputs.size();
@@ -6275,7 +6275,7 @@ int main(int argc, char* args[]) {
                         saveUndo();
                         for (int n2 = texs.at(currentTexture)->fxs.size() - 1;
                              n2 >= 0; n2--) {
-                          nEffect* fx2 = texs.at(currentTexture)->fxs.at(n2);
+                          Effect* fx2 = texs.at(currentTexture)->fxs.at(n2);
                           for (int in = 0; in < fx2->inputs.size(); in++) {
                             if (fx2->inputs.at(in)->s != NULL &&
                                 fx2->inputs.at(in)->s->parent == fx) {
@@ -6305,7 +6305,7 @@ int main(int argc, char* args[]) {
                         noMove = true;
                         // duplicate Node
                         saveUndo();
-                        nEffect* d = new nEffect(fx->luafn, fx->fxname);
+                        Effect* d = new Effect(fx->luafn, fx->fxname);
                         d->x = fx->x + 8;
                         d->y = fx->y + 8;
                         for (int pa = 0; pa < d->params.size(); pa++) {
@@ -6445,7 +6445,7 @@ int main(int argc, char* args[]) {
             }
             if (y < barY) {
               for (int i = 0; i < newEffects.size(); i++) {
-                nEffect* fx = newEffects.at(i);
+                Effect* fx = newEffects.at(i);
                 if (x > 0 && x <= barX - 2 - 7 && y > collH * i - newEScroll &&
                     y <= collH * i - newEScroll + collH && y < barY) {
                   // new node
@@ -6465,7 +6465,7 @@ int main(int argc, char* args[]) {
                     }
                   } else {
                     texs.at(currentTexture)
-                        ->fxs.push_back(new nEffect(fx->luafn, fx->fxname));
+                        ->fxs.push_back(new Effect(fx->luafn, fx->fxname));
                   }
                   texs.at(currentTexture)->genTex();
                 }
@@ -6797,14 +6797,14 @@ int main(int argc, char* args[]) {
           Texture* t = texs.at(currentTexture);
           if (view == 0) {
             for (int n = texs.at(currentTexture)->fxs.size() - 1; n >= 0; n--) {
-              nEffect* fx = texs.at(currentTexture)->fxs.at(n);
+              Effect* fx = texs.at(currentTexture)->fxs.at(n);
               for (int p = 0; p < fx->params.size(); p++) {
                 Parameter* pa = fx->params.at(p);
                 pa->mouseUp(x, y, fx->x + nodeCX, fx->y + nodeCY, 0, fx);
               }
             }
             if (draggingSocket) {
-              nEffect* fx = t->fxs.at(draggedNode);
+              Effect* fx = t->fxs.at(draggedNode);
               Socket* s = fx->outputs.at(draggedSocket);
               if (s->snapped) {
                 s->s->s = s;
@@ -6840,7 +6840,7 @@ int main(int argc, char* args[]) {
         preview = NULL;
         bool ttSet = false;
         for (int i = 0; i < newEffects.size(); i++) {
-          nEffect* fx = newEffects.at(i);
+          Effect* fx = newEffects.at(i);
           int newEScrolli = newEScroll;
           if (x > 0 && x <= barX - 2 - 7 && y > collH * i - newEScroll &&
               y <= collH * i - newEScroll + collH && y < barY) {
@@ -6899,7 +6899,7 @@ int main(int argc, char* args[]) {
         }
         if (x > barX && x < screenW - barXRight) {
           for (int n = texs.at(currentTexture)->fxs.size() - 1; n >= 0; n--) {
-            nEffect* fx = texs.at(currentTexture)->fxs.at(n);
+            Effect* fx = texs.at(currentTexture)->fxs.at(n);
             bool breaking = false;
             if (x > fx->x + nodeCX && x < fx->x + fx->w + nodeCX &&
                 y > fx->y + nodeCY && y < fx->y + fx->h + nodeCY) {
@@ -7062,7 +7062,7 @@ int main(int argc, char* args[]) {
         }
 
         for (int n = texs.at(currentTexture)->fxs.size() - 1; n >= 0; n--) {
-          nEffect* fx = texs.at(currentTexture)->fxs.at(n);
+          Effect* fx = texs.at(currentTexture)->fxs.at(n);
           for (int p = 0; p < fx->params.size(); p++) {
             Parameter* pa = fx->params.at(p);
             pa->oldmX += ox;
