@@ -75,7 +75,6 @@ class Parameter {
   int ID;
   string tt;
   string name;
-  Layer* ref;
   Socket* s;
   vector<CPoint*> points;
   Parameter* p;
@@ -95,8 +94,6 @@ class Parameter {
   bool dragging2;
   float oldmX;
   float oldmY;
-  float initmX;
-  float initmY;
 };
 
 class Texture;
@@ -190,17 +187,11 @@ class nEffect {
 class Texture {
  public:
   ~Texture();
-  std::thread side;
   void genTex(bool first = true);
-  void sideUpdate();
-  bool loading;
   bool done;
   int doneTimer;
-  bool loaded;
   bool abort;
-  vector<float> texData;
   vector<nEffect*> fxs;
-  GLuint texture;
   string lastTexDir;
   string lastTexName;
 };
@@ -603,8 +594,6 @@ Parameter::~Parameter() {}
 
 Texture::~Texture() {}
 
-void Texture::sideUpdate() {}
-
 void nEffect::sideUpdate() {
   luaL_dofile(this->L, luafn.c_str());
   lua_settop(this->L, 0);
@@ -802,91 +791,6 @@ Color RGBtoHSV(float R, float G, float B) {
 
   Color hsv = Color(H, S, V);
   return hsv;
-}
-
-Color RGBtoYUV(float R, float G, float B) {
-  float Y = ((0.299 * R + 0.587 * G + 0.114 * B) * 219 / 255) + 16;
-  float U = ((-0.299 * R - 0.587 * G + 0.886 * B) * 224 / 1.772 / 255) + 128;
-  float V = ((0.701 * R - 0.587 * G - 0.114 * B) * 224 / 1.402 / 255) + 128;
-  Color yuv = Color(Y, U, V);
-  return yuv;
-}
-
-Color RGBtoLAB(float R, float G,
-               float B) {  // when procedural palettes were a thing
-  float var_R = R / 255.0;
-  float var_G = G / 255.0;
-  float var_B = B / 255.0;
-
-  if (var_R > 0.04045) {
-    var_R = pow((var_R + 0.055) / 1.055, 2.4);
-  } else {
-    var_R = var_R / 12.92;
-  }
-  if (var_G > 0.04045) {
-    var_G = pow((var_G + 0.055) / 1.055, 2.4);
-  } else {
-    var_G = var_G / 12.92;
-  }
-  if (var_B > 0.04045) {
-    var_B = pow((var_B + 0.055) / 1.055, 2.4);
-  } else {
-    var_B = var_B / 12.92;
-  }
-  var_R = var_R * 100;
-  var_G = var_G * 100;
-  var_B = var_B * 100;
-
-  float X = var_R * 0.4124 + var_G * 0.3576 + var_B * 0.1805;
-  float Y = var_R * 0.2126 + var_G * 0.7152 + var_B * 0.0722;
-  float Z = var_R * 0.0193 + var_G * 0.1192 + var_B * 0.9505;
-
-  float var_X = X / 95.047;
-  float var_Y = Y / 100.000;
-  float var_Z = Z / 108.883;
-
-  if (var_X > 0.008856) {
-    var_X = pow(var_X, 1 / 3.0);
-  } else {
-    var_X = (7.787 * var_X) + (16 / 116.0);
-  }
-  if (var_Y > 0.008856) {
-    var_Y = pow(var_Y, 1 / 3.0);
-  } else {
-    var_Y = (7.787 * var_Y) + (16 / 116.0);
-  }
-  if (var_Z > 0.008856) {
-    var_Z = pow(var_Z, 1 / 3.0);
-  } else {
-    var_Z = (7.787 * var_Z) + (16 / 116.0);
-  }
-
-  float L1 = (116 * var_Y) - 16;
-  float A1 = 500 * (var_X - var_Y);
-  float B1 = 200 * (var_Y - var_Z);
-
-  /*cout << R << " " << G << " " << B << endl;
-  cout << L1 << " " << A1 << " " << B1 << endl;
-  cout << endl;*/
-  Color lab = Color(L1, A1, B1);
-  return lab;
-}
-
-double compareLAB(Color lab1, Color lab2) {
-  double dx = lab2.r - lab1.r;
-  double dy = lab2.g - lab1.g;
-  double dz = lab2.b - lab1.b;
-  double l = sqrt(dx * dx + dy * dy + dz * dz);
-  return l;
-}
-
-double compareYUV(Color lab1, Color lab2) {
-  double dx = lab2.r - lab1.r;
-  dx = 0;
-  double dy = lab2.g - lab1.g;
-  double dz = lab2.b - lab1.b;
-  double l = sqrt(dx * dx + dy * dy + dz * dz);
-  return l;
 }
 
 Color* getPalColor(float H, float S, float V) {
@@ -1117,13 +1021,6 @@ void loadPalette() {
     colorParams.at(5)->value = hsv.g;
     colorParams.at(6)->value = hsv.b;
     paletteChanged();
-  }
-}
-
-void report_errors(lua_State* L, int status) {  // lua debugging
-  if (status != 0) {
-    std::cerr << "-- " << lua_tostring(L, -1) << std::endl;
-    lua_pop(L, 1);  // remove error message
   }
 }
 
@@ -5413,7 +5310,6 @@ void Parameter::render(int ex, int ey) {  // renderparam
 Parameter::Parameter(int ID, string name, float x, float y, float w, float h,
                      int value, int value2, int value3, string tt) {
   this->index = 0;
-  this->ref = NULL;
   this->s = NULL;
   this->ID = ID;
   this->name = name;
@@ -5724,8 +5620,6 @@ void Parameter::mouseDown(int mx, int my, int ex, int ey, int layer,
       draggingParam = true;
       oldmX = mx;
       oldmY = my;
-      initmX = mx;
-      initmY = my;
     }
   }
 }
