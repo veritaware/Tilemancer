@@ -1,5 +1,10 @@
 .idea/*
 
+dist/tilemancer
+dist/tilemancer.exe
+dist/tilemancer-debug
+dist/tilemancer-debug.exe
+
 *.slo
 *.lo
 *.o
