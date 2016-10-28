@@ -18,92 +18,10 @@
 
 */
 
-#define _USE_MATH_DEFINES
-
-enum { Windows = 0x1, Apple = 0x2, Linux = 0x4, Unix = Apple | Linux };
-
-#ifdef _WIN32
-#define GLEW_STATIC
-#include <GL\glew.h>
-#include <SDL.h>
-#include <SDL_image.h>
-#include <SDL_mixer.h>
-#include <SDL_ttf.h>
-#include <Shlobj.h>
-#include <gl\glu.h>
-#include <windows.h>
-#include "mingw.mutex.h"
-#include "mingw.thread.h"
-#include "minizip/unzip.h"
-#define SDL_GetGlobalMouseState SDL_GetMouseState
-#define glGenFramebuffers glGenFramebuffersEXT
-#define glBindFramebuffer glBindFramebufferEXT
-#define glFramebufferTexture2D glFramebufferTexture2DEXT
-#define GL_FRAMEBUFFER GL_FRAMEBUFFER_EXT
-#define GL_COLOR_ATTACHMENT0 GL_COLOR_ATTACHMENT0_EXT
-#define GL_COLOR_ATTACHMENT1 GL_COLOR_ATTACHMENT1_EXT
-#define GL_COLOR_ATTACHMENT2 GL_COLOR_ATTACHMENT2_EXT
-#define GL_COLOR_ATTACHMENT3 GL_COLOR_ATTACHMENT3_EXT
-const char* light_vertex_shader_source = (char*)"#version 130\nin vec4 position; uniform int frame; uniform vec2 frameSize; uniform vec2 off; uniform vec2 texSize; uniform mat4 model; uniform mat4 proj; in vec2 t; out vec2 txc; void main() { gl_Position = (proj*model) * position; int tx = int(mod(frame, 5)); int ty = frame/5; txc = vec2(((t.x+tx)*frameSize.x+off.x)/texSize.x, ((t.y+ty)*frameSize.y+off.y)/texSize.y); }";
-const char* light_fragment_shader_source = (char*)"#version 130\nout vec4 fragColor; uniform vec3 color; uniform vec3 color2; in vec2 txc; void main() { fragColor = vec4(color*(1.0-txc.x)+color2*txc.x, 1.0); }";
-
-const char* blur_vertex_shader_source = (char*)"#version 130\nin vec4 position; uniform int frame; uniform vec2 frameSize; uniform vec2 texSize; uniform mat4 model; uniform mat4 proj; in vec2 t; out vec2 txc; void main() { gl_Position = (proj*model) * position; int tx = int(mod(frame, 5)); int ty = frame/5; txc = vec2((t.x+tx)*frameSize.x/texSize.x, (t.y+ty)*frameSize.y/texSize.y); }";
-const char* blur_fragment_shader_source = (char*)"#version 130\n#define M_PI 3.1415926535897932384626433832795\nout vec4 fragColor; in vec2 txc; uniform sampler2D tex; uniform vec2 texSize; uniform float v; uniform bool tri; uniform bool full; void main() { float a = 0.0; vec2 dist = vec2(0.5, 0.5)-txc; a = ((length(dist)>0.5) ? 0.0 : 1.0); a = ((length(dist)<0.4) ? 0.0 : a); a = (tri ? 1.0 : a); float H = atan(dist.y, dist.x)/M_PI*180.0+180.0; H = (H==360 ? 0.0 : H); H = (tri ? v : H); float S = (tri ? txc.x/txc.y : 1.0); float V = (tri ? txc.y : 1.0); float C = V*S; float X = C*(1.0-abs(mod(H/60.0, 2)-1.0)); float m = V-C; vec3 rgb = vec3(0.0, 0.0, 0.0); if(0 <= H && H < 60) { rgb = vec3(C, X, 0.0); } else if(60 <= H && H < 120) { rgb = vec3(X, C, 0.0); } else if(120 <= H && H < 180) { rgb = vec3(0.0, C, X); } else if(180 <= H && H < 240) { rgb = vec3(0.0, X, C); } else if(240 <= H && H < 300) { rgb = vec3(X, 0.0, C); } else if(300 <= H && H < 360) { rgb = vec3(C, 0.0, X); } rgb = rgb+m; float d = 10.0; vec3 finalColor = vec3(0.0, 0.0, 0.0); for(int x = 0; x < texSize.x; x++) { for(int y = 0; y < texSize.y; y++) { vec3 color = vec3(texture2D(tex, vec2(x/texSize.x, y/texSize.y))); vec3 dist = rgb-color; float d2 = length(dist); if(d2 < d) { d = d2; finalColor = color; } } } if(full) { finalColor = rgb; }  fragColor = vec4(finalColor, a); }";
-
-const char* transition_vertex_shader_source = (char*)"#version 130\nin vec4 position; uniform int frame; uniform vec2 frameSize; uniform vec2 texSize; uniform mat4 model; uniform mat4 proj; uniform float tSize; uniform float aspect; uniform vec2 count; uniform int on; uniform vec2 resolution; uniform vec2 ij; uniform float time; in vec2 t; out vec2 txc; void main() { vec2 totalSize = vec2(tSize, tSize)*count; vec2 p = vec2(ij.x*(tSize-1.0)+tSize/2.0, ij.y*(tSize-1.0)+tSize/2.0)+(resolution-totalSize)/2.0; float dx = 5.0; float dy = 5.0/aspect; float sizeX = 1.0-((count.x-ij.x)*(1.0-on)+ij.x*on+dx-time)/dx; float sizeY = 1.0-((count.y-ij.y)*(1.0-on)+ij.y*on+dy-time/aspect)/dy; float size = clamp(sizeX/2.0+sizeY/2.0, 0.0, 1.0); gl_Position = (proj*model) * vec4((position.xy-0.5)*vec2(tSize, tSize)*size+p, position.zw); txc = t; }";
-const char* transition_fragment_shader_source = (char*)"#version 130\nlayout(location = 0) out vec4 fragColor; uniform sampler2D tex; in vec2 txc; void main() { fragColor = texture2D(tex, txc); }";
-
-const char* my_vertex_shader_source = (char*)"#version 130\nin vec4 position; uniform int frame; uniform vec2 frameSize; uniform vec2 off; uniform vec2 texSize; uniform mat4 model; uniform mat4 proj; in vec2 t; out vec2 txc; void main() { gl_Position = (proj*model) * position; int tx = int(mod(frame, 5)); int ty = frame/5; txc = vec2(((t.x+tx)*frameSize.x+off.x)/texSize.x, ((t.y+ty)*frameSize.y+off.y)/texSize.y); }";
-const char* my_fragment_shader_source = (char*)"#version 130\n uniform sampler2D tex; in vec2 txc; out vec4 fragColor; uniform float alpha; void main() { fragColor = vec4(texture2D(tex, txc).xyz, texture2D(tex, txc).w*alpha); }";
-int OS = Windows;
-#elif defined(__APPLE__)
-#include <OpenGL/gl3.h>
-#include <SDL2/SDL.h>
-#include <SDL2_image/SDL_image.h>
-#include <SDL2_mixer/SDL_mixer.h>
-#include <SDL2_ttf/SDL_ttf.h>
-#include <mach-o/dyld.h>
-#include <pwd.h>
-#include <future>
-#include "CoreFoundation/CFBundle.h"
-const char* light_vertex_shader_source = (char*)"#version 330\nin vec4 position; uniform int frame; uniform vec2 frameSize; uniform vec2 off; uniform vec2 texSize; uniform mat4 model; uniform mat4 proj; in vec2 t; out vec2 txc; void main() { gl_Position = (proj*model) * position; int tx = frame%5; int ty = frame/5; txc = vec2(((t.x+tx)*frameSize.x+off.x)/texSize.x, ((t.y+ty)*frameSize.y+off.y)/texSize.y); }";
-const char* light_fragment_shader_source = (char*)"#version 330\nlayout(location = 0) out vec4 fragColor; uniform vec3 color; uniform vec3 color2; in vec2 txc; void main() { fragColor = vec4(color*(1.0-txc.x)+color2*txc.x, 1.0); }";
-
-const char* blur_vertex_shader_source = (char*)"#version 330\nin vec4 position; uniform int frame; uniform vec2 frameSize; uniform vec2 texSize; uniform mat4 model; uniform mat4 proj; in vec2 t; out vec2 txc; void main() { gl_Position = (proj*model) * position; int tx = frame%5; int ty = frame/5; txc = vec2((t.x+tx)*frameSize.x/texSize.x, (t.y+ty)*frameSize.y/texSize.y); }";
-const char* blur_fragment_shader_source = (char*)"#version 330\n#define M_PI 3.1415926535897932384626433832795\nlayout(location = 0) out vec4 fragColor; in vec2 txc; uniform sampler2D tex; uniform vec2 texSize; uniform float v; uniform bool tri; uniform bool full; void main() { float a = 0.0; vec2 dist = vec2(0.5, 0.5)-txc; a = ((length(dist)>0.5) ? 0.0 : 1.0); a = ((length(dist)<0.4) ? 0.0 : a); a = (tri ? 1.0 : a); float H = atan(dist.y, dist.x)/M_PI*180.0+180.0; H = (H==360 ? 0.0 : H); H = (tri ? v : H); float S = (tri ? txc.x/txc.y : 1.0); float V = (tri ? txc.y : 1.0); float C = V*S; float X = C*(1.0-abs(mod(H/60.0, 2)-1.0)); float m = V-C; vec3 rgb = vec3(0.0, 0.0, 0.0); if(0 <= H && H < 60) { rgb = vec3(C, X, 0.0); } else if(60 <= H && H < 120) { rgb = vec3(X, C, 0.0); } else if(120 <= H && H < 180) { rgb = vec3(0.0, C, X); } else if(180 <= H && H < 240) { rgb = vec3(0.0, X, C); } else if(240 <= H && H < 300) { rgb = vec3(X, 0.0, C); } else if(300 <= H && H < 360) { rgb = vec3(C, 0.0, X); } rgb = rgb+m; float d = 10.0; vec3 finalColor = vec3(0.0, 0.0, 0.0); for(int x = 0; x < texSize.x; x++) { for(int y = 0; y < texSize.y; y++) { vec3 color = vec3(texture(tex, vec2(x/texSize.x, y/texSize.y))); vec3 dist = rgb-color; float d2 = length(dist); if(d2 < d) { d = d2; finalColor = color; } } } if(full) { finalColor = rgb; }  fragColor = vec4(finalColor, a); }";
-
-const char* transition_vertex_shader_source = (char*)"#version 330\nin vec4 position; uniform int frame; uniform vec2 frameSize; uniform vec2 texSize; uniform mat4 model; uniform mat4 proj; in vec2 t; out vec2 txc; void main() { gl_Position = (proj*model) * position; int tx = frame%5; int ty = frame/5; txc = vec2((t.x+tx)*frameSize.x/texSize.x, (t.y+ty)*frameSize.y/texSize.y); }";
-const char* transition_fragment_shader_source = (char*)"#version 330\nlayout(location = 0) out vec4 fragColor; uniform float rot; uniform vec2 texSize; uniform sampler2D tex; uniform sampler2D texP; in vec2 txc; void main() { vec3 off = vec3(-1.0/texSize.x, 0.0, 1.0/texSize.x); vec2 size = vec2(2.0, 0.0); float s11 = texture(tex, txc).x; float s01 = texture(tex, txc+off.xy).x; float s21 = texture(tex, txc+off.zy).x; float s10 = texture(tex, txc+off.yx).x; float s12 = texture(tex, txc+off.yz).x; vec3 va = normalize(vec3(size.xy,s21-s01)); vec3 vb = normalize(vec3(size.yx,s12-s10)); vec3 bump = vec3(cross(va,vb)); vec3 light = vec3(sin(rot), -cos(rot), 0.3); float d = max(0.0, dot(normalize(light), bump)); vec2 ptxc = vec2(d, 0.0); vec3 colorFinal = vec3(texture(texP, ptxc)); fragColor = vec4(colorFinal, 1.0)";
-
-const char* my_vertex_shader_source = (char*)"#version 330\nin vec4 position; uniform int frame; uniform vec2 frameSize; uniform vec2 off; uniform vec2 texSize; uniform mat4 model; uniform mat4 proj; in vec2 t; out vec2 txc; void main() { gl_Position = (proj*model) * position; int tx = frame%5; int ty = frame/5; txc = vec2(((t.x+tx)*frameSize.x+off.x)/texSize.x, ((t.y+ty)*frameSize.y+off.y)/texSize.y); }";
-const char* my_fragment_shader_source = (char*)"#version 330\nlayout(location = 0) out vec4 fragColor; layout(location = 1) out vec4 fragColorN; layout(location = 2) out vec4 fragColorMisc; layout(location = 3) out vec4 fragColorB; uniform vec2 flip; uniform sampler2D tex; uniform float strength; uniform float alpha; uniform float depth; uniform sampler2D texN; in vec2 txc; void main() { fragColor = vec4(texture(tex, txc).xyz/texture(tex, txc).w, texture(tex, txc).w*alpha); }";
-CFBundleRef mainBundle;
-int OS = Apple;
-#elif defined(__linux__)
-int OS = Linux;
-#define GL_GLEXT_PROTOTYPES
-#include <GL/gl.h>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
-#include <pwd.h>
-#include <future>
-
-const char* light_vertex_shader_source = (char*)"#version 330\nin vec4 position; uniform int frame; uniform vec2 frameSize; uniform vec2 off; uniform vec2 texSize; uniform mat4 model; uniform mat4 proj; in vec2 t; out vec2 txc; void main() { gl_Position = (proj*model) * position; int tx = frame%5; int ty = frame/5; txc = vec2(((t.x+tx)*frameSize.x+off.x)/texSize.x, ((t.y+ty)*frameSize.y+off.y)/texSize.y); }";
-const char* light_fragment_shader_source = (char*)"#version 330\nlayout(location = 0) out vec4 fragColor; uniform vec3 color; uniform vec3 color2; in vec2 txc; void main() { fragColor = vec4(color*(1.0-txc.x)+color2*txc.x, 1.0); }";
-
-const char* blur_vertex_shader_source = (char*)"#version 330\nin vec4 position; uniform int frame; uniform vec2 frameSize; uniform vec2 texSize; uniform mat4 model; uniform mat4 proj; in vec2 t; out vec2 txc; void main() { gl_Position = (proj*model) * position; int tx = frame%5; int ty = frame/5; txc = vec2((t.x+tx)*frameSize.x/texSize.x, (t.y+ty)*frameSize.y/texSize.y); }";
-const char* blur_fragment_shader_source = (char*)"#version 330\n#define M_PI 3.1415926535897932384626433832795\nlayout(location = 0) out vec4 fragColor; in vec2 txc; uniform sampler2D tex; uniform vec2 texSize; uniform float v; uniform bool tri; uniform bool full; void main() { float a = 0.0; vec2 dist = vec2(0.5, 0.5)-txc; a = ((length(dist)>0.5) ? 0.0 : 1.0); a = ((length(dist)<0.4) ? 0.0 : a); a = (tri ? 1.0 : a); float H = atan(dist.y, dist.x)/M_PI*180.0+180.0; H = (H==360 ? 0.0 : H); H = (tri ? v : H); float S = (tri ? txc.x/txc.y : 1.0); float V = (tri ? txc.y : 1.0); float C = V*S; float X = C*(1.0-abs(mod(H/60.0, 2)-1.0)); float m = V-C; vec3 rgb = vec3(0.0, 0.0, 0.0); if(0 <= H && H < 60) { rgb = vec3(C, X, 0.0); } else if(60 <= H && H < 120) { rgb = vec3(X, C, 0.0); } else if(120 <= H && H < 180) { rgb = vec3(0.0, C, X); } else if(180 <= H && H < 240) { rgb = vec3(0.0, X, C); } else if(240 <= H && H < 300) { rgb = vec3(X, 0.0, C); } else if(300 <= H && H < 360) { rgb = vec3(C, 0.0, X); } rgb = rgb+m; float d = 10.0; vec3 finalColor = vec3(0.0, 0.0, 0.0); for(int x = 0; x < texSize.x; x++) { for(int y = 0; y < texSize.y; y++) { vec3 color = vec3(texture(tex, vec2(x/texSize.x, y/texSize.y))); vec3 dist = rgb-color; float d2 = length(dist); if(d2 < d) { d = d2; finalColor = color; } } } if(full) { finalColor = rgb; }  fragColor = vec4(finalColor, a); }";
-
-const char* transition_vertex_shader_source = (char*)"#version 330\nin vec4 position; uniform int frame; uniform vec2 frameSize; uniform vec2 texSize; uniform mat4 model; uniform mat4 proj; in vec2 t; out vec2 txc; void main() { gl_Position = (proj*model) * position; int tx = frame%5; int ty = frame/5; txc = vec2((t.x+tx)*frameSize.x/texSize.x, (t.y+ty)*frameSize.y/texSize.y); }";
-const char* transition_fragment_shader_source = (char*)"#version 330\nlayout(location = 0) out vec4 fragColor; uniform float rot; uniform vec2 texSize; uniform sampler2D tex; uniform sampler2D texP; in vec2 txc; void main() { vec3 off = vec3(-1.0/texSize.x, 0.0, 1.0/texSize.x); vec2 size = vec2(2.0, 0.0); float s11 = texture(tex, txc).x; float s01 = texture(tex, txc+off.xy).x; float s21 = texture(tex, txc+off.zy).x; float s10 = texture(tex, txc+off.yx).x; float s12 = texture(tex, txc+off.yz).x; vec3 va = normalize(vec3(size.xy,s21-s01)); vec3 vb = normalize(vec3(size.yx,s12-s10)); vec3 bump = vec3(cross(va,vb)); vec3 light = vec3(sin(rot), -cos(rot), 0.3); float d = max(0.0, dot(normalize(light), bump)); vec2 ptxc = vec2(d, 0.0); vec3 colorFinal = vec3(texture(texP, ptxc)); fragColor = vec4(colorFinal, 1.0)";
-
-const char* my_vertex_shader_source = (char*)"#version 330\nin vec4 position; uniform int frame; uniform vec2 frameSize; uniform vec2 off; uniform vec2 texSize; uniform mat4 model; uniform mat4 proj; in vec2 t; out vec2 txc; void main() { gl_Position = (proj*model) * position; int tx = frame%5; int ty = frame/5; txc = vec2(((t.x+tx)*frameSize.x+off.x)/texSize.x, ((t.y+ty)*frameSize.y+off.y)/texSize.y); }";
-const char* my_fragment_shader_source = (char*)"#version 330\nlayout(location = 0) out vec4 fragColor; layout(location = 1) out vec4 fragColorN; layout(location = 2) out vec4 fragColorMisc; layout(location = 3) out vec4 fragColorB; uniform vec2 flip; uniform sampler2D tex; uniform float strength; uniform float alpha; uniform float depth; uniform sampler2D texN; in vec2 txc; void main() { fragColor = vec4(texture(tex, txc).xyz/texture(tex, txc).w, texture(tex, txc).w*alpha); }";
-#else
-int OS = -1;
-#endif
+#include "os.h"
 
 #include <dirent.h>
+#define _USE_MATH_DEFINES
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
