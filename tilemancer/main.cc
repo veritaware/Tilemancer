@@ -43,6 +43,7 @@
 
 #include "tilemancer/file.h"
 #include "tilemancer/bpoint.h"
+#include "tilemancer/bezier.h"
 
 using namespace std;
 
@@ -53,21 +54,6 @@ const int Vrevision = 1;
 SDL_Window* window = NULL;
 SDL_GLContext gContext = NULL;
 SDL_Renderer* gRenderer = NULL;
-
-class cBezier {
- public:
-  cBezier();
-  bPoint getTangent(float t);
-  bPoint getPoint(float t);
-  void create();
-  void update();
-  int d = 100;
-  GLuint bVbo;
-  bPoint P0;
-  bPoint P1;
-  bPoint P2;
-  bPoint P3;
-};
 
 class Layer;
 
@@ -145,7 +131,7 @@ class Socket {
   bool snapped;
   bool infloop;
   Socket* s;
-  cBezier* b;
+  Bezier* b;
   int index;
   float px;
   float py;
@@ -777,7 +763,7 @@ Socket::Socket() {
   index = 0;
   infloop = false;
   s = NULL;
-  b = new cBezier();
+  b = new Bezier();
   b->create();
 }
 
@@ -3391,69 +3377,6 @@ bool Color::equals(Color* c) {
   }
 }
 
-bPoint cBezier::getPoint(float t) {
-  float x = pow(1 - t, 3) * P0.x + 3 * pow(1 - t, 2) * t * P1.x +
-            3 * (1 - t) * pow(t, 2) * P2.x + pow(t, 3) * P3.x;
-  float y = pow(1 - t, 3) * P0.y + 3 * pow(1 - t, 2) * t * P1.y +
-            3 * (1 - t) * pow(t, 2) * P2.y + pow(t, 3) * P3.y;
-  return bPoint(x, y);
-}
-
-bPoint cBezier::getTangent(float t) {
-  float x = 3 * pow(1 - t, 2) * (P1.x - P0.x) +
-            6 * (1 - t) * t * (P2.x - P1.x) + 3 * pow(t, 2) * (P3.x - P2.x);
-  float y = 3 * pow(1 - t, 2) * (P1.y - P0.y) +
-            6 * (1 - t) * t * (P2.y - P1.y) + 3 * pow(t, 2) * (P3.y - P2.y);
-  float l = sqrt(x * x + y * y);
-  x /= l;
-  y /= l;
-  // cout << x << " " << y << endl;
-  return bPoint(x, y);
-}
-
-void cBezier::update() {
-  float segs = 1.0 / d;
-  vector<float> data;
-  for (int i = 0; i < d; i++) {
-    bPoint a = getPoint(i * segs);
-    bPoint b = getPoint((i + 1) * segs);
-    bPoint ta = getTangent(i * segs);
-    bPoint tb = getTangent((i + 1) * segs);
-    bPoint pa = bPoint(ta.y, -ta.x);
-    bPoint pb = bPoint(tb.y, -tb.x);
-    float w = 1;
-    data.push_back(a.x - pa.x * w);
-    data.push_back(a.y - pa.y * w);
-    data.push_back(0);
-    data.push_back(0);
-    data.push_back(b.x - pb.x * w);
-    data.push_back(b.y - pb.y * w);
-    data.push_back(0);
-    data.push_back(0);
-    data.push_back(b.x + pb.x * w);
-    data.push_back(b.y + pb.y * w);
-    data.push_back(0);
-    data.push_back(0);
-
-    data.push_back(a.x - pa.x * w);
-    data.push_back(a.y - pa.y * w);
-    data.push_back(0);
-    data.push_back(0);
-    data.push_back(b.x + pb.x * w);
-    data.push_back(b.y + pb.y * w);
-    data.push_back(0);
-    data.push_back(0);
-    data.push_back(a.x + pa.x * w);
-    data.push_back(a.y + pa.y * w);
-    data.push_back(0);
-    data.push_back(0);
-  }
-  glBindBuffer(GL_ARRAY_BUFFER, bVbo);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(float) * data.size(), &data[0],
-               GL_STATIC_DRAW);
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
-}
-
 void update() {  // update
   previewTimer++;
   blinkTimer++;
@@ -3870,7 +3793,7 @@ void renderColor(int x, int y, int w, int h, Color* c, int cutoff = -1,
   glUseProgram(0);
 }
 
-void renderBezier(cBezier* b, GLuint tex) {
+void renderBezier(Bezier* b, GLuint tex) {
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, tex);
   glm::mat4 currentMatrix = model;
@@ -5746,13 +5669,6 @@ void Parameter::render(int ex, int ey) {  // renderparam
   } else if (ID == 9) {
     renderIcon(ex + x, ey + y, 8, 8, iconImg13, 1);
   }
-}
-
-cBezier::cBezier() {}
-
-void cBezier::create() {
-  glGenBuffers(1, &bVbo);
-  update();
 }
 
 CPoint::CPoint() {}
