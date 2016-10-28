@@ -41,6 +41,8 @@
 #include "glm/gtx/transform.hpp"
 #include "lua.hpp"
 
+#include "tilemancer/file.h"
+
 using namespace std;
 
 const int Vmajor = 0;
@@ -50,14 +52,6 @@ const int Vrevision = 1;
 SDL_Window* window = NULL;
 SDL_GLContext gContext = NULL;
 SDL_Renderer* gRenderer = NULL;
-
-class File {
- public:
-  File(string n, bool f);
-  ~File();
-  string name;
-  bool folder;
-};
 
 class bPoint {
  public:
@@ -709,8 +703,6 @@ void saveUndo();
 Parameter::~Parameter() {}
 
 Color::~Color() {}
-
-File::~File() {}
 
 Texture::~Texture() {}
 
@@ -2266,11 +2258,6 @@ void initGL() {
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
   proj = glm::ortho(0.0, (double)screenW * screenScale,
                     (double)screenH * screenScale, 0.0, -1.0, 1.0);
-}
-
-File::File(string n, bool f) {
-  name = n;
-  folder = f;
 }
 
 vector<string>& split(const string& s, char delim, vector<string>& elems) {
