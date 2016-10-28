@@ -691,7 +691,7 @@ GLuint loadTexture(string path) {
 
 GLuint loadTexture2(string path) {
   cout << "Loading texture2 " << path << endl;
-  return NULL;
+  return 0;
 }
 #else
 #endif
