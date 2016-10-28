@@ -45,6 +45,7 @@
 #include "tilemancer/bpoint.h"
 #include "tilemancer/bezier.h"
 #include "tilemancer/color.h"
+#include "tilemancer/cpoint.h"
 
 using namespace std;
 
@@ -57,8 +58,6 @@ SDL_GLContext gContext = NULL;
 SDL_Renderer* gRenderer = NULL;
 
 class Layer;
-
-class CPoint;
 
 class Socket;
 
@@ -98,16 +97,6 @@ class Parameter {
   float oldmY;
   float initmX;
   float initmY;
-};
-
-class CPoint {
- public:
-  CPoint();
-  float r;
-  float g;
-  float b;
-  int i;
-  float a;
 };
 
 class Texture;
@@ -5641,8 +5630,6 @@ void Parameter::render(int ex, int ey) {  // renderparam
     renderIcon(ex + x, ey + y, 8, 8, iconImg13, 1);
   }
 }
-
-CPoint::CPoint() {}
 
 Parameter::Parameter(int ID, string name, float x, float y, float w, float h,
                      int value, int value2, int value3, string tt) {
