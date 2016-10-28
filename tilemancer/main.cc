@@ -214,14 +214,10 @@ static int fpsTimer;
 
 static float texSizeX;
 static float texSizeY;
-static float texType;
-static float pixelSize;
 static int screenW;
 static int screenH;
 static int displayW;
 static int displayH;
-static int screenPW;
-static int screenPH;
 static float camX;
 static float camY;
 static float nodeCSX;
@@ -236,27 +232,17 @@ static float camOffsetSpeed;
 static float camOffsetMagnitude;
 static bool camPositive;
 static float camRot;
-static bool camFixed;
 static int camXFinal;
 static int camYFinal;
-// static int selectedTile = 32;
 static int zoom = 1;
-static int zoomA = 1;
-static float tilesW;
-static float tilesH;
-static bool draggingLayer;
 static int draggedLayer;
-static int draggedFX;
 static bool draggingNode;
 static int draggedNode;
 static bool draggingSocket;
-static bool cancelDrag;
 static int draggedSocket;
-static int targetDrag;
 static float screenScale = 2.0;
 static int logoTimer;
 static int logoTimerMax = 150;
-static bool logoType;
 static string toolTip;
 static string errorMessage;
 static int errorTimer;
@@ -273,13 +259,10 @@ static Parameter* textTypeTemp;
 static nEffect* textTypeFxTemp;
 static int textTypeLayerTemp;
 static int blinkTimer;
-static bool RoC = true;
 static vector<Texture*> texs;
 static vector<nEffect*> newEffects;
 static int collH = 18;
 static int expH = 92;
-static int expandedLayer;
-static bool layerExpanded;
 static int currentTexture;
 static Socket* currentSocket;
 static float barX;
@@ -297,12 +280,9 @@ static float newEScroll;
 static float layersScrollH;
 static bool scrollDir;
 static bool scrollSet;
-static float prevLayersScroll;
 static float browserScroll;
-static int selectedFX;
 static bool draggingParam;
 static bool draggingFX;
-static bool draggingNew;
 static bool draggingUI;
 static bool draggingSBar;
 static int sBarDrag;
@@ -350,25 +330,16 @@ static GLuint effectImg3;
 static GLuint effectImg4;
 static GLuint effectImg5;
 static GLuint effectImg6;
-static GLuint effectImg7;
 static GLuint effectImg8;
-static GLuint effectImg9;
 static GLuint effectImg10;
 static GLuint effectImg11;
-static GLuint effectImg12;
-static GLuint effectImg13;
 static GLuint effectImg14;
 static GLuint effectImg15;
 static GLuint effectImg16;
-static GLuint effectImg17;
 static GLuint bezierFill;
 static GLuint bezierFillError;
-static GLuint iconImg0;
-static GLuint iconImg1;
 static GLuint iconImg2;
 static GLuint iconImg3;
-static GLuint iconImg4;
-static GLuint iconImg5;
 static GLuint iconImg6;
 static GLuint iconImg7;
 static GLuint iconImg8;
@@ -379,11 +350,8 @@ static GLuint iconImg12;
 static GLuint iconImg13;
 static GLuint palImg;
 static GLuint palImgReal;
-static GLuint postImg;
-static GLuint texImgFinal;
 static GLuint fontImg;
 static GLuint fontImg2;
-static GLuint fontImg3;
 
 static GLenum my_program;
 static GLenum my_vertex_shader;
@@ -407,15 +375,6 @@ static GLuint screenTexN;
 static GLuint screenTexB;
 static GLuint screenTexMisc;
 
-static GLuint screenFboFinal;
-static GLuint screenTexFinal;
-
-static GLuint screenFboBloom;
-static GLuint screenTexBloom;
-
-static GLuint screenFboBloom2;
-static GLuint screenTexBloom2;
-
 static GLuint screenFboFinal2;
 static GLuint screenTexFinal2;
 
@@ -423,19 +382,9 @@ static GLuint vbo;
 static GLuint vboTri;
 static GLuint vao;
 
-static GLuint lightTex;
-static GLuint foregroundTex;
-static GLuint hiddenImg;
-static GLuint hidden2Img;
 static GLuint digitsImg;
-static GLuint brightnessImg;
-static GLuint ditherTex;
 static GLuint noTex;
-static GLuint vignetteImg;
 static GLuint logoImage;
-static GLuint titleImage;
-static GLuint thanksImage;
-static GLuint flashImg;
 
 static GLint mp_tex;
 static GLint mp_texN;
@@ -453,13 +402,6 @@ static lua_State* L;
 
 static glm::mat4 model = glm::mat4(1.0);
 static glm::mat4 proj = glm::mat4(1.0);
-
-void renderSprite2(int frame, float x, float y, float w, float h, GLuint tex,
-                   float frameW, float frameH, float rot, float centerX,
-                   float centerY, float alpha, GLuint texN, float depth,
-                   float strength, bool flipX, bool flipY, float offX = 0,
-                   float offY = 0, int cutoff = -1, int cutoff2 = -1,
-                   int cutoff3 = -1, int cutoff4 = -1);
 
 void renderSprite(int frame, float x, float y, float w, float h, GLuint tex,
                   float frameW, float frameH, float rot, float centerX,
@@ -945,30 +887,6 @@ double compareYUV(Color lab1, Color lab2) {
   double dz = lab2.b - lab1.b;
   double l = sqrt(dx * dx + dy * dy + dz * dz);
   return l;
-}
-
-Color* getPalColorReal(float R, float G, float B) {
-  float dist = 36000.0;
-  Color* final = NULL;
-  Color lab1 = RGBtoLAB(R, G, B);
-  Color yuv1 = RGBtoYUV(R, G, B);
-  for (int i = 0; i < palette.size(); i++) {
-    Color* pal = palette.at(i);
-    Color lab2 = RGBtoLAB(pal->r, pal->g, pal->b);
-    Color yuv2 = RGBtoYUV(pal->r, pal->g, pal->b);
-    double l = compareLAB(lab1, lab2);
-    double l2 = compareYUV(yuv1, yuv2);
-    l2 = 0;
-    double lFinal = sqrt(l * l + l2 * l2);
-    if (lFinal < dist && !pal->disabled &&
-        (prevC == 0 || lFinal < (prevC / prevCount) + 10)) {
-      dist = lFinal;
-      final = pal;
-      prevC += lFinal;
-      prevCount++;
-    }
-  }
-  return final;
 }
 
 Color* getPalColor(float H, float S, float V) {
@@ -2076,14 +1994,9 @@ void getHome();
 void loadGen() {
   texSizeX = 32;
   texSizeY = texSizeX;
-  texType = 0;
 
   nodeCX = 0;
   nodeCY = 0;
-  /*palette.push_back(new Color(67, 44, 59));
-  palette.push_back(new Color(95, 59, 52));
-  palette.push_back(new Color(134, 87, 61));
-  palette.push_back(new Color(174, 121, 81));*/
 
   gridImg = loadTexture("resources/grid.png");
   effectImg = loadTexture("resources/effect0.png");
@@ -2092,25 +2005,16 @@ void loadGen() {
   effectImg4 = loadTexture("resources/effect3.png");
   effectImg5 = loadTexture("resources/effect4.png");
   effectImg6 = loadTexture("resources/effect5.png");
-  effectImg7 = loadTexture("resources/effect6.png");
   effectImg8 = loadTexture("resources/effect7.png");
-  effectImg9 = loadTexture("resources/effect8.png");
   effectImg10 = loadTexture("resources/effect9.png");
   effectImg11 = loadTexture("resources/effect10.png");
-  effectImg12 = loadTexture("resources/effect11.png");
-  effectImg13 = loadTexture("resources/effect12.png");
   effectImg14 = loadTexture("resources/effect13.png");
   effectImg15 = loadTexture("resources/effect14.png");
   effectImg16 = loadTexture("resources/effect15.png");
-  effectImg17 = loadTexture("resources/effect16.png");
   bezierFill = loadTexture("resources/bezierFill.png");
   bezierFillError = loadTexture("resources/bezierFillError.png");
-  iconImg0 = loadTexture("resources/icon0.png");
-  iconImg1 = loadTexture("resources/icon1.png");
   iconImg2 = loadTexture("resources/icon2.png");
   iconImg3 = loadTexture("resources/icon3.png");
-  iconImg4 = loadTexture("resources/icon5.png");
-  iconImg5 = loadTexture("resources/icon4.png");
   iconImg6 = loadTexture("resources/icon6.png");
   iconImg7 = loadTexture("resources/icon7.png");
   iconImg8 = loadTexture("resources/icon8.png");
@@ -2122,7 +2026,6 @@ void loadGen() {
   palImg = loadTexture("resources/pal.png");
   fontImg = loadTexture("resources/font.png");
   fontImg2 = loadTexture("resources/font2.png");
-  fontImg3 = loadTexture("resources/font3.png");
 
   glGenTextures(1, &screenTexFinal2);
   glBindTexture(GL_TEXTURE_2D, screenTexFinal2);
@@ -2146,7 +2049,6 @@ void loadGen() {
   getHome();
 
   currentTexture = 0;
-  expandedLayer = 0;
 
   Texture* t = new Texture();
   texs.push_back(t);
@@ -3092,9 +2994,6 @@ void LoadStuff() {
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
   logoImage = loadTexture("resources/logo.png");
-  titleImage = loadTexture("resources/title.png");
-  thanksImage = loadTexture("resources/thanks.png");
-  flashImg = loadTexture("resources/flash.png");
   camOffset = 1.0;
   camOffsetMagnitude = 1.2;
 
@@ -3275,8 +3174,6 @@ void resizeWindow(int w, int h) {
   float by = screenH - barY;
   screenW = w / float(screenScale);
   screenH = h / float(screenScale);
-  screenPW = pow(2, ceil(log(screenW) / log(2)));
-  screenPH = pow(2, ceil(log(screenH) / log(2)));
   barY = screenH - by;
   glViewport(0, 0, screenW * screenScale, screenH * screenScale);
   proj = glm::ortho(0.0, (double)screenW * screenScale,
@@ -3367,7 +3264,6 @@ void update() {  // update
   if (rotTimer >= 360) {
     rotTimer -= 360;
   }
-  zoomA = zoom;
   if (doubleClickTimer < 100) {
     doubleClickTimer++;
   }
@@ -5830,11 +5726,6 @@ void Parameter::mouseDown(int mx, int my, int ex, int ey, int layer,
       oldmY = my;
       initmX = mx;
       initmY = my;
-      if (name == "Rows") {
-        RoC = false;
-      } else if (name == "Cols") {
-        RoC = true;
-      }
     }
   }
 }
@@ -6202,10 +6093,6 @@ int main(int argc, char* args[]) {
     displayH = current.h;
     screenW = displayW / 2.4;
     screenH = displayH / 2.4;
-    screenPW = pow(2, ceil(log(screenW) / log(2)));
-    ;
-    screenPH = pow(2, ceil(log(screenH) / log(2)));
-    ;
 
     window = SDL_CreateWindow(
         "Tilemancer", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
@@ -7043,7 +6930,6 @@ int main(int argc, char* args[]) {
                                          barY3 + 2 + 12 - toolsScrolli, -1,
                                          NULL);
             }
-            draggingLayer = false;
             draggingFX = false;
             int h = -layersScroll;
           }
