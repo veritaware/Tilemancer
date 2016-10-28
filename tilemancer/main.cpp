@@ -90,8 +90,6 @@ enum {
     #include <GL/gl.h>
     #include <SDL2/SDL.h>
     #include <SDL2/SDL_image.h>
-    #include <SDL2/SDL_mixer.h>
-    #include <SDL2/SDL_ttf.h>
     #include <pwd.h>
     #include <future>
 
@@ -110,9 +108,9 @@ enum {
     int OS = -1;
 #endif
 
-#include "glm.hpp"
-#include "gtc/type_ptr.hpp"
-#include "gtx/transform.hpp"
+#include "glm/glm.hpp"
+#include "glm/gtc/type_ptr.hpp"
+#include "glm/gtx/transform.hpp"
 #include <dirent.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -348,7 +346,6 @@ static double lastTime;
 static double accumulator;
 static unsigned int fps;
 static int fpsTimer;
-static TTF_Font* font;
 
 static float texSizeX;
 static float texSizeY;
@@ -678,12 +675,13 @@ GLuint loadTexture(string path) {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
         //SDL_FreeSurface(ls);
     } else {
-        //cout << "Failed to load image: "+path << endl;
+        cout << "Failed to load image: "+path << endl;
     }
     return tex;
 }
 
 GLuint loadTexture2(string path) {
+  cout << "Loading texture2 " << path << endl;
     return NULL;
 }
 #else
@@ -2191,44 +2189,44 @@ void loadGen() {
     palette.push_back(new Color(134, 87, 61));
     palette.push_back(new Color(174, 121, 81));*/
 
-    gridImg = loadTexture("grid.png");
-    effectImg = loadTexture("effect0.png");
-    effectImg2 = loadTexture("effect1.png");
-    effectImg3 = loadTexture("effect2.png");
-    effectImg4 = loadTexture("effect3.png");
-    effectImg5 = loadTexture("effect4.png");
-    effectImg6 = loadTexture("effect5.png");
-    effectImg7 = loadTexture("effect6.png");
-    effectImg8 = loadTexture("effect7.png");
-    effectImg9 = loadTexture("effect8.png");
-    effectImg10 = loadTexture("effect9.png");
-    effectImg11 = loadTexture("effect10.png");
-    effectImg12 = loadTexture("effect11.png");
-    effectImg13 = loadTexture("effect12.png");
-    effectImg14 = loadTexture("effect13.png");
-    effectImg15 = loadTexture("effect14.png");
-    effectImg16 = loadTexture("effect15.png");
-    effectImg17 = loadTexture("effect16.png");
-    bezierFill = loadTexture("bezierFill.png");
-    bezierFillError = loadTexture("bezierFillError.png");
-    iconImg0 = loadTexture("icon0.png");
-    iconImg1 = loadTexture("icon1.png");
-    iconImg2 = loadTexture("icon2.png");
-    iconImg3 = loadTexture("icon3.png");
-    iconImg4 = loadTexture("icon5.png");
-    iconImg5 = loadTexture("icon4.png");
-    iconImg6 = loadTexture("icon6.png");
-    iconImg7 = loadTexture("icon7.png");
-    iconImg8 = loadTexture("icon8.png");
-    iconImg9 = loadTexture("icon9.png");
-    iconImg10 = loadTexture("icon10.png");
-    iconImg11 = loadTexture("icon11.png");
-    iconImg12 = loadTexture("icon12.png");
-    iconImg13 = loadTexture("icon13.png");
-    palImg = loadTexture("pal.png");
-    fontImg = loadTexture("font.png");
-    fontImg2 = loadTexture("font2.png");
-    fontImg3 = loadTexture("font3.png");
+    gridImg = loadTexture("resources/grid.png");
+    effectImg = loadTexture("resources/effect0.png");
+    effectImg2 = loadTexture("resources/effect1.png");
+    effectImg3 = loadTexture("resources/effect2.png");
+    effectImg4 = loadTexture("resources/effect3.png");
+    effectImg5 = loadTexture("resources/effect4.png");
+    effectImg6 = loadTexture("resources/effect5.png");
+    effectImg7 = loadTexture("resources/effect6.png");
+    effectImg8 = loadTexture("resources/effect7.png");
+    effectImg9 = loadTexture("resources/effect8.png");
+    effectImg10 = loadTexture("resources/effect9.png");
+    effectImg11 = loadTexture("resources/effect10.png");
+    effectImg12 = loadTexture("resources/effect11.png");
+    effectImg13 = loadTexture("resources/effect12.png");
+    effectImg14 = loadTexture("resources/effect13.png");
+    effectImg15 = loadTexture("resources/effect14.png");
+    effectImg16 = loadTexture("resources/effect15.png");
+    effectImg17 = loadTexture("resources/effect16.png");
+    bezierFill = loadTexture("resources/bezierFill.png");
+    bezierFillError = loadTexture("resources/bezierFillError.png");
+    iconImg0 = loadTexture("resources/icon0.png");
+    iconImg1 = loadTexture("resources/icon1.png");
+    iconImg2 = loadTexture("resources/icon2.png");
+    iconImg3 = loadTexture("resources/icon3.png");
+    iconImg4 = loadTexture("resources/icon5.png");
+    iconImg5 = loadTexture("resources/icon4.png");
+    iconImg6 = loadTexture("resources/icon6.png");
+    iconImg7 = loadTexture("resources/icon7.png");
+    iconImg8 = loadTexture("resources/icon8.png");
+    iconImg9 = loadTexture("resources/icon9.png");
+    iconImg10 = loadTexture("resources/icon10.png");
+    iconImg11 = loadTexture("resources/icon11.png");
+    iconImg12 = loadTexture("resources/icon12.png");
+    iconImg13 = loadTexture("resources/icon13.png");
+    palImg = loadTexture("resources/pal.png");
+    fontImg = loadTexture("resources/font.png");
+    fontImg2 = loadTexture("resources/font2.png");
+    fontImg3 = loadTexture("resources/font3.png");
 
     glGenTextures(1, &screenTexFinal2);
     glBindTexture(GL_TEXTURE_2D, screenTexFinal2);
@@ -2371,6 +2369,7 @@ void newFile() {
 }
 
 void loadStuff(string str, bool newFile) {
+  cout << "Loading stuff " << str << " " << newFile << endl;
     istringstream fin(str);
     if(fin.good()) {
         string line;
@@ -2984,7 +2983,6 @@ void browserAction(string dir, string subDir, string parent) {
 
 void LoadStuff() {
     srand(time(NULL));
-    font = TTF_OpenFont("KontrapunktLight.ttf", 50);
 
     light_program = glCreateProgram();
     light_vertex_shader = glCreateShader(GL_VERTEX_SHADER);
@@ -3146,10 +3144,10 @@ void LoadStuff() {
     glDrawBuffers(4, d);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    logoImage = loadTexture("logo.png");
-    titleImage = loadTexture("title.png");
-    thanksImage = loadTexture("thanks.png");
-    flashImg = loadTexture("flash.png");
+    logoImage = loadTexture("resources/logo.png");
+    titleImage = loadTexture("resources/title.png");
+    thanksImage = loadTexture("resources/thanks.png");
+    flashImg = loadTexture("resources/flash.png");
     camOffset = 1.0;
     camOffsetMagnitude = 1.2;
 
@@ -6190,10 +6188,10 @@ int main(int argc, char* args[]) {
 		    gContext = SDL_GL_CreateContext(window);
             cout << "Created OpenGL " << glGetString(GL_VERSION) << " context" << endl;
             initGL();
-            Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
-            TTF_Init();
             initGlew();
+            cout << "Loading stuff" << endl;
             LoadStuff();
+      cout << "Done loading stuff" << endl;
 		}
 	}
 	bool quit = false;
