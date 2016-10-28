@@ -44,6 +44,7 @@
 #include "tilemancer/file.h"
 #include "tilemancer/bpoint.h"
 #include "tilemancer/bezier.h"
+#include "tilemancer/color.h"
 
 using namespace std;
 
@@ -97,18 +98,6 @@ class Parameter {
   float oldmY;
   float initmX;
   float initmY;
-};
-
-class Color {
- public:
-  Color(int r, int g, int b);
-  ~Color();
-  bool equals(Color*);
-  int r;
-  int g;
-  int b;
-  int a;
-  bool disabled;
 };
 
 class CPoint {
@@ -680,8 +669,6 @@ Color getColor(vector<float>& data, int x, int y, bool wrap) {
 void saveUndo();
 
 Parameter::~Parameter() {}
-
-Color::~Color() {}
 
 Texture::~Texture() {}
 
@@ -3359,22 +3346,6 @@ void resizeWindow(int w, int h) {
   adjustBrowserScroll();
   adjustLayersScroll();
   adjustToolsScroll();
-}
-
-Color::Color(int r, int g, int b) {
-  this->r = r;
-  this->g = g;
-  this->b = b;
-  this->a = 255;
-  disabled = false;
-}
-
-bool Color::equals(Color* c) {
-  if (c->r == this->r && c->g == this->g && c->b == this->b) {
-    return true;
-  } else {
-    return false;
-  }
 }
 
 void update() {  // update
