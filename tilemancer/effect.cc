@@ -210,7 +210,7 @@ int Effect::setPixel(lua_State* L) {
     Socket* a = outputs.at((int)lua_tonumber(L, 1));
     Color b(lua_tonumber(L, 4) * 255, lua_tonumber(L, 5) * 255,
             lua_tonumber(L, 6) * 255);
-    ::setPixel(a->texData, (int)lua_tonumber(L, 2), (int)lua_tonumber(L, 3), &b,
+    ::setColor(a->texData, (int)lua_tonumber(L, 2), (int)lua_tonumber(L, 3), &b,
                true);
   }
   return 0;
@@ -274,7 +274,7 @@ int Effect::finalize(lua_State* L) {
       }
       int value = c.r * 99.0 / 255.0;
       Color a = getGrad(params.at(0), value);
-      ::setPixel(outputs.at(0)->texData, i, j, &a, true);
+      ::setColor(outputs.at(0)->texData, i, j, &a, true);
     }
   }
   return 0;

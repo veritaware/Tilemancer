@@ -25,7 +25,7 @@
 
 class Color;
 
-void setPixel(std::vector<float>& data, int x, int y, Color* color, bool wrap);
+void setColor(std::vector<float>& data, int x, int y, Color* color, bool wrap);
 Color getColor(std::vector<float>& data, int x, int y, bool wrap);
 
 #endif  // TILEMANCER_FLOATIMAGE_H

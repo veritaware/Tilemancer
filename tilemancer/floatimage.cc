@@ -22,7 +22,7 @@
 #include "tilemancer/color.h"
 #include "tilemancer/globals.h"
 
-void setPixel(std::vector<float>& data, int x, int y, Color* color, bool wrap) {
+void setColor(std::vector<float>& data, int x, int y, Color* color, bool wrap) {
   bool render = true;
   if (x >= texSizeX) {
     if (wrap) {
