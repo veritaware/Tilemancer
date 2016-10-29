@@ -47,7 +47,7 @@
 #include "tilemancer/cpoint.h"
 #include "tilemancer/drag.h"
 #include "tilemancer/effect.h"
-#include "tilemancer/file.h"
+#include "tilemancer/browserfile.h"
 #include "tilemancer/globals.h"
 #include "tilemancer/math.h"
 #include "tilemancer/palette.h"
@@ -232,7 +232,7 @@ void importFxs() {
   }
   DIR* dirr;
   struct dirent* ent;
-  vector<File*> temp;
+  vector<BrowserFile*> temp;
   if ((dirr = opendir(cwd2.c_str())) != NULL) {
     while ((ent = readdir(dirr)) != NULL) {
       if (ent->d_name[0] != '.') {
@@ -281,7 +281,7 @@ void importPresets() {
   }
   DIR* dirr;
   struct dirent* ent;
-  vector<File*> temp;
+  vector<BrowserFile*> temp;
   if ((dirr = opendir(cwd2.c_str())) != NULL) {
     while ((ent = readdir(dirr)) != NULL) {
       if (ent->d_name[0] != '.') {
@@ -685,7 +685,7 @@ void openBrowser(string dir, int type, int mode) {
 
   DIR* dirr;
   struct dirent* ent;
-  vector<File*> temp;
+  vector<BrowserFile*> temp;
   if ((dirr = opendir(currentDir.c_str())) != NULL) {
     while ((ent = readdir(dirr)) != NULL) {
       if (ent->d_name[0] != '.') {
@@ -694,7 +694,7 @@ void openBrowser(string dir, int type, int mode) {
         fullDir = fullDir.append(string(ent->d_name));
         struct stat path_stat;
         stat(fullDir.c_str(), &path_stat);
-        File* a = new File(string(ent->d_name), !S_ISREG(path_stat.st_mode));
+        BrowserFile* a = new BrowserFile(string(ent->d_name), !S_ISREG(path_stat.st_mode));
         if (a->folder) {
           filenames.push_back(a);
         } else {
@@ -801,7 +801,7 @@ void openBrowser(string dir, int type, int mode) {
   int num_entries;
   struct dirent** entries = NULL;
   num_entries = scandir(currentDir.c_str(), &entries, NULL, NULL);
-  vector<File*> temp;
+  vector<BrowserFile*> temp;
   for (int i = 0; i < num_entries; i++) {
     if (entries[i]->d_name[0] != '.') {
       string fullDir = currentDir;
@@ -809,8 +809,8 @@ void openBrowser(string dir, int type, int mode) {
       fullDir = fullDir.append(string(entries[i]->d_name));
       struct stat path_stat;
       stat(fullDir.c_str(), &path_stat);
-      File* a =
-          new File(string(entries[i]->d_name), !S_ISREG(path_stat.st_mode));
+      BrowserFile* a =
+          new BrowserFile(string(entries[i]->d_name), !S_ISREG(path_stat.st_mode));
       if (a->folder) {
         filenames.push_back(a);
       } else {

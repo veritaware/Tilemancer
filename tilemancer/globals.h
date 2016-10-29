@@ -34,7 +34,7 @@ struct lua_State;
 
 class Texture;
 class Effect;
-class File;
+class BrowserFile;
 class Parameter;
 class Socket;
 
@@ -149,7 +149,7 @@ extern std::string currentDir;
 extern std::string filenameB;
 extern bool browserOpen;
 extern int browserMode;
-extern std::vector<File*> filenames;
+extern std::vector<BrowserFile*> filenames;
 extern std::vector<std::string> fnUndo;
 extern std::vector<std::string> fnRedo;
 extern std::string lastPalDir;

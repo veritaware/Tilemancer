@@ -18,18 +18,8 @@
 
 */
 
-#ifndef TILEMANCER_FILE_H
-#define TILEMANCER_FILE_H
+#include "tilemancer/browserfile.h"
 
-#include <string>
+BrowserFile::BrowserFile(const std::string& n, bool f) : name(n), folder(f) {}
 
-class File {
- public:
-  File(const std::string& n, bool f);
-  ~File();
-
-  std::string name;
-  bool folder;
-};
-
-#endif  // TILEMANCER_FILE_H
+BrowserFile::~BrowserFile() {}

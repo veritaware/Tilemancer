@@ -127,7 +127,7 @@ std::string currentDir;
 std::string filenameB;
 bool browserOpen;
 int browserMode;
-std::vector<File*> filenames;
+std::vector<BrowserFile*> filenames;
 std::vector<std::string> fnUndo;
 std::vector<std::string> fnRedo;
 std::string lastPalDir;
