@@ -164,8 +164,6 @@ GLuint loadTexture2(string path) {
 #else
 #endif
 
-void saveUndo();
-
 void exportTexSingle(string dir) {
   SDL_Surface* surface =
       SDL_CreateRGBSurface(SDL_SWSURFACE, texSizeX, texSizeY, 32, 0x000000FF,
@@ -803,25 +801,7 @@ void openBrowser(string dir, int type, int mode) {
       if (a->folder) {
         filenames.push_back(a);
       } else {
-        bool compatible = true;
-        // SDL_RWops *rwop = SDL_RWFromFile(fullDir.c_str(), "rb");
-        /*compatible = compatible | IMG_isBMP(rwop);
-         compatible = compatible | IMG_isCUR(rwop);
-         compatible = compatible | IMG_isGIF(rwop);
-         compatible = compatible | IMG_isICO(rwop);
-         compatible = compatible | IMG_isJPG(rwop);
-         compatible = compatible | IMG_isLBM(rwop);
-         compatible = compatible | IMG_isPCX(rwop);
-         compatible = compatible | IMG_isPNG(rwop);
-         compatible = compatible | IMG_isPNM(rwop);
-         compatible = compatible | IMG_isTIF(rwop);
-         compatible = compatible | IMG_isWEBP(rwop);
-         compatible = compatible | IMG_isXCF(rwop);
-         compatible = compatible | IMG_isXPM(rwop);
-         compatible = compatible | IMG_isXV(rwop);*/
-        if (compatible) {
-          temp.push_back(a);
-        }
+        temp.push_back(a);
       }
     }
   }
@@ -831,14 +811,6 @@ void openBrowser(string dir, int type, int mode) {
   }
   free(entries);
   browserOpen = true;
-}
-
-void setIcon() {
-  // nothing here
-}
-
-void initGlew() {
-  // nothing here
 }
 
 void getHome() {
@@ -927,17 +899,6 @@ void LoadStuff() {
 
   // Use The Program Object Instead Of Fixed Function OpenGL
   glUseProgram(transition_program);
-
-  /*char* my_vertex_shader_source = (char*)"#version 130\nin vec4 position;
-  uniform int frame; uniform vec2 frameSize; uniform vec2 off; uniform vec2
-  texSize; uniform mat4 model; uniform mat4 proj; in vec2 t; out vec2 txc; void
-  main() { gl_Position = (proj*model) * position; int tx = int(mod(frame, 5));
-  int ty = frame/5; txc = vec2(((t.x+tx)*frameSize.x+off.x)/texSize.x,
-  ((t.y+ty)*frameSize.y+off.y)/texSize.y); }";
-  char* my_fragment_shader_source = (char*)"#version 130\nout vec4 fragColor;
-  uniform sampler2D tex; uniform float alpha; in vec2 txc; void main() {
-  fragColor = vec4(texture(tex, txc).xyz/texture(tex, txc).w, texture(tex,
-  txc).w*alpha); }";*/
 
   my_program = glCreateProgram();
   my_vertex_shader = glCreateShader(GL_VERTEX_SHADER);
@@ -1144,12 +1105,8 @@ void adjustToolsScroll() {
   int w = barXRight - 10 + space - offset * 2 - 7 - 7;
   float size = 12;
   int c = w / size;
-  int leftspace = w - size * c;
-  leftspace = 0;
   for (int p = 0; p < palette.size(); p++) {
-    int x = p % c;
     int y = p / c;
-    int offset2 = int(p == selectedColor) * 2;
     if (y * (size) + size > maxHPal) {
       maxHPal = y * (size) + size;
     }
@@ -1162,12 +1119,9 @@ void adjustToolsScroll() {
     palScroll = 0;
   }
   int maxHTex = 0;
-  int spaceT = 1;
   int wT = barXRight - 2 - 7;
   float sizeT = texSizeX + 1;
   int cT = wT / sizeT;
-  int leftspaceT = wT - sizeT * cT;
-  leftspaceT = 0;
   for (int p = 0; p < texs.size(); p++) {
     int x = p % cT;
     int y = p / cT;
@@ -1280,7 +1234,7 @@ void resizeWindow(int w, int h) {
   adjustToolsScroll();
 }
 
-void update() {  // update
+void update() {
   previewTimer++;
   blinkTimer++;
   if (blinkTimer > 64) {
@@ -1382,7 +1336,6 @@ void update() {  // update
         }
         for (int out = 0; out < fx->outputs.size(); out++) {
           Socket* output = fx->outputs.at(out);
-          // glDeleteTextures(1, &output->texture);
           glGenTextures(1, &output->texture);
           glBindTexture(GL_TEXTURE_2D, output->texture);
           if (OS & Windows) {
@@ -2202,25 +2155,20 @@ void genGrad(Color c1, Color c2) {
   int Sshift = (bhsv.g - ahsv.g) / float(middleS);
   int Vshift = (bhsv.b - ahsv.b) / float(middleS);
   for (int i = 1; i < middleS; i++) {
-    int currentH = ahsv.r + i * Hshift;
     float CH = i * Hshift / float(BH - AH);
     // CH = sqrt(CH);
     CH *= (BH - AH);
-    currentH = ahsv.r + CH;
+    int currentH = ahsv.r + CH;
     while (currentH > 360) {
       currentH -= 360;
     }
     while (currentH < 0) {
       currentH += 360;
     }
-    int currentS = ahsv.g + i * Sshift;
     float CS = i * Sshift / float(bhsv.g - ahsv.g);
-    // cout << CS << endl;
-    // CS = 1.0-CS;
     CS = CS * CS * CS;
-    // CS = 1.0-CS;
     CS *= (bhsv.g - ahsv.g);
-    currentS = ahsv.g + CS;
+    int currentS = ahsv.g + CS;
     int currentV = ahsv.b + i * Vshift;
     Color finalhsv = Color(currentH, currentS, currentV);
     Color finalrgb = HSVtoRGB(finalhsv.r, finalhsv.g, finalhsv.b);
@@ -2234,7 +2182,6 @@ void genGrad(Color c1, Color c2) {
 float curve(float x) { return x * sqrt(x); }
 
 void baseToBright(Color base, Color target, int s, int s2) {
-  int shades = s;
   int middleS = s2;
   Color ahsv = RGBtoHSV(target.r, target.g, target.b);
   Color bhsv = RGBtoHSV(base.r, base.g, base.b);
@@ -2260,9 +2207,6 @@ void baseToBright(Color base, Color target, int s, int s2) {
     float index = (i + 1) / float(middleS);
     float curv = index;
     curv = curve(curv);
-    // cout << index << endl;
-    // index = curve(index);
-    // cout << index << endl;
     index *= (middleS);
     curv *= (middleS);
     int currentH = bhsv.r - curv * Hshift;
@@ -2274,13 +2218,6 @@ void baseToBright(Color base, Color target, int s, int s2) {
     while (currentH < 0) {
       currentH += 360;
     }
-    float CS = currentS / float(bhsv.g);
-    if (bhsv.g == 0) {
-      CS = 0;
-    }
-    CS = sqrt(CS);
-    CS = CS * 0.8 + 0.2;
-    // currentS = CS*float(bhsv.g);
     currentS = max(0, currentS);
     currentS = min(100, currentS);
     currentV = max(0, currentV);
@@ -2288,7 +2225,6 @@ void baseToBright(Color base, Color target, int s, int s2) {
     Color finalhsv = Color(currentH, currentS, currentV);
     Color finalrgb = HSVtoRGB(finalhsv.r, finalhsv.g, finalhsv.b);
     double contrast = getContrast(prevColor, finalrgb);
-    // cout << "before " << contrast;
 
     int V = 100;
     finalhsv = Color(currentH, currentS, V);
@@ -2300,7 +2236,6 @@ void baseToBright(Color base, Color target, int s, int s2) {
       finalrgb = HSVtoRGB(finalhsv.r, finalhsv.g, finalhsv.b);
       contrast = getContrast(prevColor, finalrgb);
     }
-    // cout << " after " << contrast << " r " << r << endl;
 
     Color* final = new Color(finalrgb.r, finalrgb.g, finalrgb.b);
     palN.push_back(final);
@@ -2339,8 +2274,6 @@ void baseToDark(Color base, Color target, int s, int s2) {
     float index = (i - middleS) / float(shades - (middleS));
     float curv = index;
     curv = curve(curv);
-    // index = curve(index);
-    // cout << index << endl;
     index *= (shades - (middleS));
     curv *= (shades - (middleS));
     int currentH = bhsv.r + curv * Hshift;
@@ -2352,14 +2285,6 @@ void baseToDark(Color base, Color target, int s, int s2) {
     while (currentH < 0) {
       currentH += 360;
     }
-    float CS = (currentS - bhsv.g) / float(100 - bhsv.g);
-    if (100 - bhsv.g == 0) {
-      CS = 0;
-    }
-    CS = CS * CS * CS;
-    CS = CS * 0.5;
-    CS = 0;
-    // currentS = CS*float(100-bhsv.g)+bhsv.g;
     currentS = max(0, currentS);
     currentS = min(100, currentS);
     currentV = max(0, currentV);
@@ -2367,7 +2292,6 @@ void baseToDark(Color base, Color target, int s, int s2) {
     Color finalhsv = Color(currentH, currentS, currentV);
     Color finalrgb = HSVtoRGB(finalhsv.r, finalhsv.g, finalhsv.b);
     double contrast = getContrast(prevColor, finalrgb);
-    // cout << "before " << contrast;
 
     int V = 0;
     finalhsv = Color(currentH, currentS, V);
@@ -2379,7 +2303,6 @@ void baseToDark(Color base, Color target, int s, int s2) {
       finalrgb = HSVtoRGB(finalhsv.r, finalhsv.g, finalhsv.b);
       contrast = getContrast(prevColor, finalrgb);
     }
-    // cout << " after " << contrast << " r " << r << endl;
 
     Color* final = new Color(finalrgb.r, finalrgb.g, finalrgb.b);
     palette.push_back(final);
@@ -2391,7 +2314,6 @@ void genShades(Color c, Color b, Color d, int shades, int shadesM) {
   baseToBright(c, b, shades, shadesM);
   Color* a = new Color(c.r, c.g, c.b);
   palette.push_back(a);
-  // palette.push_back(a);
   baseToDark(c, d, shades, shadesM);
 }
 
@@ -2447,23 +2369,6 @@ void generatePalette() {
         V--;
         nextrgb = HSVtoRGB(next.r, next.g, V);
         luminance = getLuminance(nextrgb.r, nextrgb.g, nextrgb.b);
-      }
-    }
-
-    if (i != 0) {
-      int ramp = rand() % i;
-      int side = rand() % 2;
-      int offset = rand() % int(colorParams.at(9)->value / 4 + 1);
-      int offset2 = offset;
-      if (side) {
-        offset2 = colorParams.at(9)->value - 1 - offset;
-      }
-      int final = ramp * colorParams.at(9)->value + offset2;
-      // Color* finalC = palette.at(final);
-      if (side) {
-        // dark = Color(finalC->r, finalC->g, finalC->b);
-      } else {
-        // bright = Color(finalC->r, finalC->g, finalC->b);
       }
     }
 
@@ -2633,12 +2538,10 @@ int main(int argc, char* args[]) {
     if (window == NULL) {
       printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
     } else {
-      setIcon();
       gContext = SDL_GL_CreateContext(window);
       cout << "Created OpenGL " << glGetString(GL_VERSION) << " context"
            << endl;
       initGL();
-      initGlew();
       cout << "Loading stuff" << endl;
       LoadStuff();
       cout << "Done loading stuff" << endl;
