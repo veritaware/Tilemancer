@@ -37,6 +37,8 @@
 
 namespace {
   BrowserMode browserMode = BrowserMode::e5Save;
+  float browserScroll;
+  bool browserOpen;
 }
 
 void browserAction(std::string dir, std::string subDir, std::string parent) {
@@ -288,7 +290,16 @@ void getHome() {
 #else
 #endif
 
-void adjustBrowserScroll() {
+void onBrowserResize() {
+  adjustBrowserScroll(0.0f);
+}
+
+bool browserIsOpen() {
+  return browserOpen;
+}
+
+void adjustBrowserScroll(float adjust) {
+  browserScroll += adjust;
   int title = collH - 4;
   int bSpace = 5;
   float tS = title / 2 - 4;

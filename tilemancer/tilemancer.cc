@@ -775,7 +775,7 @@ void resizeWindow(int w, int h) {
   }
 
   adjustWidths();
-  adjustBrowserScroll();
+  onBrowserResize();
   adjustLayersScroll();
   adjustToolsScroll();
 }
@@ -1027,8 +1027,7 @@ void update() {
       texScroll += dy * sRatio;
       adjustToolsScroll();
     } else if (sBarDrag == 6) {
-      browserScroll += dx * sRatio;
-      adjustBrowserScroll();
+      adjustBrowserScroll(dx * sRatio);
     }
   }
 
@@ -1068,7 +1067,7 @@ void update() {
       }
       adjustWidths();
     }
-    adjustBrowserScroll();
+    onBrowserResize();
     adjustLayersScroll();
     adjustToolsScroll();
   }
@@ -1139,9 +1138,8 @@ void renderGL() {
   int scrollW = 6;
 
   // file browser
-  if (browserOpen) {
+  if (browserIsOpen()) {
     renderFileBrowser(barX, barY, barXRight, scrollW);
-
   } else {
     renderNodes(barX, barXRight, t);
   }
@@ -1275,7 +1273,7 @@ void renderGL() {
            barY2 + 3 + 8 + 3 + (14 * 1) + 4 - toolsScrolli + 3 + 12,
            barXRight - 10 - 7, 96 - 2, effectImg5);
 
-  if (preview != NULL && !browserOpen) {
+  if (preview != NULL && !browserIsOpen()) {
     int tileW = texSizeX;
     int tileH = texSizeY;
     while (tileW < barXRight - 10 - 7) {
@@ -1332,7 +1330,7 @@ void renderGL() {
            int(int(toolsScroll) * (barY - 2) / float(scrollH)), scrollW,
            int((barY) * (barY - 2) / float(scrollH)) + 1, effectImg14);
 
-  if (!browserOpen) {
+  if (!browserIsOpen()) {
     int d3 = barX - (screenW - 5 - 8 - barXRight);
     if (d3 > 0 && d3 < 8) {
       renderIcon(barX, 5, screenW - 5 - barXRight - barX, 8, iconImg9, 2, d3);
@@ -1717,18 +1715,18 @@ void onKeyDown(const SDL_Event& e) {
   }
   if (e.key.keysym.sym == SDLK_s &&
       SDL_GetModState() & (KMOD_GUI | KMOD_CTRL)) {
-    if (!browserOpen) {
+    if (!browserIsOpen()) {
       openBrowser(currentDir, 0, BrowserMode::e5Save);
     }
   }
   if (e.key.keysym.sym == SDLK_o &&
       SDL_GetModState() & (KMOD_GUI | KMOD_CTRL)) {
-    if (!browserOpen) {
+    if (!browserIsOpen()) {
       openBrowser(currentDir, 0, BrowserMode::e4Open);
     }
   }
   if (e.key.keysym.sym == SDLK_RETURN) {
-    if (browserOpen) {
+    if (browserIsOpen()) {
       browserOnEnter();
     }
     if (textType != NULL) {
@@ -1762,14 +1760,14 @@ void onKeyDown(const SDL_Event& e) {
     }
   }
   if (e.key.keysym.sym == SDLK_ESCAPE) {
-    if (browserOpen) {
+    if (browserIsOpen()) {
       browserOnEscape();
     }
   }
 }
 
 void onTextInput(const SDL_Event& e) {
-  if (browserOpen) {
+  if (browserIsOpen()) {
     const std::string text = e.text.text;
     browserOnText(text);
   }
@@ -1781,7 +1779,7 @@ void onTextInput(const SDL_Event& e) {
 }
 
 void onMouseWheel(const SDL_Event& e) {
-  if (!browserOpen) {
+  if (!browserIsOpen()) {
     if (e.wheel.y < 0) {
       if (mouseX > barX && mouseX < screenW - barXRight && mouseY > 0 &&
           mouseY < barY) {
@@ -1835,7 +1833,7 @@ void onMouseMotion(const SDL_Event& e) {
       ttSet = true;
     }
   }
-  if (!browserOpen) {
+  if (!browserIsOpen()) {
     if (x > barX) {
       if (x > screenW - barXRight - 5 - 8 && x < screenW - barXRight - 5 &&
           y > 5 + 8 + 5 && y < 5 + 8 + 5 + 8) {
@@ -2109,7 +2107,7 @@ void mouseButtonDown(const SDL_Event& e) {
     int x = e.button.x / screenScale;
     int y = e.button.y / screenScale;
     if (view == 0) {
-      if (browserOpen) {
+      if (browserIsOpen()) {
         browserButtonDown(x, y);
       } else {
         if (x > barX && x < screenW - barXRight) {
@@ -2250,7 +2248,7 @@ void mouseButtonDown(const SDL_Event& e) {
                               texSizeY / 2.0)) {
                     // export tex
                     if (fx->doneTimer < 3) {
-                      if (!browserOpen) {
+                      if (!browserIsOpen()) {
                         currentSocket = fx->outputs.at(out);
                         openBrowser(currentDir, 0, BrowserMode::e2ExportTex);
                       }
@@ -2288,14 +2286,14 @@ void mouseButtonDown(const SDL_Event& e) {
           if (x > screenW - barXRight - 5 - 8 && x < screenW - barXRight - 5 &&
               y > 5 && y < 5 + 8) {
             // save file
-            if (!browserOpen) {
+            if (!browserIsOpen()) {
               openBrowser(currentDir, 0, BrowserMode::e5Save);
             }
           }
           if (x > screenW - barXRight - 5 - 8 - 5 - 8 &&
               x < screenW - barXRight - 5 - 5 - 8 && y > 5 && y < 5 + 8) {
             // load file
-            if (!browserOpen) {
+            if (!browserIsOpen()) {
               openBrowser(currentDir, 0, BrowserMode::e4Open);
             }
           }
@@ -2556,7 +2554,7 @@ void mouseButtonDown(const SDL_Event& e) {
             y > 1 + 12 - toolsScrolli + barY3 - 8 - 5 &&
             y < 1 + 12 - toolsScrolli + barY3 - 5) {
           // import
-          if (!browserOpen) {
+          if (!browserIsOpen()) {
             openBrowser(currentDir, 0, BrowserMode::e0Import);
           }
         }
@@ -2564,7 +2562,7 @@ void mouseButtonDown(const SDL_Event& e) {
             y > 1 + 12 - toolsScrolli + barY3 - 8 - 5 &&
             y < 1 + 12 - toolsScrolli + barY3 - 5) {
           // export
-          if (!browserOpen) {
+          if (!browserIsOpen()) {
             openBrowser(currentDir, 0, BrowserMode::e1Export);
           }
         }
