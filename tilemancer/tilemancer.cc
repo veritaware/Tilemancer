@@ -58,6 +58,7 @@
 #include "tilemancer/texture.h"
 #include "tilemancer/undoredo.h"
 #include "tilemancer/load_texture.h"
+#include "tilemancer/graphics_globals.h"
 
 using namespace std;
 

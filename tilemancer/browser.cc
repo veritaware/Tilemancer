@@ -23,6 +23,7 @@
 #include <vector>
 
 #include "tilemancer/globals.h"
+#include "tilemancer/graphics_globals.h"
 #include "tilemancer/browserfile.h"
 #include "tilemancer/socket.h"
 #include "tilemancer/saveload.h"

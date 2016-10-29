@@ -26,6 +26,7 @@
 #include "tilemancer/cpoint.h"
 #include "tilemancer/effect.h"
 #include "tilemancer/globals.h"
+#include "tilemancer/graphics_globals.h"
 #include "tilemancer/palette.h"
 #include "tilemancer/parameter.h"
 #include "tilemancer/socket.h"

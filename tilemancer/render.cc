@@ -22,6 +22,7 @@
 #include "tilemancer/bezier.h"
 #include "tilemancer/color.h"
 #include "tilemancer/globals.h"
+#include "tilemancer/graphics_globals.h"
 
 #include "glm/gtc/type_ptr.hpp"
 #include "glm/gtx/transform.hpp"

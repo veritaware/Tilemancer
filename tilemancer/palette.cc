@@ -27,6 +27,8 @@
 #include "tilemancer/globals.h"
 #include "tilemancer/parameter.h"
 #include "tilemancer/texture.h"
+#include "tilemancer/gl.h"
+#include "tilemancer/graphics_globals.h"
 
 Color* getPalColor(float H, float S, float V) {
   float C = V * S;

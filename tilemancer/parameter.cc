@@ -31,6 +31,7 @@
 #include "tilemancer/socket.h"
 #include "tilemancer/texture.h"
 #include "tilemancer/undoredo.h"
+#include "tilemancer/graphics_globals.h"
 
 Parameter::~Parameter() {}
 
