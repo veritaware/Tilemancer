@@ -445,6 +445,14 @@ void renderFileBrowser(int barX, int barY, int barXRight, int scrollW);
 
 void renderNodes(int barX, int barXRight, const Texture *t);
 
+void browserOnEnter();
+
+void browserOnEscape();
+
+void browserOnText(const string &text);
+
+void browserButtonDown(int x, int y);
+
 void loadGen() {
   texSizeX = 32;
   texSizeY = texSizeX;
@@ -2305,22 +2313,7 @@ void onKeyDown(const SDL_Event& e) {
   }
   if (e.key.keysym.sym == SDLK_RETURN) {
     if (browserOpen) {
-      string fullDir = currentDir;
-      if (fullDir.size() != 1) {
-        fullDir = fullDir.append("/");
-      }
-      fullDir = fullDir.append(filenameB);
-      bool folder = false;
-      for (int i = 0; i < filenames.size(); i++) {
-        if (!strcmp(filenames.at(i)->name.c_str(), filenameB.c_str()) &&
-            filenames.at(i)->folder) {
-          openBrowser(fullDir, 0, browserMode);
-          folder = true;
-        }
-      }
-      if (!folder) {
-        browserAction(fullDir, filenameB, currentDir);
-      }
+      browserOnEnter();
     }
     if (textType != NULL) {
       textType->value = atoi(textType->typing.c_str());
@@ -2354,23 +2347,51 @@ void onKeyDown(const SDL_Event& e) {
   }
   if (e.key.keysym.sym == SDLK_ESCAPE) {
     if (browserOpen) {
-      browserOpen = false;
-      fnUndo.clear();
-      fnRedo.clear();
+      browserOnEscape();
     }
   }
 }
 
+void browserOnEscape() {
+  browserOpen = false;
+  fnUndo.clear();
+  fnRedo.clear();
+}
+
+void browserOnEnter() {
+  string fullDir = currentDir;
+  if (fullDir.size() != 1) {
+        fullDir = fullDir.append("/");
+      }
+  fullDir = fullDir.append(filenameB);
+  bool folder = false;
+  for (int i = 0; i < filenames.size(); i++) {
+        if (!strcmp(filenames.at(i)->name.c_str(), filenameB.c_str()) &&
+            filenames.at(i)->folder) {
+          openBrowser(fullDir, 0, browserMode);
+          folder = true;
+        }
+      }
+  if (!folder) {
+        browserAction(fullDir, filenameB, currentDir);
+      }
+}
+
 void onTextInput(const SDL_Event& e) {
   if (browserOpen) {
-    filenameB.append(e.text.text);
-    overwrite = false;
+    const std::string text = e.text.text;
+    browserOnText(text);
   }
   if (textType != NULL && (textType->ID == 1 || textType->ID == 2)) {
     if (textType->typing.length() < 10) {
       textType->typing.append(e.text.text);
     }
   }
+}
+
+void browserOnText(const string &text) {
+  filenameB.append(text);
+  overwrite = false;
 }
 
 void onMouseWheel(const SDL_Event& e) {
@@ -2703,149 +2724,7 @@ void mouseButtonDown(const SDL_Event& e) {
     int y = e.button.y / screenScale;
     if (view == 0) {
       if (browserOpen) {
-        int title = collH - 4;
-        int bSpace = 5;
-        float tS = title / 2 - 4;
-        if (x > barX + bSpace && x < screenW - barXRight - bSpace) {
-          int fh = tS;
-          int fw = tS - browserScroll;
-          int fwNext = 0;
-          for (int i = 0; i < filenames.size(); i++) {
-            int n =
-                textW(filenames.at(i)->name, barX + 1 + bSpace + fw + tS + 8,
-                      title * 2 + bSpace * 3 + fh, fontImg, 0);
-            if (x > barX + 1 + bSpace + fw - tS &&
-                x < barX + 1 + bSpace + fw - tS + n + 8 * 2 + tS &&
-                y > title * 2 + bSpace * 3 + fh - tS &&
-                y < title * 2 + bSpace * 3 + fh - tS + title) {
-              if (doubleClickTimer <= 20 && selectedFile == i) {
-                string fullDir = currentDir;
-                if (fullDir.size() != 1) {
-                  if (OS & Windows) {
-                    fullDir = fullDir.append("\\");
-                  } else if (OS & Unix) {
-                    fullDir = fullDir.append("/");
-                  }
-                }
-                fullDir = fullDir.append(string(filenames.at(i)->name));
-                if (filenames.at(i)->folder) {
-                  openBrowser(fullDir, 0, browserMode);
-                } else {
-                  browserAction(fullDir, filenames.at(i)->name, currentDir);
-                }
-              } else {
-                if (selectedFile != i) {
-                  overwrite = false;
-                }
-                selectedFile = i;
-                filenameB = filenames.at(i)->name;
-              }
-              doubleClickTimer = 0;
-            }
-            if (n > fwNext) {
-              fwNext = n;
-            }
-            fh += title;
-            if (fh + title * 2 + title + bSpace * 3 >
-                    title + bSpace * 2 + barY - 1 - bSpace * 3 - title - 6 &&
-                i != filenames.size() - 1) {
-              fh = tS;
-              fw += fwNext + tS * 2 + 8 * 3;
-              fwNext = 0;
-            }
-          }
-          fw += fwNext + tS * 2 + 8 * 3;
-          int scrollH = fw + browserScroll;
-          if (scrollH < screenW - barX - barXRight - bSpace * 2) {
-            scrollH = screenW - barX - barXRight - bSpace * 2;
-          }
-          if (x > barX + bSpace + 1 +
-                      int(int(browserScroll) *
-                          (screenW - barX - barXRight - bSpace * 2) /
-                          float(scrollH)) &&
-              x < barX + bSpace + 1 +
-                      int(int(browserScroll) *
-                          (screenW - barX - barXRight - bSpace * 2) /
-                          float(scrollH)) +
-                      int((screenW - barX - barXRight - bSpace * 2) *
-                          (screenW - barX - barXRight - bSpace * 2) /
-                          float(scrollH)) &&
-              y > barY - bSpace - 6 - 1 && y < barY - bSpace - 1) {
-            draggingSBar = true;
-            mouseOX = x;
-            mouseOY = y;
-            mouseX = x;
-            mouseY = y;
-            sBarDrag = 6;
-            sRatio = scrollH / float(screenW - barX - barXRight - bSpace * 2);
-          }
-        }
-        if (x > barX + 1 + bSpace && x < barX + 1 + bSpace + 8 &&
-            y > bSpace + tS && y < bSpace + tS + 8) {
-          // left
-          if (fnUndo.size() > 1) {
-            openBrowser(fnUndo.back(), 1, browserMode);
-          }
-        }
-        if (x > barX + 1 + bSpace + 8 + bSpace &&
-            x < barX + 1 + bSpace + 8 + 8 + bSpace && y > bSpace + tS &&
-            y < bSpace + tS + 8) {
-          // right
-          if (fnRedo.size() > 0) {
-            openBrowser(fnRedo.back(), 2, browserMode);
-          }
-        }
-        if (x > barX + 1 + bSpace + 8 * 2 + bSpace * 2 &&
-            x < barX + 1 + bSpace + 8 + 8 * 2 + bSpace * 2 && y > bSpace + tS &&
-            y < bSpace + tS + 8) {
-          // up
-          string newDir = currentDir;
-          if (OS & Windows) {
-            newDir.erase(newDir.rfind('\\'));
-          } else if (OS & Unix) {
-            newDir.erase(newDir.rfind('/'));
-          }
-          if (newDir.size() < 1) {
-            if (OS & Windows) {
-              newDir = "\\";
-            } else if (OS & Unix) {
-              newDir = "/";
-            }
-          }
-          openBrowser(newDir, 0, browserMode);
-        }
-        if (x > screenW - barXRight - 8 - bSpace - 1 &&
-            x < screenW - barXRight - bSpace - 1 && y > bSpace + tS &&
-            y < bSpace + tS + 8) {
-          browserOpen = false;
-          fnUndo.clear();
-          fnRedo.clear();
-        }
-        if (x > screenW - barXRight - 8 - bSpace - 1 &&
-            x < screenW - barXRight - bSpace - 1 &&
-            y > bSpace * 2 + title + tS && y < bSpace * 2 + title + tS + 8) {
-          // action
-          string fullDir = currentDir;
-          if (fullDir.size() != 1) {
-            if (OS & Windows) {
-              fullDir = fullDir.append("\\");
-            } else if (OS & Unix) {
-              fullDir = fullDir.append("/");
-            }
-          }
-          fullDir = fullDir.append(filenameB);
-          bool folder = false;
-          for (int i = 0; i < filenames.size(); i++) {
-            if (!strcmp(filenames.at(i)->name.c_str(), filenameB.c_str()) &&
-                filenames.at(i)->folder) {
-              openBrowser(fullDir, 0, browserMode);
-              folder = true;
-            }
-          }
-          if (!folder) {
-            browserAction(fullDir, filenameB, currentDir);
-          }
-        }
+        browserButtonDown(x, y);
       } else {
         if (x > barX && x < screenW - barXRight) {
           if (camMoving) {
@@ -3421,4 +3300,150 @@ void mouseButtonDown(const SDL_Event& e) {
       mouseY = y;
     }
   }
+}
+
+void browserButtonDown(int x, int y) {
+  int title = collH - 4;
+  int bSpace = 5;
+  float tS = title / 2 - 4;
+  if (x > barX + bSpace && x < screenW - barXRight - bSpace) {
+          int fh = tS;
+          int fw = tS - browserScroll;
+          int fwNext = 0;
+          for (int i = 0; i < filenames.size(); i++) {
+            int n =
+                textW(filenames.at(i)->name, barX + 1 + bSpace + fw + tS + 8,
+                      title * 2 + bSpace * 3 + fh, fontImg, 0);
+            if (x > barX + 1 + bSpace + fw - tS &&
+                x < barX + 1 + bSpace + fw - tS + n + 8 * 2 + tS &&
+                y > title * 2 + bSpace * 3 + fh - tS &&
+                y < title * 2 + bSpace * 3 + fh - tS + title) {
+              if (doubleClickTimer <= 20 && selectedFile == i) {
+                string fullDir = currentDir;
+                if (fullDir.size() != 1) {
+                  if (OS & Windows) {
+                    fullDir = fullDir.append("\\");
+                  } else if (OS & Unix) {
+                    fullDir = fullDir.append("/");
+                  }
+                }
+                fullDir = fullDir.append(string(filenames.at(i)->name));
+                if (filenames.at(i)->folder) {
+                  openBrowser(fullDir, 0, browserMode);
+                } else {
+                  browserAction(fullDir, filenames.at(i)->name, currentDir);
+                }
+              } else {
+                if (selectedFile != i) {
+                  overwrite = false;
+                }
+                selectedFile = i;
+                filenameB = filenames.at(i)->name;
+              }
+              doubleClickTimer = 0;
+            }
+            if (n > fwNext) {
+              fwNext = n;
+            }
+            fh += title;
+            if (fh + title * 2 + title + bSpace * 3 >
+                    title + bSpace * 2 + barY - 1 - bSpace * 3 - title - 6 &&
+                i != filenames.size() - 1) {
+              fh = tS;
+              fw += fwNext + tS * 2 + 8 * 3;
+              fwNext = 0;
+            }
+          }
+          fw += fwNext + tS * 2 + 8 * 3;
+          int scrollH = fw + browserScroll;
+          if (scrollH < screenW - barX - barXRight - bSpace * 2) {
+            scrollH = screenW - barX - barXRight - bSpace * 2;
+          }
+          if (x > barX + bSpace + 1 +
+                      int(int(browserScroll) *
+                          (screenW - barX - barXRight - bSpace * 2) /
+                          float(scrollH)) &&
+              x < barX + bSpace + 1 +
+                      int(int(browserScroll) *
+                          (screenW - barX - barXRight - bSpace * 2) /
+                          float(scrollH)) +
+                      int((screenW - barX - barXRight - bSpace * 2) *
+                          (screenW - barX - barXRight - bSpace * 2) /
+                          float(scrollH)) &&
+              y > barY - bSpace - 6 - 1 && y < barY - bSpace - 1) {
+            draggingSBar = true;
+            mouseOX = x;
+            mouseOY = y;
+            mouseX = x;
+            mouseY = y;
+            sBarDrag = 6;
+            sRatio = scrollH / float(screenW - barX - barXRight - bSpace * 2);
+          }
+        }
+  if (x > barX + 1 + bSpace && x < barX + 1 + bSpace + 8 &&
+            y > bSpace + tS && y < bSpace + tS + 8) {
+          // left
+          if (fnUndo.size() > 1) {
+            openBrowser(fnUndo.back(), 1, browserMode);
+          }
+        }
+  if (x > barX + 1 + bSpace + 8 + bSpace &&
+            x < barX + 1 + bSpace + 8 + 8 + bSpace && y > bSpace + tS &&
+            y < bSpace + tS + 8) {
+          // right
+          if (fnRedo.size() > 0) {
+            openBrowser(fnRedo.back(), 2, browserMode);
+          }
+        }
+  if (x > barX + 1 + bSpace + 8 * 2 + bSpace * 2 &&
+            x < barX + 1 + bSpace + 8 + 8 * 2 + bSpace * 2 && y > bSpace + tS &&
+            y < bSpace + tS + 8) {
+          // up
+          string newDir = currentDir;
+          if (OS & Windows) {
+            newDir.erase(newDir.rfind('\\'));
+          } else if (OS & Unix) {
+            newDir.erase(newDir.rfind('/'));
+          }
+          if (newDir.size() < 1) {
+            if (OS & Windows) {
+              newDir = "\\";
+            } else if (OS & Unix) {
+              newDir = "/";
+            }
+          }
+          openBrowser(newDir, 0, browserMode);
+        }
+  if (x > screenW - barXRight - 8 - bSpace - 1 &&
+            x < screenW - barXRight - bSpace - 1 && y > bSpace + tS &&
+            y < bSpace + tS + 8) {
+          browserOpen = false;
+          fnUndo.clear();
+          fnRedo.clear();
+        }
+  if (x > screenW - barXRight - 8 - bSpace - 1 &&
+            x < screenW - barXRight - bSpace - 1 &&
+            y > bSpace * 2 + title + tS && y < bSpace * 2 + title + tS + 8) {
+          // action
+          string fullDir = currentDir;
+          if (fullDir.size() != 1) {
+            if (OS & Windows) {
+              fullDir = fullDir.append("\\");
+            } else if (OS & Unix) {
+              fullDir = fullDir.append("/");
+            }
+          }
+          fullDir = fullDir.append(filenameB);
+          bool folder = false;
+          for (int i = 0; i < filenames.size(); i++) {
+            if (!strcmp(filenames.at(i)->name.c_str(), filenameB.c_str()) &&
+                filenames.at(i)->folder) {
+              openBrowser(fullDir, 0, browserMode);
+              folder = true;
+            }
+          }
+          if (!folder) {
+            browserAction(fullDir, filenameB, currentDir);
+          }
+        }
 }
