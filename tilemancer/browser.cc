@@ -35,6 +35,10 @@
 #include <unistd.h>
 #include <sys/types.h>
 
+namespace {
+  BrowserMode browserMode = BrowserMode::e5Save;
+}
+
 void browserAction(std::string dir, std::string subDir, std::string parent) {
   bool exists = false;
   for (int i = 0; i < filenames.size(); i++) {
@@ -42,7 +46,7 @@ void browserAction(std::string dir, std::string subDir, std::string parent) {
       exists = true;
     }
   }
-  if (browserMode == 0) {
+  if (browserMode == BrowserMode::e0Import) {
     if (exists) {
       if (OS & Windows) {
         palImg = loadTexture2(dir);
@@ -54,7 +58,7 @@ void browserAction(std::string dir, std::string subDir, std::string parent) {
       fnUndo.clear();
       fnRedo.clear();
     }
-  } else if (browserMode == 1) {
+  } else if (browserMode == BrowserMode::e1Export) {
     if (!exists || overwrite) {
       exportPalette(dir);
       lastPalName = subDir;
@@ -65,7 +69,7 @@ void browserAction(std::string dir, std::string subDir, std::string parent) {
     } else {
       overwrite = true;
     }
-  } else if (browserMode == 2) {
+  } else if (browserMode == BrowserMode::e2ExportTex) {
     if (!exists || overwrite) {
       exportTexSingle(dir);
       currentSocket->lastTexName = subDir;
@@ -76,7 +80,7 @@ void browserAction(std::string dir, std::string subDir, std::string parent) {
     } else {
       overwrite = true;
     }
-  } else if (browserMode == 3) {
+  } else if (browserMode == BrowserMode::e3) {
     if (!exists || overwrite) {
       // exportTexMulti(dir);
       lastTexName = subDir;
@@ -87,7 +91,7 @@ void browserAction(std::string dir, std::string subDir, std::string parent) {
     } else {
       overwrite = true;
     }
-  } else if (browserMode == 4) {
+  } else if (browserMode == BrowserMode::e4Open) {
     if (exists) {
       listUndo.clear();
       listRedo.clear();
@@ -96,7 +100,7 @@ void browserAction(std::string dir, std::string subDir, std::string parent) {
       fnUndo.clear();
       fnRedo.clear();
     }
-  } else if (browserMode == 5) {
+  } else if (browserMode == BrowserMode::e5Save) {
     if (!exists || overwrite) {
       lastSaveName = subDir;
       lastSaveDir = parent;
@@ -202,7 +206,7 @@ void getHome() {
 }
 
 #elif defined(__APPLE__) || defined(__linux__)
-void openBrowser(std::string dir, int type, int mode) {
+void openBrowser(std::string dir, int type, BrowserMode mode) {
   overwrite = false;
   browserMode = mode;
   browserScroll = 0;
@@ -219,21 +223,21 @@ void openBrowser(std::string dir, int type, int mode) {
   selectedFile = -1;
   currentDir = dir;
   filenameB = "";
-  if (browserMode == 1 && lastPalDir.size() > 0 && !browserOpen) {
+  if (browserMode == BrowserMode::e1Export && lastPalDir.size() > 0 && !browserOpen) {
     currentDir = lastPalDir;
     filenameB = lastPalName;
   }
   Texture* t = texs.at(currentTexture);
-  if (browserMode == 2 && currentSocket->lastTexDir.size() > 0 &&
+  if (browserMode == BrowserMode::e2ExportTex && currentSocket->lastTexDir.size() > 0 &&
       !browserOpen) {
     currentDir = currentSocket->lastTexDir;
     filenameB = currentSocket->lastTexName;
   }
-  if (browserMode == 3 && lastTexDir.size() > 0 && !browserOpen) {
+  if (browserMode == BrowserMode::e3 && lastTexDir.size() > 0 && !browserOpen) {
     currentDir = lastTexDir;
     filenameB = lastTexName;
   }
-  if (browserMode == 5 && lastSaveDir.size() > 0 && !browserOpen) {
+  if (browserMode == BrowserMode::e5Save && lastSaveDir.size() > 0 && !browserOpen) {
     currentDir = lastSaveDir;
     filenameB = lastSaveName;
   }
@@ -407,13 +411,13 @@ void renderFileBrowser(int barX, int barY, int barXRight, int scrollW) {
   renderIcon(screenW - barXRight - 8 - bSpace - 1, bSpace + tS, 8, 8,
                iconImg10, 6);
   int impexp = 0;
-  if (browserMode == 1 || browserMode == 2) {
+  if (browserMode == BrowserMode::e1Export || browserMode == BrowserMode::e2ExportTex) {
       impexp = 1;
-    } else if (browserMode == 3) {
+    } else if (browserMode == BrowserMode::e3) {
       impexp = 2;
-    } else if (browserMode == 4) {
+    } else if (browserMode == BrowserMode::e4Open) {
       impexp = 4;
-    } else if (browserMode == 5) {
+    } else if (browserMode == BrowserMode::e5Save) {
       impexp = 3;
     }
   renderIcon(screenW - barXRight - 8 - bSpace - 1, bSpace * 2 + title + tS, 8,

@@ -1718,13 +1718,13 @@ void onKeyDown(const SDL_Event& e) {
   if (e.key.keysym.sym == SDLK_s &&
       SDL_GetModState() & (KMOD_GUI | KMOD_CTRL)) {
     if (!browserOpen) {
-      openBrowser(currentDir, 0, 5);
+      openBrowser(currentDir, 0, BrowserMode::e5Save);
     }
   }
   if (e.key.keysym.sym == SDLK_o &&
       SDL_GetModState() & (KMOD_GUI | KMOD_CTRL)) {
     if (!browserOpen) {
-      openBrowser(currentDir, 0, 4);
+      openBrowser(currentDir, 0, BrowserMode::e4Open);
     }
   }
   if (e.key.keysym.sym == SDLK_RETURN) {
@@ -2252,7 +2252,7 @@ void mouseButtonDown(const SDL_Event& e) {
                     if (fx->doneTimer < 3) {
                       if (!browserOpen) {
                         currentSocket = fx->outputs.at(out);
-                        openBrowser(currentDir, 0, 2);
+                        openBrowser(currentDir, 0, BrowserMode::e2ExportTex);
                       }
                     }
                     noMove = true;
@@ -2289,14 +2289,14 @@ void mouseButtonDown(const SDL_Event& e) {
               y > 5 && y < 5 + 8) {
             // save file
             if (!browserOpen) {
-              openBrowser(currentDir, 0, 5);
+              openBrowser(currentDir, 0, BrowserMode::e5Save);
             }
           }
           if (x > screenW - barXRight - 5 - 8 - 5 - 8 &&
               x < screenW - barXRight - 5 - 5 - 8 && y > 5 && y < 5 + 8) {
             // load file
             if (!browserOpen) {
-              openBrowser(currentDir, 0, 4);
+              openBrowser(currentDir, 0, BrowserMode::e4Open);
             }
           }
           if (x > screenW - barXRight - 5 - 8 - 5 - 8 - 5 - 8 &&
@@ -2557,7 +2557,7 @@ void mouseButtonDown(const SDL_Event& e) {
             y < 1 + 12 - toolsScrolli + barY3 - 5) {
           // import
           if (!browserOpen) {
-            openBrowser(currentDir, 0, 0);
+            openBrowser(currentDir, 0, BrowserMode::e0Import);
           }
         }
         if (x > screenW - 5 - 8 - 5 - 7 && x < screenW - 5 - 5 - 7 &&
@@ -2565,7 +2565,7 @@ void mouseButtonDown(const SDL_Event& e) {
             y < 1 + 12 - toolsScrolli + barY3 - 5) {
           // export
           if (!browserOpen) {
-            openBrowser(currentDir, 0, 1);
+            openBrowser(currentDir, 0, BrowserMode::e1Export);
           }
         }
         for (int i = 0; i < colorParams.size(); i++) {
