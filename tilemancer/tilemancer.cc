@@ -1692,10 +1692,7 @@ void onKeyDown(const SDL_Event& e) {
     camMoving = true;
   }
   if (e.key.keysym.sym == SDLK_BACKSPACE) {
-    if (filenameB.size() > 0) {
-      filenameB.pop_back();
-    }
-    overwrite = false;
+    browserOnBackspace();
     if (textType != NULL && (textType->ID == 1 || textType->ID == 2)) {
       if (textType->typing.size() > 0) {
         textType->typing.pop_back();

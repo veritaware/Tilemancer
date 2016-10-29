@@ -142,8 +142,6 @@ extern std::string lastSaveDir;
 extern std::string lastSaveName;
 extern std::string lastTexDir;
 extern std::string lastTexName;
-extern bool overwrite;
-extern int selectedFile;
 extern lua_State* L;
 
 #endif  // TILEMANCER_GLOBALS_H

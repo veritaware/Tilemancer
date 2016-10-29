@@ -28,6 +28,7 @@ enum class BrowserMode {
   e5Save, e4Open, e2ExportTex, e0Import, e1Export, e3
 };
 
+void browserOnBackspace();
 bool browserIsOpen();
 void browserOnEnter();
 void browserOnEscape();

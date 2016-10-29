@@ -44,6 +44,17 @@ namespace {
 
   std::vector<std::string> fnUndo;
   std::vector<std::string> fnRedo;
+
+  int selectedFile;
+
+  bool overwrite;
+}
+
+void browserOnBackspace() {
+  if (filenameB.size() > 0) {
+    filenameB.pop_back();
+  }
+  overwrite = false;
 }
 
 void browserAction(std::string dir, std::string subDir, std::string parent) {

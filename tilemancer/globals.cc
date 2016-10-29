@@ -122,7 +122,5 @@ std::string lastSaveDir;
 std::string lastSaveName;
 std::string lastTexDir;
 std::string lastTexName;
-bool overwrite;
-int selectedFile;
 lua_State* L;
 
