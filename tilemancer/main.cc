@@ -55,6 +55,9 @@
 #include "tilemancer/saveload.h"
 #include "tilemancer/globals.h"
 #include "tilemancer/drag.h"
+#include "tilemancer/socket.h"
+#include "tilemancer/texture.h"
+#include "tilemancer/parameter.h"
 
 using namespace std;
 
@@ -63,74 +66,6 @@ SDL_GLContext gContext = NULL;
 SDL_Renderer* gRenderer = NULL;
 
 class Layer;
-
-class Socket;
-
-class Parameter {
- public:
-  Parameter(int ID, string name, float x, float y, float w, float h, int value,
-            int value2, int value3, string tt);
-  ~Parameter();
-  void render(int ex, int ey);
-  void mouseDown(int mx, int my, int ex, int ey, int layer, Effect* fx);
-  void mouseMove(int mx, int my, int ex, int ey, int layer, Effect* fx);
-  void mouseUp(int mx, int my, int ex, int ey, int layer, Effect* fx);
-  int ID;
-  string tt;
-  string name;
-  Socket* s;
-  vector<CPoint*> points;
-  Parameter* p;
-  int index;
-  int selectedPoint;
-  float x;
-  float y;
-  float w;
-  float h;
-  float resetValue;
-  string typing;
-  float value;
-  float value2;
-  float value3;
-  float value4;
-  bool dragging;
-  bool dragging2;
-  float oldmX;
-  float oldmY;
-};
-
-class Socket {
- public:
-  Socket();
-  ~Socket();
-  float y;
-  bool snapped;
-  bool infloop;
-  Socket* s;
-  Bezier* b;
-  int index;
-  float px;
-  float py;
-  int futureN;
-  int futureS;
-  Effect* parent;
-  vector<float> texData;
-  GLuint texture;
-  string lastTexDir;
-  string lastTexName;
-};
-
-class Texture {
- public:
-  ~Texture();
-  void genTex(bool first = true);
-  bool done;
-  int doneTimer;
-  bool abort;
-  vector<Effect*> fxs;
-  string lastTexDir;
-  string lastTexName;
-};
 
 #ifdef _WIN32
 GLuint loadTexture(string path) {
