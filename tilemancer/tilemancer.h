@@ -18,8 +18,9 @@
 
 */
 
-#include "tilemancer/tilemancer.h"
+#ifndef TILEMANCER_TILEMANCER_H
+#define TILEMANCER_TILEMANCER_H
 
-int main(int argc, char* args[]) {
-  return tilemancer_main();
-}
+int tilemancer_main();
+
+#endif  // TILEMANCER_TILEMANCER_H
