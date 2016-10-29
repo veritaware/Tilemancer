@@ -42,12 +42,10 @@
 #include "lua.hpp"
 
 #include "tilemancer/bezier.h"
-#include "tilemancer/bpoint.h"
 #include "tilemancer/color.h"
 #include "tilemancer/cpoint.h"
 #include "tilemancer/drag.h"
 #include "tilemancer/effect.h"
-#include "tilemancer/browserfile.h"
 #include "tilemancer/browser.h"
 #include "tilemancer/globals.h"
 #include "tilemancer/math.h"
@@ -60,7 +58,6 @@
 #include "tilemancer/texture.h"
 #include "tilemancer/undoredo.h"
 #include "tilemancer/load_texture.h"
-#include "tilemancer/browser.h"
 
 using namespace std;
 
@@ -315,14 +312,6 @@ void onKeyUp(const SDL_Event& e);
 void renderFileBrowser(int barX, int barY, int barXRight, int scrollW);
 
 void renderNodes(int barX, int barXRight, const Texture *t);
-
-void browserOnEnter();
-
-void browserOnEscape();
-
-void browserOnText(const string &text);
-
-void browserButtonDown(int x, int y);
 
 void loadGen() {
   texSizeX = 32;
