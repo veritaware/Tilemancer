@@ -40,6 +40,10 @@ namespace {
   BrowserMode browserMode = BrowserMode::e5Save;
   float browserScroll;
   bool browserOpen;
+  std::vector<BrowserFile*> filenames;
+
+  std::vector<std::string> fnUndo;
+  std::vector<std::string> fnRedo;
 }
 
 void browserAction(std::string dir, std::string subDir, std::string parent) {
