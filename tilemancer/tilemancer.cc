@@ -62,7 +62,6 @@
 using namespace std;
 
 SDL_Window* window = NULL;
-SDL_GLContext gContext = NULL;
 SDL_Renderer* gRenderer = NULL;
 
 class Layer;
@@ -2152,7 +2151,7 @@ int tilemancer_main() {
     if (window == NULL) {
       printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
     } else {
-      gContext = SDL_GL_CreateContext(window);
+      SDL_GL_CreateContext(window);
       cout << "Created OpenGL " << glGetString(GL_VERSION) << " context"
            << endl;
       initGL();
