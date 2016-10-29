@@ -21,12 +21,16 @@
 #ifndef TILEMANCER_PALETTE_H
 #define TILEMANCER_PALETTE_H
 
+#include <string>
+
 class Color;
 
 Color* getPalColor(float H, float S, float V);
 
 void paletteChanged();
 void loadPalette();
+
+void exportPalette(const std::string& dir);
 
 // remove?
 #define beforePaletteChange()

@@ -705,3 +705,51 @@ void renderUI(int x, int y, int w, int h, GLuint tex, int cutoff, int cutoff2,
                 false, false, cutoff, cutoff2, cutoff3, cutoff4);
   }
 }
+
+int textW(const std::string& text, int x, int y, GLuint tex, bool alignRight) {
+  int kerning[] = {2,  2, 2, 2, 3, 3, 2, 2, 6, 3, 3, 3, 1, 3, 2, 2, 2, 2, 3,
+                   2,  3, 2, 1, 3, 2, 2, 2, 2, 2, 2, 2, 3, 2, 2, 5, 4, 3, 5,
+                   -1, 2, 2, 2, 2, 2, 3, 3, 2, 2, 1, 3, 2, 2, 2, 2, 6,
+
+                   6,  5, 3, 3, 2, 2, 6, 5, 5, 3, 3, 6, 4, 6, 2, 6, 6, 3, 4,
+                   3,  2, 1, 5, 4, 5, 5, 4, 4, 6, 4, 4};
+  int kerningD[] = {3, 5, 3, 3, 3, 3, 3, 4, 3, 3, 2, 4};
+  int w = -1;
+  for (int i = 0; i < text.size(); i++) {
+    if (text[i] >= 33 && text[i] <= 47) {
+      w += 9 - kerning[55 + text[i] - 33];
+    } else if (text[i] >= 48 && text[i] <= 57) {
+      w += 9 - kerningD[text[i] - 48];
+    } else if (text[i] >= 58 && text[i] <= 64) {
+      w += 9 - kerning[70 + text[i] - 58];
+    } else if (text[i] >= 91 && text[i] <= 95) {
+      w += 9 - kerning[77 + text[i] - 91];
+    } else if (text[i] >= 123 && text[i] <= 126) {
+      w += 9 - kerning[82 + text[i] - 123];
+    } else if (text[i] == 32) {
+      w += 9 - kerning[52];
+    } else if ((text[i] >= 65 && text[i] <= 90) ||
+               (text[i] >= 97 && text[i] <= 122)) {
+      int f = text[i] - 'A';
+      if (f >= 32) {
+        f -= 6;
+      }
+      w += 9 - kerning[f];
+    } else {
+      w += 9 - kerning[0];
+    }
+  }
+  int wd = w;
+  return wd;
+}
+
+int textH(const std::string& text, int x, int y, GLuint tex, bool alignRight) {
+  int h = 9;
+  for (int i = 0; i < text.size(); i++) {
+    if (text[i] == '\n') {
+      h += 9;
+    }
+  }
+  return h;
+}
+

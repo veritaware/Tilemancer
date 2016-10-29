@@ -18,39 +18,18 @@
 
 */
 
-#ifndef TILEMANCER_SOCKET_H
-#define TILEMANCER_SOCKET_H
+#ifndef TILEMANCER_BROWSER_H
+#define TILEMANCER_BROWSER_H
 
-#include <vector>
+#include <string>
 
-#include "tilemancer/floatimage.h"
-#include "tilemancer/gl.h"
+void browserOnEnter();
+void browserOnEscape();
+void browserOnText(const std::string &text);
+void browserButtonDown(int x, int y);
+void browserAction(std::string dir, std::string subDir, std::string parent);
+void openBrowser(std::string dir, int type, int mode);
+void adjustBrowserScroll() ;
+void renderFileBrowser(int barX, int barY, int barXRight, int scrollW);
 
-class Bezier;
-class Effect;
-
-class Socket {
- public:
-  Socket();
-  ~Socket();
-
-  float y;
-  bool snapped;
-  bool infloop;
-  Socket* s;
-  Bezier* b;
-  int index;
-  float px;
-  float py;
-  GLuint texture;
-  int futureN;
-  int futureS;
-  Effect* parent;
-  FloatImage texData;
-  std::string lastTexDir;
-  std::string lastTexName;
-};
-
-void exportTexSingle(const std::string& dir);
-
-#endif  // TILEMANCER_SOCKET_H
+#endif  // TILEMANCER_BROWSER_H

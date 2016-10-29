@@ -223,3 +223,13 @@ void loadPalette() {
     paletteChanged();
   }
 }
+
+void exportPalette(const std::string& dir) {
+  SDL_Surface* surface = SDL_CreateRGBSurface(
+      SDL_SWSURFACE, 16, 16, 24, 0x000000FF, 0x0000FF00, 0x00FF0000, 0);
+  glBindTexture(GL_TEXTURE_2D, palImgReal);
+  glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE, surface->pixels);
+  IMG_SavePNG(surface, dir.c_str());
+  SDL_FreeSurface(surface);
+}
+

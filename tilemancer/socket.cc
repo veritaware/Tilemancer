@@ -20,6 +20,9 @@
 
 #include "tilemancer/socket.h"
 #include "tilemancer/bezier.h"
+#include "tilemancer/globals.h"
+
+#include "dirent.h"
 
 Socket::Socket() {
   futureN = -1;
@@ -32,3 +35,29 @@ Socket::Socket() {
 }
 
 Socket::~Socket() { delete b; }
+
+void exportTexSingle(const std::string& dir) {
+  SDL_Surface* surface =
+      SDL_CreateRGBSurface(SDL_SWSURFACE, texSizeX, texSizeY, 32, 0x000000FF,
+                           0x0000FF00, 0x00FF0000, 0xFF000000);
+  glBindTexture(GL_TEXTURE_2D, currentSocket->texture);
+  GLfloat* pixels = new GLfloat[int(texSizeX * texSizeY * 4)];
+  if (OS & Windows) {
+    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, surface->pixels);
+  } else if (OS & Unix) {
+    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, pixels);
+    for (int i = 0; i < texSizeX * texSizeY * 4; i++) {
+      Uint8* p =
+          (Uint8*)surface->pixels + i * surface->format->BytesPerPixel / 4;
+      int val = pixels[i];
+      if (val > 255) {
+        val = 255;
+      } else if (val < 0) {
+        val = 0;
+      }
+      p[0] = (Uint8)val;
+    }
+  }
+  IMG_SavePNG(surface, dir.c_str());
+  SDL_FreeSurface(surface);
+}

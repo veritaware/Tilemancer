@@ -18,39 +18,13 @@
 
 */
 
-#ifndef TILEMANCER_SOCKET_H
-#define TILEMANCER_SOCKET_H
+#ifndef TILEMANCER_LOADTEXTURE_H
+#define TILEMANCER_LOADTEXTURE_H
 
-#include <vector>
-
-#include "tilemancer/floatimage.h"
+#include <string>
 #include "tilemancer/gl.h"
 
-class Bezier;
-class Effect;
+GLuint loadTexture(const std::string& path);
+GLuint loadTexture2(const std::string& path);
 
-class Socket {
- public:
-  Socket();
-  ~Socket();
-
-  float y;
-  bool snapped;
-  bool infloop;
-  Socket* s;
-  Bezier* b;
-  int index;
-  float px;
-  float py;
-  GLuint texture;
-  int futureN;
-  int futureS;
-  Effect* parent;
-  FloatImage texData;
-  std::string lastTexDir;
-  std::string lastTexName;
-};
-
-void exportTexSingle(const std::string& dir);
-
-#endif  // TILEMANCER_SOCKET_H
+#endif  // TILEMANCER_LOADTEXTURE_H
