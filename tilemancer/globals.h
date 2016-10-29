@@ -126,7 +126,7 @@ extern float mouseOX;
 extern float mouseOY;
 extern float mouseX;
 extern float mouseY;
-extern bool gameStarted;
+// extern bool gameStarted;
 extern int view;
 extern int doubleClickTimer;
 extern int typeTimer;

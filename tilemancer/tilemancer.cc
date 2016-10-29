@@ -1597,6 +1597,8 @@ int tilemancer_main() {
   }
   bool quit = false;
   SDL_Event e;
+  currentTime = SDL_GetTicks();
+  
   while (!quit) {
     while (SDL_PollEvent(&e) != 0) {
       if (e.type == SDL_QUIT) {
@@ -1634,13 +1636,7 @@ int tilemancer_main() {
     SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
     SDL_RenderClear(gRenderer);
     double newTime = 0;
-    if (gameStarted) {
-      newTime = SDL_GetTicks();
-    } else {
-      newTime = SDL_GetTicks();
-      currentTime = SDL_GetTicks();
-    }
-    gameStarted = true;
+    newTime = SDL_GetTicks();
     double frameTime = (newTime - currentTime) / 1000.0;
     currentTime = newTime;
     accumulator += frameTime;
@@ -1662,12 +1658,7 @@ int tilemancer_main() {
     SDL_GL_SwapWindow(window);
 
     double newTime2 = 0;
-    if (gameStarted) {
-      newTime2 = SDL_GetTicks();
-    } else {
-      newTime2 = SDL_GetTicks();
-      lastTime = SDL_GetTicks();
-    }
+    newTime2 = SDL_GetTicks();
     double frameTime2 = (newTime2 - lastTime) / 1000.0;
     double delayTime = dt - frameTime2;
     if (delayTime > 0) {

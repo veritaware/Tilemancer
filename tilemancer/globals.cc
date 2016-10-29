@@ -106,7 +106,6 @@ float mouseOX;
 float mouseOY;
 float mouseX;
 float mouseY;
-bool gameStarted;
 int view = 0;
 int doubleClickTimer;
 int typeTimer;
