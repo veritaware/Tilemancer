@@ -22,5 +22,4 @@
 
 bPoint::bPoint() {}
 
-bPoint::bPoint(float ax, float ay) : x(ax), y(ay){
-}
+bPoint::bPoint(float ax, float ay) : x(ax), y(ay) {}

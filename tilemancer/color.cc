@@ -20,11 +20,12 @@
 
 #include "tilemancer/color.h"
 
+#include <algorithm>
 #include <cmath>
 #include <cstdlib>
-#include <algorithm>
 
-Color::Color(int ar, int ag, int ab) : r(ar), g(ag), b(ab), a(255), disabled(false) { }
+Color::Color(int ar, int ag, int ab)
+    : r(ar), g(ag), b(ab), a(255), disabled(false) {}
 
 bool Color::operator==(const Color& rhs) const {
   return r == rhs.r && g == rhs.g && b == rhs.b;
@@ -157,4 +158,3 @@ double getContrast(Color a, Color b) {
   }
   return (y1 + 0.05) / (y2 + 0.05);
 }
-

@@ -20,7 +20,6 @@
 
 #include "tilemancer/file.h"
 
-File::File(const std::string& n, bool f) : name(n), folder(f) { }
+File::File(const std::string& n, bool f) : name(n), folder(f) {}
 
 File::~File() {}
-

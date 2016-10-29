@@ -31,8 +31,8 @@ class Effect;
 
 class Parameter {
  public:
-  Parameter(int ID, std::string name, float x, float y, float w, float h, int value,
-            int value2, int value3, std::string tt);
+  Parameter(int ID, std::string name, float x, float y, float w, float h,
+            int value, int value2, int value3, std::string tt);
   ~Parameter();
 
   void render(int ex, int ey);

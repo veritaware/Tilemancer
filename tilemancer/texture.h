@@ -21,8 +21,8 @@
 #ifndef TILEMANCER_TEXTURE_H
 #define TILEMANCER_TEXTURE_H
 
-#include <vector>
 #include <string>
+#include <vector>
 
 class Effect;
 

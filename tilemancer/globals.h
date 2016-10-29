@@ -21,15 +21,15 @@
 #ifndef TILEMANCER_GLOBALS_H
 #define TILEMANCER_GLOBALS_H
 
-#include "tilemancer/gl.h"
-#include "tilemancer/color.h"
 #include "glm/glm.hpp"
+#include "tilemancer/color.h"
+#include "tilemancer/gl.h"
 
 #include <string>
 #include <vector>
 
 extern "C" {
-  struct lua_State;
+struct lua_State;
 };
 
 class Texture;

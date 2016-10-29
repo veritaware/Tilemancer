@@ -21,4 +21,3 @@
 #include "tilemancer/cpoint.h"
 
 CPoint::CPoint() {}
-

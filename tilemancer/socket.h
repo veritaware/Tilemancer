@@ -23,8 +23,8 @@
 
 #include <vector>
 
-#include "tilemancer/gl.h"
 #include "tilemancer/floatimage.h"
+#include "tilemancer/gl.h"
 
 class Bezier;
 class Effect;

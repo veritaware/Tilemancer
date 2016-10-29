@@ -26,7 +26,6 @@
 std::string saveStuff();
 void loadStuff(std::string str, bool newFile);
 
-
 void newFile();
 void loadFile(std::string dir);
 void saveFile(std::string dir);

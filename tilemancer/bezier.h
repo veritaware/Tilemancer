@@ -21,8 +21,8 @@
 #ifndef TILEMANCER_BEZIER_H
 #define TILEMANCER_BEZIER_H
 
-#include "tilemancer/gl.h"
 #include "tilemancer/bpoint.h"
+#include "tilemancer/gl.h"
 
 class Bezier {
  public:

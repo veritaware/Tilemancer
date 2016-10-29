@@ -18,23 +18,24 @@
 
 */
 
-#include <iostream>
-#include <sstream>
+#include "tilemancer/saveload.h"
 #include <algorithm>
 #include <fstream>
-#include "tilemancer/saveload.h"
-#include "tilemancer/globals.h"
-#include "tilemancer/parameter.h"
-#include "tilemancer/texture.h"
-#include "tilemancer/effect.h"
+#include <iostream>
+#include <sstream>
 #include "tilemancer/cpoint.h"
-#include "tilemancer/socket.h"
+#include "tilemancer/effect.h"
+#include "tilemancer/globals.h"
 #include "tilemancer/palette.h"
+#include "tilemancer/parameter.h"
+#include "tilemancer/socket.h"
 #include "tilemancer/stringutils.h"
+#include "tilemancer/texture.h"
 
 std::string saveStuff() {
   std::ostringstream out;
-  out << "Tilemancer " << Vmajor << "." << Vminor << "." << Vrevision << std::endl;
+  out << "Tilemancer " << Vmajor << "." << Vminor << "." << Vrevision
+      << std::endl;
   out << std::endl;
   for (int i = 0; i < palette.size(); i++) {
     Color* c = palette.at(i);
@@ -265,8 +266,8 @@ void loadStuff(std::string str, bool newFile) {
           Socket* input = fx->inputs.at(in);
           if (input->futureN != -1) {
             input->s = texs.at(currentTexture)
-                ->fxs.at(input->futureN)
-                ->outputs.at(input->futureS);
+                           ->fxs.at(input->futureN)
+                           ->outputs.at(input->futureS);
           }
         }
       }
@@ -319,7 +320,6 @@ void loadStuff(std::string str, bool newFile) {
     }
   }
 }
-
 
 void newFile() {
   listUndo.clear();

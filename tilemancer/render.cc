@@ -19,9 +19,9 @@
 */
 
 #include "tilemancer/render.h"
+#include "tilemancer/bezier.h"
 #include "tilemancer/color.h"
 #include "tilemancer/globals.h"
-#include "tilemancer/bezier.h"
 
 #include "glm/gtc/type_ptr.hpp"
 #include "glm/gtx/transform.hpp"
@@ -57,8 +57,8 @@ void renderGradient(int x, int y, int w, int h, Color* c, Color* c2) {
   glUseProgram(0);
 }
 
-void renderColor(int x, int y, int w, int h, Color* c, int cutoff,
-                 int cutoff2, int cutoff3, int cutoff4) {
+void renderColor(int x, int y, int w, int h, Color* c, int cutoff, int cutoff2,
+                 int cutoff3, int cutoff4) {
   if (x < cutoff && cutoff != -1) {
     w = x + w - cutoff;
     if (w < 0) {
@@ -374,8 +374,7 @@ void renderNumber(int number, int x, int y, GLuint tex, bool percent,
 }
 
 int renderText(std::string text, int x, int y, GLuint tex, bool alignRight,
-               int cutoff, int cutoff2, int cutoff3,
-               int cutoff4, float alpha) {
+               int cutoff, int cutoff2, int cutoff3, int cutoff4, float alpha) {
   int kerning[] = {2,  2, 2, 2, 3, 3, 2, 2, 6, 3, 3, 3, 1, 3, 2, 2, 2, 2, 3,
                    2,  3, 2, 1, 3, 2, 2, 2, 2, 2, 2, 2, 3, 2, 2, 5, 4, 3, 5,
                    -1, 2, 2, 2, 2, 2, 3, 3, 2, 2, 1, 3, 2, 2, 2, 2, 6,
@@ -660,8 +659,8 @@ void renderWheelTriF(int x, int y, int w, int h, float v) {
   glUseProgram(0);
 }
 
-void renderUI(int x, int y, int w, int h, GLuint tex, int cutoff,
-              int cutoff2, int cutoff3, int cutoff4) {
+void renderUI(int x, int y, int w, int h, GLuint tex, int cutoff, int cutoff2,
+              int cutoff3, int cutoff4) {
   if (w > 0 && h > 0) {
     int tw, th;
     glActiveTexture(GL_TEXTURE0);

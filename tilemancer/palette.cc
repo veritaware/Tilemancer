@@ -18,15 +18,15 @@
 
 */
 
-#include <cstdlib>
-#include <cmath>
 #include "tilemancer/palette.h"
+#include <cmath>
+#include <cstdlib>
 #include "tilemancer/color.h"
+#include "tilemancer/cpoint.h"
+#include "tilemancer/effect.h"
 #include "tilemancer/globals.h"
 #include "tilemancer/parameter.h"
 #include "tilemancer/texture.h"
-#include "tilemancer/effect.h"
-#include "tilemancer/cpoint.h"
 
 Color* getPalColor(float H, float S, float V) {
   float C = V * S;
@@ -126,7 +126,7 @@ void paletteChanged() {
             Color* final = getPalColor(H, S, V);
             for (int col = 0; col < palette.size(); col++) {
               Color* color = palette.at(col);
-              if (*final == *color) {
+              if (* final == *color) {
                 param->value4 = col;
               }
             }
@@ -151,7 +151,7 @@ void paletteChanged() {
               Color* final = getPalColor(H, S, V);
               for (int col = 0; col < palette.size(); col++) {
                 Color* color = palette.at(col);
-                if (*final == *color) {
+                if (* final == *color) {
                   param->points.at(cp)->i = col;
                 }
               }

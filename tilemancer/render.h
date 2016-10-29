@@ -54,7 +54,7 @@ void renderSprite(int frame, float x, float y, float w, float h, GLuint tex,
                   int cutoff3 = -1, int cutoff4 = -1);
 
 void renderNumber(int number, int x, int y, GLuint tex, bool percent,
-             bool alignRight, int cutoff = 0);
+                  bool alignRight, int cutoff = 0);
 
 void renderWheel(int x, int y, int w, int h, float v);
 void renderWheelTri(int x, int y, int w, int h, float v);

@@ -20,6 +20,4 @@
 
 #include "tilemancer/tilemancer.h"
 
-int main(int argc, char* args[]) {
-  return tilemancer_main();
-}
+int main(int argc, char* args[]) { return tilemancer_main(); }

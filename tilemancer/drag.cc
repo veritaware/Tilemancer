@@ -19,13 +19,12 @@
 */
 
 #include "tilemancer/drag.h"
-#include "tilemancer/parameter.h"
 #include "tilemancer/effect.h"
 #include "tilemancer/gl.h"
 #include "tilemancer/globals.h"
-#include "tilemancer/texture.h"
 #include "tilemancer/palette.h"
-
+#include "tilemancer/parameter.h"
+#include "tilemancer/texture.h"
 
 void updateDrag(int layer, Effect* fx, Parameter* param) {
   if (layer != -1) {

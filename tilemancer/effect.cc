@@ -19,14 +19,14 @@
 */
 
 #include "tilemancer/effect.h"
-#include "tilemancer/socket.h"
-#include "tilemancer/tmlua.h"
-#include "tilemancer/text.h"
-#include "tilemancer/parameter.h"
-#include "tilemancer/globals.h"
-#include "tilemancer/texture.h"
 #include "tilemancer/floatimage.h"
+#include "tilemancer/globals.h"
 #include "tilemancer/palette.h"
+#include "tilemancer/parameter.h"
+#include "tilemancer/socket.h"
+#include "tilemancer/text.h"
+#include "tilemancer/texture.h"
+#include "tilemancer/tmlua.h"
 
 void Effect::sideUpdate() {
   luaL_dofile(this->L, luafn.c_str());
@@ -203,7 +203,8 @@ int Effect::setPixel(lua_State* L) {
     Socket* a = outputs.at((int)lua_tonumber(L, 1));
     Color b(lua_tonumber(L, 4) * 255, lua_tonumber(L, 5) * 255,
             lua_tonumber(L, 6) * 255);
-    a->texData.setColor((int)lua_tonumber(L, 2), (int)lua_tonumber(L, 3), b, true);
+    a->texData.setColor((int)lua_tonumber(L, 2), (int)lua_tonumber(L, 3), b,
+                        true);
   }
   return 0;
 }
@@ -226,13 +227,13 @@ int Effect::getValue(lua_State* L) {
         Socket* a = inputs.at(i);
         if (a->s != NULL) {
           Color cc1 = a->s->texData.getColor((int)lua_tonumber(L, 2),
-                               (int)lua_tonumber(L, 3), true);
+                                             (int)lua_tonumber(L, 3), true);
           Color cc2 = a->s->texData.getColor((int)lua_tonumber(L, 2) + 1,
-                               (int)lua_tonumber(L, 3), true);
+                                             (int)lua_tonumber(L, 3), true);
           Color cc3 = a->s->texData.getColor((int)lua_tonumber(L, 2),
-                               (int)lua_tonumber(L, 3) + 1, true);
+                                             (int)lua_tonumber(L, 3) + 1, true);
           Color cc4 = a->s->texData.getColor((int)lua_tonumber(L, 2) + 1,
-                               (int)lua_tonumber(L, 3) + 1, true);
+                                             (int)lua_tonumber(L, 3) + 1, true);
           float alphaX = lua_tonumber(L, 2) - (int)lua_tonumber(L, 2);
           float alphaY = lua_tonumber(L, 3) - (int)lua_tonumber(L, 3);
           float ur = cc1.r * (1.0 - alphaX) + cc2.r * alphaX;
@@ -299,7 +300,8 @@ int Effect::addNode(lua_State* L) {
       if (errorMessage.size() > 0) {
         errorMessage += "\n";
       }
-      errorMessage += "Unable to load \"" + (std::string)lua_tostring(L, 1) + "\"";
+      errorMessage +=
+          "Unable to load \"" + (std::string)lua_tostring(L, 1) + "\"";
       errorTimer = 160;
     }
   }
@@ -378,7 +380,6 @@ void Effect::AbortLua(lua_State* L, lua_Debug* ar) {
     luaL_error(L, "Too Many Lines Error");
   }
 }
-
 
 Effect::~Effect() {
   for (int toDel = 0; toDel < params.size(); toDel++) {

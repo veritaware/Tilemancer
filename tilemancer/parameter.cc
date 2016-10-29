@@ -19,18 +19,18 @@
 */
 
 #include "tilemancer/parameter.h"
-#include "tilemancer/gl.h"
 #include "tilemancer/color.h"
-#include "tilemancer/render.h"
-#include "tilemancer/globals.h"
-#include "tilemancer/socket.h"
 #include "tilemancer/cpoint.h"
-#include "tilemancer/palette.h"
-#include "tilemancer/texture.h"
-#include "tilemancer/effect.h"
-#include "tilemancer/undoredo.h"
-#include "tilemancer/math.h"
 #include "tilemancer/drag.h"
+#include "tilemancer/effect.h"
+#include "tilemancer/gl.h"
+#include "tilemancer/globals.h"
+#include "tilemancer/math.h"
+#include "tilemancer/palette.h"
+#include "tilemancer/render.h"
+#include "tilemancer/socket.h"
+#include "tilemancer/texture.h"
+#include "tilemancer/undoredo.h"
 
 Parameter::~Parameter() {}
 
@@ -191,8 +191,9 @@ void Parameter::render(int ex, int ey) {  // renderparam
   }
 }
 
-Parameter::Parameter(int ID, std::string name, float x, float y, float w, float h,
-                     int value, int value2, int value3, std::string tt) {
+Parameter::Parameter(int ID, std::string name, float x, float y, float w,
+                     float h, int value, int value2, int value3,
+                     std::string tt) {
   this->index = 0;
   this->s = NULL;
   this->ID = ID;
@@ -217,7 +218,7 @@ Parameter::Parameter(int ID, std::string name, float x, float y, float w, float 
     Color* final = getPalColor(H, S, V);
     for (int col = 0; col < palette.size(); col++) {
       Color* color = palette.at(col);
-      if (*final == *color) {
+      if (* final == *color) {
         value4 = col;
       }
     }
@@ -300,7 +301,7 @@ void Parameter::mouseDown(int mx, int my, int ex, int ey, int layer,
       Color* final = getPalColor(H, S, V);
       for (int col = 0; col < palette.size(); col++) {
         Color* color = palette.at(col);
-        if (*final == *color) {
+        if (* final == *color) {
           value4 = col;
         }
       }
@@ -573,7 +574,7 @@ void Parameter::mouseMove(int mx, int my, int ex, int ey, int layer,
       Color* final = getPalColor(H, S, V);
       for (int col = 0; col < palette.size(); col++) {
         Color* color = palette.at(col);
-        if (*final == *color) {
+        if (* final == *color) {
           value4 = col;
         }
       }
@@ -678,8 +679,7 @@ void Parameter::mouseMove(int mx, int my, int ex, int ey, int layer,
   }
 }
 
-void Parameter::mouseUp(int mx, int my, int ex, int ey, int layer,
-                        Effect* fx) {
+void Parameter::mouseUp(int mx, int my, int ex, int ey, int layer, Effect* fx) {
   mx -= ex;
   my -= ey;
   dragging = false;

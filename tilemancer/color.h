@@ -33,7 +33,6 @@ class Color {
   bool disabled;
 };
 
-
 Color HSVtoRGB(float H, float S, float V);
 Color RGBtoHSV(float R, float G, float B);
 

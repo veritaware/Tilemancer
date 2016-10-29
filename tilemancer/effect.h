@@ -18,7 +18,6 @@
 
 */
 
-
 #ifndef TILEMANCER_EFFECT_H
 #define TILEMANCER_EFFECT_H
 
@@ -27,8 +26,8 @@ class Parameter;
 class Text;
 
 #include <string>
-#include <vector>
 #include <thread>
+#include <vector>
 
 #include "tilemancer/tmlua.h"
 

@@ -33,9 +33,7 @@ void FloatImage::setAll(float v) {
   }
 }
 
-const float* FloatImage::ptr() const {
-  return &data[0];
-}
+const float* FloatImage::ptr() const { return &data[0]; }
 
 const std::vector<GLubyte> FloatImage::toByteArray() const {
   std::vector<GLubyte> bv;
