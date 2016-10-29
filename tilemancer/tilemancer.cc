@@ -441,6 +441,10 @@ void onKeyDown(const SDL_Event& e);
 
 void onKeyUp(const SDL_Event& e);
 
+void renderFileBrowser(int barX, int barY, int barXRight, int scrollW);
+
+void renderNodes(int barX, int barXRight, const Texture *t);
+
 void loadGen() {
   texSizeX = 32;
   texSizeY = texSizeX;
@@ -1607,199 +1611,10 @@ void renderGL() {
 
   // file browser
   if (browserOpen) {
-    renderUI(barX + 1, 0, screenW - barX - barXRight - 2, barY - 1, effectImg5);
-    int title = collH - 4;
-    int bSpace = 5;
-    float tS = title / 2 - 4;
-    renderUI(barX + 1 + bSpace * 4 + 8 * 3, bSpace,
-             screenW - barX - barXRight - 2 - bSpace * 6 - 8 * 4, title,
-             effectImg6);
-    int ln = textW(currentDir, barX + 1 + bSpace * 4 + 8 * 3 + tS, bSpace + tS,
-                   fontImg, 0);
-    if (ln > screenW - barX - barXRight - 2 - bSpace * 6 - 8 * 4 - tS * 2) {
-      renderText(currentDir, screenW - barXRight - 1 - bSpace * 2 - 8 - tS,
-                 bSpace + tS, fontImg, 1);
-    } else {
-      renderText(currentDir, barX + 1 + bSpace * 4 + 8 * 3 + tS, bSpace + tS,
-                 fontImg, 0);
-    }
-    renderUI(barX + 1 + bSpace, title + bSpace * 2,
-             screenW - barX - barXRight - 2 - bSpace * 3 - 8, title,
-             effectImg6);
-    if (overwrite) {
-      renderText(filenameB, barX + 1 + bSpace + tS, bSpace * 2 + tS + title,
-                 fontImg2, 0);
-    } else {
-      renderText(filenameB, barX + 1 + bSpace + tS, bSpace * 2 + tS + title,
-                 fontImg, 0);
-    }
-    renderUI(barX + 1 + bSpace, title * 2 + bSpace * 3,
-             screenW - barX - barXRight - 2 - bSpace * 2,
-             barY - 1 - bSpace * 4 - title * 2, effectImg6);
-    int fh = tS;
-    int fw = tS - browserScroll;
-    int fwNext = 0;
-    for (int i = 0; i < filenames.size(); i++) {
-      int n = textW(filenames.at(i)->name, barX + 1 + bSpace + fw + tS + 8,
-                    title * 2 + bSpace * 3 + fh, fontImg, 0);
-      if (barX + 1 + bSpace + fw - tS + n + 8 * 2 + tS > barX &&
-          barX + 1 + bSpace + fw - tS < screenW - barXRight) {
-        if (i == selectedFile) {
-          renderUI(barX + 1 + bSpace + fw - tS,
-                   title * 2 + bSpace * 3 + fh - tS, n + 8 * 2 + tS, title,
-                   effectImg5);
-        }
-        renderIcon(barX + 1 + bSpace + fw, title * 2 + bSpace * 3 + fh, 8, 8,
-                   iconImg9, filenames.at(i)->folder);
-        renderText(filenames.at(i)->name, barX + 1 + bSpace + fw + tS + 8,
-                   title * 2 + bSpace * 3 + fh, fontImg, 0);
-      }
+    renderFileBrowser(barX, barY, barXRight, scrollW);
 
-      if (n > fwNext) {
-        fwNext = n;
-      }
-      fh += title;
-      if (fh + title * 2 + title + bSpace * 3 >
-              title + bSpace * 2 + barY - 1 - bSpace * 3 - title - 6 &&
-          i != filenames.size() - 1) {
-        fh = tS;
-        fw += fwNext + tS * 2 + 8 * 3;
-        fwNext = 0;
-      }
-    }
-    fw += fwNext + tS * 2 + 8 * 3;
-    int scrollH = fw + browserScroll;
-    if (scrollH < screenW - barX - barXRight - bSpace * 2) {
-      scrollH = screenW - barX - barXRight - bSpace * 2;
-    }
-    renderUI(barX + bSpace + 1 + int(int(browserScroll) *
-                                     (screenW - barX - barXRight - bSpace * 2) /
-                                     float(scrollH)),
-             barY - bSpace - scrollW - 1,
-             int((screenW - barX - barXRight - bSpace * 2) *
-                 (screenW - barX - barXRight - bSpace * 2) / float(scrollH)),
-             scrollW, effectImg14);
-
-    renderUI(barX, 0, bSpace, barY - 1, effectImg);
-    renderUI(screenW - barXRight - bSpace, 0, bSpace, barY - 1, effectImg);
-    renderUI(barX + 1, 0, bSpace, barY - 1, effectImg5);
-    renderUI(barX + 1, 0, bSpace * 4 + 8 * 3, title + bSpace, effectImg5);
-    renderUI(screenW - barXRight - bSpace - 1, 0, bSpace, barY - 1, effectImg5);
-    renderUI(screenW - barXRight - bSpace * 2 - 1 - 8, 0, bSpace * 2 + 8,
-             title * 2 + bSpace * 2, effectImg5);
-    bool leftActive = (fnUndo.size() > 1);
-    bool rightActive = (fnRedo.size() > 0);
-    bool upActive = (currentDir.size() != 1);
-    renderIcon(barX + 1 + bSpace, bSpace + tS, 8, 8, iconImg10, 0 + leftActive);
-    renderIcon(barX + 1 + bSpace + 8 + bSpace, bSpace + tS, 8, 8, iconImg10,
-               2 + rightActive);
-    renderIcon(barX + 1 + bSpace + 8 * 2 + bSpace * 2, bSpace + tS, 8, 8,
-               iconImg10, 4 + upActive);
-    renderIcon(screenW - barXRight - 8 - bSpace - 1, bSpace + tS, 8, 8,
-               iconImg10, 6);
-    int impexp = 0;
-    if (browserMode == 1 || browserMode == 2) {
-      impexp = 1;
-    } else if (browserMode == 3) {
-      impexp = 2;
-    } else if (browserMode == 4) {
-      impexp = 4;
-    } else if (browserMode == 5) {
-      impexp = 3;
-    }
-    renderIcon(screenW - barXRight - 8 - bSpace - 1, bSpace * 2 + title + tS, 8,
-               8, iconImg7, impexp);
   } else {
-    // render nodes
-    model =
-        glm::translate(glm::mat4(1.0), glm::vec3(-camXFinal, -camYFinal, 0.0));
-    model =
-        glm::translate(model, glm::vec3(0, screenH * (screenScale - 1.0), 0.0));
-    if (draggingSocket) {
-      Effect* fx = t->fxs.at(draggedNode);
-      Socket* out = fx->outputs.at(draggedSocket);
-      renderBezier(out->b, bezierFill);
-    }
-    for (int i = 0; i < t->fxs.size(); i++) {
-      Effect* fx = t->fxs.at(i);
-      for (int in = 0; in < fx->inputs.size(); in++) {
-        if (fx->inputs.at(in)->s != NULL) {
-          if (fx->inputs.at(in)->infloop) {
-            renderBezier(fx->inputs.at(in)->b, bezierFillError);
-          } else {
-            renderBezier(fx->inputs.at(in)->b, bezierFill);
-          }
-        }
-      }
-    }
-    for (int i = 0; i < t->fxs.size(); i++) {
-      Effect* fx = t->fxs.at(i);
-      if (fx->x + fx->w + 4 + int(nodeCX) > barX &&
-          fx->x - 4 + int(nodeCX) < screenW - barXRight &&
-          fx->y + fx->h + 4 + int(nodeCY) > 0 &&
-          fx->y - 4 + int(nodeCY) < screenH) {
-        model = glm::translate(
-            model, glm::vec3(fx->x + int(nodeCX) + fx->w / 2.0,
-                             fx->y + int(nodeCY) + fx->h / 2.0, 0.0));
-        model = glm::rotate(model, glm::radians(fx->r), glm::vec3(0, 0, 1));
-        model = glm::translate(
-            model, glm::vec3(-(fx->x + int(nodeCX) + fx->w / 2.0),
-                             -(fx->y + int(nodeCY) + fx->h / 2.0), 0.0));
-
-        renderUI(fx->x + int(nodeCX), fx->y + int(nodeCY), fx->w, fx->h,
-                 effectImg4);
-        renderUI(fx->x + int(nodeCX), fx->y + int(nodeCY), fx->w, 9 + 8,
-                 effectImg16);
-        renderText(fx->name, fx->x + int(nodeCX) + 4, fx->y + int(nodeCY) + 4,
-                   fontImg, false);
-        renderIcon(fx->x + fx->w + int(nodeCX) - 8 - 4, fx->y + int(nodeCY) + 4,
-                   8, 8, iconImg3, 1);
-        renderIcon(fx->x + fx->w + int(nodeCX) - 8 - 4 - 8 - 4,
-                   fx->y + int(nodeCY) + 4, 8, 8, iconImg3, 2);
-        for (int p = 0; p < fx->texts.size(); p++) {
-          renderText(fx->texts.at(p)->name, fx->x + int(nodeCX) + 7,
-                     fx->y + fx->texts.at(p)->y + int(nodeCY), fontImg, false);
-        }
-        for (int p = 0; p < fx->params.size(); p++) {
-          fx->params.at(p)->render(fx->x + int(nodeCX), fx->y + int(nodeCY));
-        }
-        for (int out = 0; out < fx->outputs.size(); out++) {
-          int size = 8;
-          int size2 = 64;
-          renderUI(fx->x + fx->w / 2.0 + int(nodeCX) - int(size2 / 2.0),
-                   fx->y + int(nodeCY) + fx->outputs.at(out)->y + size / 2.0 -
-                       size2 / 2.0,
-                   size2, size2, effectImg);
-          if (fx->doneTimer < 3) {
-            renderSprite(
-                0, int(fx->x + fx->w / 2.0 + int(nodeCX) - int(texSizeX / 2.0)),
-                int(fx->y + int(nodeCY) + fx->outputs.at(out)->y + size / 2.0 -
-                    texSizeY / 2.0),
-                texSizeX, texSizeY, fx->outputs.at(out)->texture, texSizeX,
-                texSizeY, 0, 0, 0, 1, 0, 0, 0, 0, 0);
-          } else {
-            renderRotIcon(int(fx->x + fx->w / 2.0 + int(nodeCX) - 4),
-                          int(fx->y + int(nodeCY) + fx->outputs.at(out)->y +
-                              size / 2.0 - 4),
-                          8, 8, iconImg8, 0);
-          }
-          renderIcon(fx->x + fx->w + int(nodeCX) - size / 2.0,
-                     fx->y + int(nodeCY) + fx->outputs.at(out)->y, size, size,
-                     iconImg6, 1);
-        }
-        for (int in = 0; in < fx->inputs.size(); in++) {
-          int size = 8;
-          renderIcon(fx->x + int(nodeCX) - size / 2.0,
-                     fx->y + int(nodeCY) + fx->inputs.at(in)->y, size, size,
-                     iconImg6, 1);
-        }
-
-        model = glm::translate(glm::mat4(1.0),
-                               glm::vec3(-camXFinal, -camYFinal, 0.0));
-        model = glm::translate(
-            model, glm::vec3(0, screenH * (screenScale - 1.0), 0.0));
-      }
-    }
+    renderNodes(barX, barXRight, t);
   }
 
   renderUI(0, 0, barX, barY, effectImg8);
@@ -2103,6 +1918,203 @@ void renderGL() {
       f /= 10;
     }
   }
+}
+
+void renderNodes(int barX, int barXRight, const Texture *t) {// render nodes
+  model =
+        translate(glm::mat4(1.0), glm::vec3(-camXFinal, -camYFinal, 0.0));
+  model =
+        translate(model, glm::vec3(0, screenH * (screenScale - 1.0), 0.0));
+  if (draggingSocket) {
+      Effect* fx = t->fxs.at(draggedNode);
+      Socket* out = fx->outputs.at(draggedSocket);
+      renderBezier(out->b, bezierFill);
+    }
+  for (int i = 0; i < t->fxs.size(); i++) {
+      Effect* fx = t->fxs.at(i);
+      for (int in = 0; in < fx->inputs.size(); in++) {
+        if (fx->inputs.at(in)->s != NULL) {
+          if (fx->inputs.at(in)->infloop) {
+            renderBezier(fx->inputs.at(in)->b, bezierFillError);
+          } else {
+            renderBezier(fx->inputs.at(in)->b, bezierFill);
+          }
+        }
+      }
+    }
+  for (int i = 0; i < t->fxs.size(); i++) {
+      Effect* fx = t->fxs.at(i);
+      if (fx->x + fx->w + 4 + int(nodeCX) > barX &&
+          fx->x - 4 + int(nodeCX) < screenW - barXRight &&
+          fx->y + fx->h + 4 + int(nodeCY) > 0 &&
+          fx->y - 4 + int(nodeCY) < screenH) {
+        model = translate(
+            model, glm::vec3(fx->x + int(nodeCX) + fx->w / 2.0,
+                             fx->y + int(nodeCY) + fx->h / 2.0, 0.0));
+        model = rotate(model, glm::radians(fx->r), glm::vec3(0, 0, 1));
+        model = translate(
+            model, glm::vec3(-(fx->x + int(nodeCX) + fx->w / 2.0),
+                             -(fx->y + int(nodeCY) + fx->h / 2.0), 0.0));
+
+        renderUI(fx->x + int(nodeCX), fx->y + int(nodeCY), fx->w, fx->h,
+                 effectImg4);
+        renderUI(fx->x + int(nodeCX), fx->y + int(nodeCY), fx->w, 9 + 8,
+                 effectImg16);
+        renderText(fx->name, fx->x + int(nodeCX) + 4, fx->y + int(nodeCY) + 4,
+                   fontImg, false);
+        renderIcon(fx->x + fx->w + int(nodeCX) - 8 - 4, fx->y + int(nodeCY) + 4,
+                   8, 8, iconImg3, 1);
+        renderIcon(fx->x + fx->w + int(nodeCX) - 8 - 4 - 8 - 4,
+                   fx->y + int(nodeCY) + 4, 8, 8, iconImg3, 2);
+        for (int p = 0; p < fx->texts.size(); p++) {
+          renderText(fx->texts.at(p)->name, fx->x + int(nodeCX) + 7,
+                     fx->y + fx->texts.at(p)->y + int(nodeCY), fontImg, false);
+        }
+        for (int p = 0; p < fx->params.size(); p++) {
+          fx->params.at(p)->render(fx->x + int(nodeCX), fx->y + int(nodeCY));
+        }
+        for (int out = 0; out < fx->outputs.size(); out++) {
+          int size = 8;
+          int size2 = 64;
+          renderUI(fx->x + fx->w / 2.0 + int(nodeCX) - int(size2 / 2.0),
+                   fx->y + int(nodeCY) + fx->outputs.at(out)->y + size / 2.0 -
+                       size2 / 2.0,
+                   size2, size2, effectImg);
+          if (fx->doneTimer < 3) {
+            renderSprite(
+                0, int(fx->x + fx->w / 2.0 + int(nodeCX) - int(texSizeX / 2.0)),
+                int(fx->y + int(nodeCY) + fx->outputs.at(out)->y + size / 2.0 -
+                    texSizeY / 2.0),
+                texSizeX, texSizeY, fx->outputs.at(out)->texture, texSizeX,
+                texSizeY, 0, 0, 0, 1, 0, 0, 0, 0, 0);
+          } else {
+            renderRotIcon(int(fx->x + fx->w / 2.0 + int(nodeCX) - 4),
+                          int(fx->y + int(nodeCY) + fx->outputs.at(out)->y +
+                              size / 2.0 - 4),
+                          8, 8, iconImg8, 0);
+          }
+          renderIcon(fx->x + fx->w + int(nodeCX) - size / 2.0,
+                     fx->y + int(nodeCY) + fx->outputs.at(out)->y, size, size,
+                     iconImg6, 1);
+        }
+        for (int in = 0; in < fx->inputs.size(); in++) {
+          int size = 8;
+          renderIcon(fx->x + int(nodeCX) - size / 2.0,
+                     fx->y + int(nodeCY) + fx->inputs.at(in)->y, size, size,
+                     iconImg6, 1);
+        }
+
+        model = translate(glm::mat4(1.0),
+                          glm::vec3(-camXFinal, -camYFinal, 0.0));
+        model = translate(
+            model, glm::vec3(0, screenH * (screenScale - 1.0), 0.0));
+      }
+    }
+}
+
+void renderFileBrowser(int barX, int barY, int barXRight, int scrollW) {
+  renderUI(barX + 1, 0, screenW - barX - barXRight - 2, barY - 1, effectImg5);
+  int title = collH - 4;
+  int bSpace = 5;
+  float tS = title / 2 - 4;
+  renderUI(barX + 1 + bSpace * 4 + 8 * 3, bSpace,
+             screenW - barX - barXRight - 2 - bSpace * 6 - 8 * 4, title,
+             effectImg6);
+  int ln = textW(currentDir, barX + 1 + bSpace * 4 + 8 * 3 + tS, bSpace + tS,
+                   fontImg, 0);
+  if (ln > screenW - barX - barXRight - 2 - bSpace * 6 - 8 * 4 - tS * 2) {
+      renderText(currentDir, screenW - barXRight - 1 - bSpace * 2 - 8 - tS,
+                 bSpace + tS, fontImg, 1);
+    } else {
+      renderText(currentDir, barX + 1 + bSpace * 4 + 8 * 3 + tS, bSpace + tS,
+                 fontImg, 0);
+    }
+  renderUI(barX + 1 + bSpace, title + bSpace * 2,
+             screenW - barX - barXRight - 2 - bSpace * 3 - 8, title,
+             effectImg6);
+  if (overwrite) {
+      renderText(filenameB, barX + 1 + bSpace + tS, bSpace * 2 + tS + title,
+                 fontImg2, 0);
+    } else {
+      renderText(filenameB, barX + 1 + bSpace + tS, bSpace * 2 + tS + title,
+                 fontImg, 0);
+    }
+  renderUI(barX + 1 + bSpace, title * 2 + bSpace * 3,
+             screenW - barX - barXRight - 2 - bSpace * 2,
+             barY - 1 - bSpace * 4 - title * 2, effectImg6);
+  int fh = tS;
+  int fw = tS - browserScroll;
+  int fwNext = 0;
+  for (int i = 0; i < filenames.size(); i++) {
+      int n = textW(filenames.at(i)->name, barX + 1 + bSpace + fw + tS + 8,
+                    title * 2 + bSpace * 3 + fh, fontImg, 0);
+      if (barX + 1 + bSpace + fw - tS + n + 8 * 2 + tS > barX &&
+          barX + 1 + bSpace + fw - tS < screenW - barXRight) {
+        if (i == selectedFile) {
+          renderUI(barX + 1 + bSpace + fw - tS,
+                   title * 2 + bSpace * 3 + fh - tS, n + 8 * 2 + tS, title,
+                   effectImg5);
+        }
+        renderIcon(barX + 1 + bSpace + fw, title * 2 + bSpace * 3 + fh, 8, 8,
+                   iconImg9, filenames.at(i)->folder);
+        renderText(filenames.at(i)->name, barX + 1 + bSpace + fw + tS + 8,
+                   title * 2 + bSpace * 3 + fh, fontImg, 0);
+      }
+
+      if (n > fwNext) {
+        fwNext = n;
+      }
+      fh += title;
+      if (fh + title * 2 + title + bSpace * 3 >
+              title + bSpace * 2 + barY - 1 - bSpace * 3 - title - 6 &&
+          i != filenames.size() - 1) {
+        fh = tS;
+        fw += fwNext + tS * 2 + 8 * 3;
+        fwNext = 0;
+      }
+    }
+  fw += fwNext + tS * 2 + 8 * 3;
+  int scrollH = fw + browserScroll;
+  if (scrollH < screenW - barX - barXRight - bSpace * 2) {
+      scrollH = screenW - barX - barXRight - bSpace * 2;
+    }
+  renderUI(barX + bSpace + 1 + int(int(browserScroll) *
+                                     (screenW - barX - barXRight - bSpace * 2) /
+                                     float(scrollH)),
+             barY - bSpace - scrollW - 1,
+             int((screenW - barX - barXRight - bSpace * 2) *
+                 (screenW - barX - barXRight - bSpace * 2) / float(scrollH)),
+             scrollW, effectImg14);
+
+  renderUI(barX, 0, bSpace, barY - 1, effectImg);
+  renderUI(screenW - barXRight - bSpace, 0, bSpace, barY - 1, effectImg);
+  renderUI(barX + 1, 0, bSpace, barY - 1, effectImg5);
+  renderUI(barX + 1, 0, bSpace * 4 + 8 * 3, title + bSpace, effectImg5);
+  renderUI(screenW - barXRight - bSpace - 1, 0, bSpace, barY - 1, effectImg5);
+  renderUI(screenW - barXRight - bSpace * 2 - 1 - 8, 0, bSpace * 2 + 8,
+             title * 2 + bSpace * 2, effectImg5);
+  bool leftActive = (fnUndo.size() > 1);
+  bool rightActive = (fnRedo.size() > 0);
+  bool upActive = (currentDir.size() != 1);
+  renderIcon(barX + 1 + bSpace, bSpace + tS, 8, 8, iconImg10, 0 + leftActive);
+  renderIcon(barX + 1 + bSpace + 8 + bSpace, bSpace + tS, 8, 8, iconImg10,
+               2 + rightActive);
+  renderIcon(barX + 1 + bSpace + 8 * 2 + bSpace * 2, bSpace + tS, 8, 8,
+               iconImg10, 4 + upActive);
+  renderIcon(screenW - barXRight - 8 - bSpace - 1, bSpace + tS, 8, 8,
+               iconImg10, 6);
+  int impexp = 0;
+  if (browserMode == 1 || browserMode == 2) {
+      impexp = 1;
+    } else if (browserMode == 3) {
+      impexp = 2;
+    } else if (browserMode == 4) {
+      impexp = 4;
+    } else if (browserMode == 5) {
+      impexp = 3;
+    }
+  renderIcon(screenW - barXRight - 8 - bSpace - 1, bSpace * 2 + title + tS, 8,
+               8, iconImg7, impexp);
 }
 
 int tilemancer_main() {
