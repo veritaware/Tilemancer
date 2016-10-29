@@ -1,5 +1,8 @@
 file(GLOB app_src_glob *.cpp;*.cc;*.h;*.inl)
 
+# add support for the deprecated bit32 lua library
+# need to update the brick script that depends on this
+add_definitions(-DLUA_COMPAT_BITLIB)
 set(src_lua
     ../external/lua/src/lapi.c
     ../external/lua/src/lauxlib.c
