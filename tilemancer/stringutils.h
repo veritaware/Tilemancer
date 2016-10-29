@@ -18,27 +18,13 @@
 
 */
 
-#ifndef TILEMANCER_COLOR_H
-#define TILEMANCER_COLOR_H
+#ifndef TILEMANCER_STRINGUTILS_H
+#define TILEMANCER_STRINGUTILS_H
 
-class Color {
- public:
-  Color(int r, int g, int b);
-  bool operator==(const Color& rhs) const;
+#include <vector>
+#include <string>
 
-  int r;
-  int g;
-  int b;
-  int a;
-  bool disabled;
-};
+std::vector<std::string>& split(const std::string& s, char delim, std::vector<std::string>& elems);
+std::vector<std::string> split(const std::string& s, char delim);
 
-
-Color HSVtoRGB(float H, float S, float V);
-Color RGBtoHSV(float R, float G, float B);
-
-double getLuminance(double R, double G, double B);
-double getContrast(float y1, float y2);
-double getContrast(Color a, Color b);
-
-#endif  // TILEMANCER_COLOR_H
+#endif  // TILEMANCER_STRINGUTILS_H

@@ -18,27 +18,17 @@
 
 */
 
-#ifndef TILEMANCER_COLOR_H
-#define TILEMANCER_COLOR_H
+#ifndef TILEMANCER_SAVELOAD_H
+#define TILEMANCER_SAVELOAD_H
 
-class Color {
- public:
-  Color(int r, int g, int b);
-  bool operator==(const Color& rhs) const;
+#include <string>
 
-  int r;
-  int g;
-  int b;
-  int a;
-  bool disabled;
-};
+std::string saveStuff();
+void loadStuff(std::string str, bool newFile);
 
 
-Color HSVtoRGB(float H, float S, float V);
-Color RGBtoHSV(float R, float G, float B);
+void newFile();
+void loadFile(std::string dir);
+void saveFile(std::string dir);
 
-double getLuminance(double R, double G, double B);
-double getContrast(float y1, float y2);
-double getContrast(Color a, Color b);
-
-#endif  // TILEMANCER_COLOR_H
+#endif  // TILEMANCER_SAVELOAD_H

@@ -18,27 +18,17 @@
 
 */
 
-#ifndef TILEMANCER_COLOR_H
-#define TILEMANCER_COLOR_H
+#include "tilemancer/socket.h"
+#include "tilemancer/bezier.h"
 
-class Color {
- public:
-  Color(int r, int g, int b);
-  bool operator==(const Color& rhs) const;
+Socket::Socket() {
+  futureN = -1;
+  futureS = -1;
+  index = 0;
+  infloop = false;
+  s = NULL;
+  b = new Bezier();
+  b->create();
+}
 
-  int r;
-  int g;
-  int b;
-  int a;
-  bool disabled;
-};
-
-
-Color HSVtoRGB(float H, float S, float V);
-Color RGBtoHSV(float R, float G, float B);
-
-double getLuminance(double R, double G, double B);
-double getContrast(float y1, float y2);
-double getContrast(Color a, Color b);
-
-#endif  // TILEMANCER_COLOR_H
+Socket::~Socket() { delete b; }

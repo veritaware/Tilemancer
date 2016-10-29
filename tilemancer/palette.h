@@ -18,27 +18,19 @@
 
 */
 
-#ifndef TILEMANCER_COLOR_H
-#define TILEMANCER_COLOR_H
+#ifndef TILEMANCER_PALETTE_H
+#define TILEMANCER_PALETTE_H
 
-class Color {
- public:
-  Color(int r, int g, int b);
-  bool operator==(const Color& rhs) const;
+class Color;
 
-  int r;
-  int g;
-  int b;
-  int a;
-  bool disabled;
-};
+Color* getPalColor(float H, float S, float V);
 
+void paletteChanged();
+void loadPalette();
 
-Color HSVtoRGB(float H, float S, float V);
-Color RGBtoHSV(float R, float G, float B);
+// remove?
+#define beforePaletteChange()
+// remove?
+#define updateGrad(param)
 
-double getLuminance(double R, double G, double B);
-double getContrast(float y1, float y2);
-double getContrast(Color a, Color b);
-
-#endif  // TILEMANCER_COLOR_H
+#endif  // TILEMANCER_PALETTE_H

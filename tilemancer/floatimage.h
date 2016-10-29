@@ -18,27 +18,14 @@
 
 */
 
-#ifndef TILEMANCER_COLOR_H
-#define TILEMANCER_COLOR_H
+#ifndef TILEMANCER_FLOATIMAGE_H
+#define TILEMANCER_FLOATIMAGE_H
 
-class Color {
- public:
-  Color(int r, int g, int b);
-  bool operator==(const Color& rhs) const;
+#include <vector>
 
-  int r;
-  int g;
-  int b;
-  int a;
-  bool disabled;
-};
+class Color;
 
+void setPixel(std::vector<float>& data, int x, int y, Color* color, bool wrap);
+Color getColor(std::vector<float>& data, int x, int y, bool wrap);
 
-Color HSVtoRGB(float H, float S, float V);
-Color RGBtoHSV(float R, float G, float B);
-
-double getLuminance(double R, double G, double B);
-double getContrast(float y1, float y2);
-double getContrast(Color a, Color b);
-
-#endif  // TILEMANCER_COLOR_H
+#endif  // TILEMANCER_FLOATIMAGE_H

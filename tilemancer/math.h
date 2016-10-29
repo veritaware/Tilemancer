@@ -18,27 +18,14 @@
 
 */
 
-#ifndef TILEMANCER_COLOR_H
-#define TILEMANCER_COLOR_H
+#ifndef TILEMANCER_MATH_H
+#define TILEMANCER_MATH_H
 
-class Color {
- public:
-  Color(int r, int g, int b);
-  bool operator==(const Color& rhs) const;
+float sign(float x1, float y1, float x2, float y2, float x3, float y3);
 
-  int r;
-  int g;
-  int b;
-  int a;
-  bool disabled;
-};
+bool insideTri(float px, float py, float x1, float y1, float x2, float y2,
+               float x3, float y3);
 
+float dot(float x1, float y1, float x2, float y2);
 
-Color HSVtoRGB(float H, float S, float V);
-Color RGBtoHSV(float R, float G, float B);
-
-double getLuminance(double R, double G, double B);
-double getContrast(float y1, float y2);
-double getContrast(Color a, Color b);
-
-#endif  // TILEMANCER_COLOR_H
+#endif  // TILEMANCER_MATH_H

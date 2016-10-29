@@ -18,27 +18,28 @@
 
 */
 
-#ifndef TILEMANCER_COLOR_H
-#define TILEMANCER_COLOR_H
+#include "tilemancer/undoredo.h"
+#include "tilemancer/globals.h"
+#include "tilemancer/saveload.h"
 
-class Color {
- public:
-  Color(int r, int g, int b);
-  bool operator==(const Color& rhs) const;
+void undo() {
+  if (listUndo.size() > 0) {
+    listRedo.push_back(saveStuff());
+    loadStuff(listUndo.back(), false);
+    listUndo.pop_back();
+  }
+}
 
-  int r;
-  int g;
-  int b;
-  int a;
-  bool disabled;
-};
+void redo() {
+  if (listRedo.size() > 0) {
+    // cout << listRedo.size() << endl;
+    listUndo.push_back(saveStuff());
+    loadStuff(listRedo.back(), false);
+    listRedo.pop_back();
+  }
+}
 
-
-Color HSVtoRGB(float H, float S, float V);
-Color RGBtoHSV(float R, float G, float B);
-
-double getLuminance(double R, double G, double B);
-double getContrast(float y1, float y2);
-double getContrast(Color a, Color b);
-
-#endif  // TILEMANCER_COLOR_H
+void saveUndo() {
+  listUndo.push_back(saveStuff());
+  listRedo.clear();
+}

@@ -18,27 +18,24 @@
 
 */
 
-#ifndef TILEMANCER_COLOR_H
-#define TILEMANCER_COLOR_H
+#ifndef TILEMANCER_TEXTURE_H
+#define TILEMANCER_TEXTURE_H
 
-class Color {
+#include <vector>
+#include <string>
+
+class Effect;
+
+class Texture {
  public:
-  Color(int r, int g, int b);
-  bool operator==(const Color& rhs) const;
-
-  int r;
-  int g;
-  int b;
-  int a;
-  bool disabled;
+  ~Texture();
+  void genTex(bool first = true);
+  bool done;
+  int doneTimer;
+  bool abort;
+  std::vector<Effect*> fxs;
+  std::string lastTexDir;
+  std::string lastTexName;
 };
 
-
-Color HSVtoRGB(float H, float S, float V);
-Color RGBtoHSV(float R, float G, float B);
-
-double getLuminance(double R, double G, double B);
-double getContrast(float y1, float y2);
-double getContrast(Color a, Color b);
-
-#endif  // TILEMANCER_COLOR_H
+#endif  // TILEMANCER_TEXTURE_H
