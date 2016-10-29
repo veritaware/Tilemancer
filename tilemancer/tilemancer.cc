@@ -428,6 +428,20 @@ void importPresets() {
 
 void getHome();
 
+void mouseButtonDown(const SDL_Event &e);
+
+void mouseButtonUp(const SDL_Event &e);
+
+void onMouseMotion(const SDL_Event &e);
+
+void onMouseWheel(const SDL_Event &e);
+
+void onTextInput(const SDL_Event &e);
+
+void onKeyDown(const SDL_Event &e);
+
+void onKeyUp(const SDL_Event &e);
+
 void loadGen() {
   texSizeX = 32;
   texSizeY = texSizeX;
@@ -2556,7 +2570,516 @@ int tilemancer_main() {
         }
       }
       if (e.type == SDL_MOUSEBUTTONDOWN) {
-        if (textType != NULL) {
+        mouseButtonDown(e);
+      }
+      if (e.type == SDL_MOUSEBUTTONUP) {
+        mouseButtonUp(e);
+      }
+      if (e.type == SDL_MOUSEMOTION) {
+        onMouseMotion(e);
+      }
+      if (e.type == SDL_MOUSEWHEEL) {
+        onMouseWheel(e);
+      }
+      if (e.type == SDL_TEXTINPUT) {
+        onTextInput(e);
+      }
+      if (e.type == SDL_KEYUP) {
+        onKeyUp(e);
+      }
+      if (e.type == SDL_KEYDOWN) {
+        onKeyDown(e);
+      }
+      if (e.type == SDL_KEYUP) {
+      }
+    }
+    SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
+    SDL_RenderClear(gRenderer);
+    double newTime = 0;
+    if (gameStarted) {
+      newTime = SDL_GetTicks();
+    } else {
+      newTime = SDL_GetTicks();
+      currentTime = SDL_GetTicks();
+    }
+    gameStarted = true;
+    double frameTime = (newTime - currentTime) / 1000.0;
+    currentTime = newTime;
+    accumulator += frameTime;
+    if (fpsTimer == 0) {
+      if (frameTime != 0) {
+        fps = 1.0 / frameTime;
+      } else {
+        fps = 0;
+      }
+      fpsTimer = 0;
+    } else {
+      fpsTimer--;
+    }
+    while (accumulator >= dt) {
+      update();
+      accumulator -= dt;
+    }
+    renderGL();
+    SDL_GL_SwapWindow(window);
+
+    double newTime2 = 0;
+    if (gameStarted) {
+      newTime2 = SDL_GetTicks();
+    } else {
+      newTime2 = SDL_GetTicks();
+      lastTime = SDL_GetTicks();
+    }
+    double frameTime2 = (newTime2 - lastTime) / 1000.0;
+    double delayTime = dt - frameTime2;
+    if (delayTime > 0) {
+      SDL_Delay(delayTime * 1000);
+    }
+    lastTime = SDL_GetTicks();
+  }
+  lua_close(L);
+  SDL_DestroyWindow(window);
+  SDL_Quit();
+  return 0;
+}
+
+void onKeyUp(const SDL_Event &e) {
+  if (e.key.keysym.sym == SDLK_LSHIFT) {
+          camMoving = false;
+        }
+}
+
+void onKeyDown(const SDL_Event &e) {
+  if (e.key.keysym.sym == SDLK_LSHIFT) {
+          camMoving = true;
+        }
+  if (e.key.keysym.sym == SDLK_BACKSPACE) {
+          if (filenameB.size() > 0) {
+            filenameB.pop_back();
+          }
+          overwrite = false;
+          if (textType != NULL && (textType->ID == 1 || textType->ID == 2)) {
+            if (textType->typing.size() > 0) {
+              textType->typing.pop_back();
+            }
+          }
+        }
+  if (e.key.keysym.sym == SDLK_z &&
+            SDL_GetModState() & (KMOD_GUI | KMOD_CTRL)) {
+          undo();
+        }
+  if (e.key.keysym.sym == SDLK_y &&
+            SDL_GetModState() & (KMOD_GUI | KMOD_CTRL)) {
+          redo();
+        }
+  if (e.key.keysym.sym == SDLK_n &&
+            SDL_GetModState() & (KMOD_GUI | KMOD_CTRL)) {
+          newFile();
+        }
+  if (e.key.keysym.sym == SDLK_s &&
+            SDL_GetModState() & (KMOD_GUI | KMOD_CTRL)) {
+          if (!browserOpen) {
+            openBrowser(currentDir, 0, 5);
+          }
+        }
+  if (e.key.keysym.sym == SDLK_o &&
+            SDL_GetModState() & (KMOD_GUI | KMOD_CTRL)) {
+          if (!browserOpen) {
+            openBrowser(currentDir, 0, 4);
+          }
+        }
+  if (e.key.keysym.sym == SDLK_RETURN) {
+          if (browserOpen) {
+            string fullDir = currentDir;
+            if (fullDir.size() != 1) {
+              fullDir = fullDir.append("/");
+            }
+            fullDir = fullDir.append(filenameB);
+            bool folder = false;
+            for (int i = 0; i < filenames.size(); i++) {
+              if (!strcmp(filenames.at(i)->name.c_str(), filenameB.c_str()) &&
+                  filenames.at(i)->folder) {
+                openBrowser(fullDir, 0, browserMode);
+                folder = true;
+              }
+            }
+            if (!folder) {
+              browserAction(fullDir, filenameB, currentDir);
+            }
+          }
+          if (textType != NULL) {
+            textType->value = atoi(textType->typing.c_str());
+            if (textType->value > textType->value3 && textType->value3 != -1) {
+              textType->value = textType->value3;
+            }
+            if (textType->value < textType->value2 && textType->value2 != -1) {
+              textType->value = textType->value2;
+            }
+            updateDrag(textTypeLayer, textTypeFx, textType);
+          }
+          textType = NULL;
+        }
+  if (e.key.keysym.sym == SDLK_LEFT) {
+          if (SDL_GetModState() & (KMOD_GUI | KMOD_CTRL)) {
+            // swap with left side
+          }
+          currentTexture--;
+          if (currentTexture < 0) {
+            currentTexture = 0;
+          }
+        }
+  if (e.key.keysym.sym == SDLK_RIGHT) {
+          if (SDL_GetModState() & (KMOD_GUI | KMOD_CTRL)) {
+            // swap with right side
+          }
+          currentTexture++;
+          if (currentTexture >= texs.size()) {
+            currentTexture = texs.size() - 1;
+          }
+        }
+  if (e.key.keysym.sym == SDLK_ESCAPE) {
+          if (browserOpen) {
+            browserOpen = false;
+            fnUndo.clear();
+            fnRedo.clear();
+          }
+        }
+}
+
+void onTextInput(const SDL_Event &e) {
+  if (browserOpen) {
+          filenameB.append(e.text.text);
+          overwrite = false;
+        }
+  if (textType != NULL && (textType->ID == 1 || textType->ID == 2)) {
+          if (textType->typing.length() < 10) {
+            textType->typing.append(e.text.text);
+          }
+        }
+}
+
+void onMouseWheel(const SDL_Event &e) {
+  if (!browserOpen) {
+          if (e.wheel.y < 0) {
+            if (mouseX > barX && mouseX < screenW - barXRight && mouseY > 0 &&
+                mouseY < barY) {
+              if (zoom < 2) {
+                zoom++;
+              }
+            }
+          } else if (e.wheel.y > 0) {
+            if (mouseX > barX && mouseX < screenW - barXRight && mouseY > 0 &&
+                mouseY < barY) {
+              if (zoom > 1) {
+                zoom--;
+              }
+            }
+          }
+        }
+}
+
+void onMouseMotion(const SDL_Event &e) {
+  int x = e.motion.x / screenScale;
+  int y = e.motion.y / screenScale;
+  mouseX = x;
+  mouseY = y;
+  textTypeTemp = NULL;
+  textTypeFxTemp = NULL;
+  textTypeLayerTemp = -2;
+  preview = NULL;
+  bool ttSet = false;
+  for (int i = 0; i < newEffects.size(); i++) {
+          Effect* fx = newEffects.at(i);
+          int newEScrolli = newEScroll;
+          if (x > 0 && x <= barX - 2 - 7 && y > collH * i - newEScroll &&
+              y <= collH * i - newEScroll + collH && y < barY) {
+            toolTip = newEffects.at(i)->desc + "\n\n\"";
+            if (newEffects.at(i)->isPreset) {
+              toolTip += "Presets/" + fx->fxname + "\"";
+            } else {
+              toolTip += "Nodes/" + fx->fxname + "\"";
+            }
+            ttSet = true;
+          }
+        }
+  if (x > 0 && x < screenW && y > barY && y < screenH) {
+          Texture* t = texs.at(currentTexture);
+          int h = -layersScroll;
+          int iconsize = 8;
+          int iconoffset = 5;
+          if (y > barY + h + iconoffset &&
+              y <= barY + h + iconoffset + iconsize && x > iconoffset &&
+              x <= iconoffset + iconsize) {
+            toolTip = "New layer";
+            ttSet = true;
+          }
+        }
+  if (!browserOpen) {
+          if (x > barX) {
+            if (x > screenW - barXRight - 5 - 8 &&
+                x < screenW - barXRight - 5 && y > 5 + 8 + 5 &&
+                y < 5 + 8 + 5 + 8) {
+              // info
+              toolTip = "Tilemancer " + to_string(Vmajor) + "." +
+                        to_string(Vminor) + "." + to_string(Vrevision);
+              toolTip += "\nDeveloped by @ledgamedev";
+              ttSet = true;
+            }
+            if (x > screenW - barXRight - 5 - 8 &&
+                x < screenW - barXRight - 5 && y > 5 && y < 5 + 8) {
+              // save file
+              toolTip = "Save file";
+              ttSet = true;
+            }
+            if (x > screenW - barXRight - 5 - 8 - 5 - 8 &&
+                x < screenW - barXRight - 5 - 5 - 8 && y > 5 && y < 5 + 8) {
+              // load file
+              toolTip = "Load file";
+              ttSet = true;
+            }
+            if (x > screenW - barXRight - 5 - 8 - 5 - 8 - 5 - 8 &&
+                x < screenW - barXRight - 5 - 5 - 8 - 5 - 8 && y > 5 &&
+                y < 5 + 8) {
+              // new file
+              toolTip = "New file";
+              ttSet = true;
+            }
+          }
+        }
+  if (x > barX && x < screenW - barXRight) {
+          for (int n = texs.at(currentTexture)->fxs.size() - 1; n >= 0; n--) {
+            Effect* fx = texs.at(currentTexture)->fxs.at(n);
+            bool breaking = false;
+            if (x > fx->x + nodeCX && x < fx->x + fx->w + nodeCX &&
+                y > fx->y + nodeCY && y < fx->y + fx->h + nodeCY) {
+              for (int p = 0; p < fx->params.size(); p++) {
+                Parameter* pa = fx->params.at(p);
+                if (x > fx->x + nodeCX + pa->x &&
+                    x < fx->x + nodeCX + pa->x + pa->w &&
+                    y > fx->y + nodeCY + pa->y &&
+                    y < fx->y + nodeCY + pa->y + pa->h) {
+                  toolTip = pa->tt;
+                  ttSet = true;
+                }
+              }
+              if (x > fx->x + fx->w + nodeCX - 8 - 4 &&
+                  x < fx->x + fx->w + nodeCX - 4 && y > fx->y + nodeCY + 4 &&
+                  y < fx->y + nodeCY + 4 + 8) {
+                toolTip = "Delete node";
+                ttSet = true;
+              }
+              if (x > fx->x + fx->w + nodeCX - 8 - 4 - 8 - 4 &&
+                  x < fx->x + fx->w + nodeCX - 4 - 8 - 4 &&
+                  y > fx->y + nodeCY + 4 && y < fx->y + nodeCY + 4 + 8) {
+                toolTip = "Duplicate node";
+                ttSet = true;
+              }
+              for (int out = 0; out < fx->outputs.size(); out++) {
+                if (x > int(fx->x + fx->w / 2.0 + nodeCX -
+                            int(texSizeX / 2.0)) &&
+                    x < int(fx->x + fx->w / 2.0 + nodeCX +
+                            int(texSizeX / 2.0)) &&
+                    y > int(fx->y + nodeCY + fx->outputs.at(out)->y + 4 -
+                            texSizeY / 2.0) &&
+                    y < int(fx->y + nodeCY + fx->outputs.at(out)->y + 4 +
+                            texSizeY / 2.0)) {
+                  toolTip = "Export tile";
+                  ttSet = true;
+                  preview = fx->outputs.at(out);
+                }
+              }
+              breaking = true;
+            }
+            for (int in = 0; in < fx->inputs.size(); in++) {
+              if (x > fx->x + nodeCX - 4 && x < fx->x + nodeCX + 4 &&
+                  y > fx->y + nodeCY + fx->inputs.at(in)->y &&
+                  y < fx->y + nodeCY + fx->inputs.at(in)->y + 8) {
+                breaking = true;
+              }
+            }
+            for (int out = 0; out < fx->outputs.size(); out++) {
+              if (x > fx->x + nodeCX + fx->w - 4 &&
+                  x < fx->x + nodeCX + fx->w + 4 &&
+                  y > fx->y + nodeCY + fx->outputs.at(out)->y &&
+                  y < fx->y + nodeCY + fx->outputs.at(out)->y + 8) {
+                breaking = true;
+              }
+            }
+            if (breaking) {
+              break;
+            }
+          }
+        }
+  if (y < barY) {
+          int toolsScrolli = toolsScroll;
+          if (x > screenW - 5 - 8 - 5 - 5 - 8 - 5 - 8 - 5 - 8 - 5 - 8 - 7 &&
+              x < screenW - 5 - 5 - 5 - 8 - 5 - 8 - 5 - 8 - 5 - 8 - 7 &&
+              y > 1 + 12 - toolsScrolli + barY3 - 8 - 5 &&
+              y < 1 + 12 - toolsScrolli + barY3 - 5) {
+            toolTip = "New color";
+            ttSet = true;
+          }
+          if (x > screenW - 5 - 8 - 5 - 5 - 8 - 5 - 8 - 5 - 8 - 7 &&
+              x < screenW - 5 - 5 - 5 - 8 - 5 - 8 - 5 - 8 - 7 &&
+              y > 1 + 12 - toolsScrolli + barY3 - 8 - 5 &&
+              y < 1 + 12 - toolsScrolli + barY3 - 5) {
+            toolTip = "Duplicate color";
+            ttSet = true;
+          }
+          if (x > screenW - 5 - 8 - 5 - 5 - 8 - 5 - 8 - 7 &&
+              x < screenW - 5 - 5 - 5 - 8 - 5 - 8 - 7 &&
+              y > 1 + 12 - toolsScrolli + barY3 - 8 - 5 &&
+              y < 1 + 12 - toolsScrolli + barY3 - 5) {
+            toolTip = "Delete color";
+            ttSet = true;
+          }
+          if (x > screenW - 5 - 8 - 5 - 5 - 8 - 7 &&
+              x < screenW - 5 - 5 - 5 - 8 - 7 &&
+              y > 1 + 12 - toolsScrolli + barY3 - 8 - 5 &&
+              y < 1 + 12 - toolsScrolli + barY3 - 5) {
+            // import
+            toolTip = "Load palette";
+            ttSet = true;
+          }
+          if (x > screenW - 5 - 8 - 5 - 7 && x < screenW - 5 - 5 - 7 &&
+              y > 1 + 12 - toolsScrolli + barY3 - 8 - 5 &&
+              y < 1 + 12 - toolsScrolli + barY3 - 5) {
+            // export
+            toolTip = "Save palette";
+            ttSet = true;
+          }
+          /*renderColor(screenW-barXRight+5+offsetA,
+           barY2+9+3+3+offsetA-toolsScrolli, size-offsetA*2, size-offsetA*2,
+           &rampA);
+           renderColor(screenW-(size-offsetB)-5,
+           barY2+9+3+3+offsetB-toolsScrolli, size-offsetB*2, size-offsetB*2,
+           &rampB);*/
+          for (int i = 0; i < colorParams.size(); i++) {
+            Parameter* pr = colorParams.at(i);
+            if (x - (screenW - barXRight) > pr->x &&
+                x - (screenW - barXRight) <= pr->x + pr->w &&
+                y - (barY3 + 2 + 12 - toolsScrolli) > pr->y &&
+                y - (barY3 + 2 + 12 - toolsScrolli) <= pr->y + pr->h) {
+              toolTip = pr->tt;
+              ttSet = true;
+            }
+          }
+        }
+  if (!ttSet) {
+          toolTip = "";
+        }
+
+  int ox = 0;
+  int oy = 0;
+  if (draggingParam) {
+          int mx = 0;
+          int my = 0;
+          SDL_GetGlobalMouseState(&mx, &my);
+          int sx = 0;
+          int sy = 0;
+          int sw = 0;
+          int sh = 0;
+          SDL_GetWindowPosition(window, &sx, &sy);
+          if (OS & Windows) {
+            mx += sx;
+            my += sy;
+          }
+          SDL_GetWindowSize(window, &sw, &sh);
+          while (mx < sx) {
+            mx += sw;
+            ox += sw / screenScale;
+          }
+          while (mx > sx + sw) {
+            mx -= sw;
+            ox -= sw / screenScale;
+          }
+          while (my < sy) {
+            my += sh;
+            oy += sh / screenScale;
+          }
+          while (my > sy + sh) {
+            my -= sh;
+            oy -= sh / screenScale;
+          }
+          if (OS & Windows) {
+            warpMouse(mx - sx, my - sy);
+          } else if (OS & Unix) {
+            warpMouse(mx, my);
+          }
+          x += ox;
+          y += oy;
+        }
+
+  for (int n = texs.at(currentTexture)->fxs.size() - 1; n >= 0; n--) {
+          Effect* fx = texs.at(currentTexture)->fxs.at(n);
+          for (int p = 0; p < fx->params.size(); p++) {
+            Parameter* pa = fx->params.at(p);
+            pa->oldmX += ox;
+            pa->oldmY += oy;
+            pa->mouseMove(x, y, fx->x + nodeCX, fx->y + nodeCY, 0, fx);
+          }
+        }
+
+  if (view == 0) {
+          int toolsScrolli = toolsScroll;
+          for (int i = 0; i < colorParams.size(); i++) {
+            colorParams.at(i)->oldmX += ox;
+            colorParams.at(i)->oldmY += oy;
+            colorParams.at(i)->mouseMove(x, y, screenW - barXRight,
+                                         barY3 + 2 + 12 - toolsScrolli, -1,
+                                         NULL);
+          }
+        }
+}
+
+void mouseButtonUp(const SDL_Event &e) {
+  if (e.button.button == SDL_BUTTON_MIDDLE) {
+          draggingCam2 = false;
+        }
+  if (e.button.button == SDL_BUTTON_LEFT) {
+          int x = e.button.x / screenScale;
+          int y = e.button.y / screenScale;
+          textTypeTemp = NULL;
+          textTypeFxTemp = NULL;
+          textTypeLayerTemp = -2;
+          Texture* t = texs.at(currentTexture);
+          if (view == 0) {
+            for (int n = texs.at(currentTexture)->fxs.size() - 1; n >= 0; n--) {
+              Effect* fx = texs.at(currentTexture)->fxs.at(n);
+              for (int p = 0; p < fx->params.size(); p++) {
+                Parameter* pa = fx->params.at(p);
+                pa->mouseUp(x, y, fx->x + nodeCX, fx->y + nodeCY, 0, fx);
+              }
+            }
+            if (draggingSocket) {
+              Effect* fx = t->fxs.at(draggedNode);
+              Socket* s = fx->outputs.at(draggedSocket);
+              if (s->snapped) {
+                s->s->s = s;
+                s->s->parent->undone = true;
+              }
+              s->s = NULL;
+              draggingSocket = false;
+              t->genTex();
+            }
+            draggingCam = false;
+            draggingNode = false;
+            draggingUI = false;
+            draggingSBar = false;
+            int toolsScrolli = toolsScroll;
+            for (int i = 0; i < colorParams.size(); i++) {
+              colorParams.at(i)->mouseUp(x, y, screenW - barXRight,
+                                         barY3 + 2 + 12 - toolsScrolli, -1,
+                                         NULL);
+            }
+            draggingFX = false;
+            int h = -layersScroll;
+          }
+        }
+}
+
+void mouseButtonDown(const SDL_Event &e) {
+  if (textType != NULL) {
           textType->value = atoi(textType->typing.c_str());
           if (textType->value > textType->value3 && textType->value3 != -1) {
             textType->value = textType->value3;
@@ -2566,9 +3089,9 @@ int tilemancer_main() {
           }
           updateDrag(textTypeLayer, textTypeFx, textType);
         }
-        textType = NULL;
-        typeTimer = 0;
-        if (e.button.button == SDL_BUTTON_LEFT) {
+  textType = NULL;
+  typeTimer = 0;
+  if (e.button.button == SDL_BUTTON_LEFT) {
           int x = e.button.x / screenScale;
           int y = e.button.y / screenScale;
           if (view == 0) {
@@ -2822,7 +3345,7 @@ int tilemancer_main() {
                         } else {
                           texs.at(currentTexture)
                               ->fxs.erase(
-                                  std::remove(
+                                  remove(
                                       texs.at(currentTexture)->fxs.begin(),
                                       texs.at(currentTexture)->fxs.end(), fx),
                                   texs.at(currentTexture)->fxs.end());
@@ -3144,7 +3667,7 @@ int tilemancer_main() {
                 Color* c = palette.at(selectedColor);
                 if (palette.size() > 1) {
                   delete c;
-                  palette.erase(std::remove(palette.begin(), palette.end(), c),
+                  palette.erase(remove(palette.begin(), palette.end(), c),
                                 palette.end());
                   if (selectedColor >= palette.size()) {
                     selectedColor = palette.size() - 1;
@@ -3301,9 +3824,9 @@ int tilemancer_main() {
             }
           }
         }
-        if (e.button.button == SDL_BUTTON_RIGHT) {
+  if (e.button.button == SDL_BUTTON_RIGHT) {
         }
-        if (e.button.button == SDL_BUTTON_MIDDLE) {
+  if (e.button.button == SDL_BUTTON_MIDDLE) {
           int x = e.button.x / screenScale;
           int y = e.button.y / screenScale;
           if (x > barX && x < screenW - barXRight) {
@@ -3314,584 +3837,4 @@ int tilemancer_main() {
             mouseY = y;
           }
         }
-      }
-      if (e.type == SDL_MOUSEBUTTONUP) {
-        if (e.button.button == SDL_BUTTON_MIDDLE) {
-          draggingCam2 = false;
-        }
-        if (e.button.button == SDL_BUTTON_LEFT) {
-          int x = e.button.x / screenScale;
-          int y = e.button.y / screenScale;
-          textTypeTemp = NULL;
-          textTypeFxTemp = NULL;
-          textTypeLayerTemp = -2;
-          Texture* t = texs.at(currentTexture);
-          if (view == 0) {
-            for (int n = texs.at(currentTexture)->fxs.size() - 1; n >= 0; n--) {
-              Effect* fx = texs.at(currentTexture)->fxs.at(n);
-              for (int p = 0; p < fx->params.size(); p++) {
-                Parameter* pa = fx->params.at(p);
-                pa->mouseUp(x, y, fx->x + nodeCX, fx->y + nodeCY, 0, fx);
-              }
-            }
-            if (draggingSocket) {
-              Effect* fx = t->fxs.at(draggedNode);
-              Socket* s = fx->outputs.at(draggedSocket);
-              if (s->snapped) {
-                s->s->s = s;
-                s->s->parent->undone = true;
-              }
-              s->s = NULL;
-              draggingSocket = false;
-              t->genTex();
-            }
-            draggingCam = false;
-            draggingNode = false;
-            draggingUI = false;
-            draggingSBar = false;
-            int toolsScrolli = toolsScroll;
-            for (int i = 0; i < colorParams.size(); i++) {
-              colorParams.at(i)->mouseUp(x, y, screenW - barXRight,
-                                         barY3 + 2 + 12 - toolsScrolli, -1,
-                                         NULL);
-            }
-            draggingFX = false;
-            int h = -layersScroll;
-          }
-        }
-      }
-      if (e.type == SDL_MOUSEMOTION) {
-        int x = e.motion.x / screenScale;
-        int y = e.motion.y / screenScale;
-        mouseX = x;
-        mouseY = y;
-        textTypeTemp = NULL;
-        textTypeFxTemp = NULL;
-        textTypeLayerTemp = -2;
-        preview = NULL;
-        bool ttSet = false;
-        for (int i = 0; i < newEffects.size(); i++) {
-          Effect* fx = newEffects.at(i);
-          int newEScrolli = newEScroll;
-          if (x > 0 && x <= barX - 2 - 7 && y > collH * i - newEScroll &&
-              y <= collH * i - newEScroll + collH && y < barY) {
-            toolTip = newEffects.at(i)->desc + "\n\n\"";
-            if (newEffects.at(i)->isPreset) {
-              toolTip += "Presets/" + fx->fxname + "\"";
-            } else {
-              toolTip += "Nodes/" + fx->fxname + "\"";
-            }
-            ttSet = true;
-          }
-        }
-        if (x > 0 && x < screenW && y > barY && y < screenH) {
-          Texture* t = texs.at(currentTexture);
-          int h = -layersScroll;
-          int iconsize = 8;
-          int iconoffset = 5;
-          if (y > barY + h + iconoffset &&
-              y <= barY + h + iconoffset + iconsize && x > iconoffset &&
-              x <= iconoffset + iconsize) {
-            toolTip = "New layer";
-            ttSet = true;
-          }
-        }
-        if (!browserOpen) {
-          if (x > barX) {
-            if (x > screenW - barXRight - 5 - 8 &&
-                x < screenW - barXRight - 5 && y > 5 + 8 + 5 &&
-                y < 5 + 8 + 5 + 8) {
-              // info
-              toolTip = "Tilemancer " + to_string(Vmajor) + "." +
-                        to_string(Vminor) + "." + to_string(Vrevision);
-              toolTip += "\nDeveloped by @ledgamedev";
-              ttSet = true;
-            }
-            if (x > screenW - barXRight - 5 - 8 &&
-                x < screenW - barXRight - 5 && y > 5 && y < 5 + 8) {
-              // save file
-              toolTip = "Save file";
-              ttSet = true;
-            }
-            if (x > screenW - barXRight - 5 - 8 - 5 - 8 &&
-                x < screenW - barXRight - 5 - 5 - 8 && y > 5 && y < 5 + 8) {
-              // load file
-              toolTip = "Load file";
-              ttSet = true;
-            }
-            if (x > screenW - barXRight - 5 - 8 - 5 - 8 - 5 - 8 &&
-                x < screenW - barXRight - 5 - 5 - 8 - 5 - 8 && y > 5 &&
-                y < 5 + 8) {
-              // new file
-              toolTip = "New file";
-              ttSet = true;
-            }
-          }
-        }
-        if (x > barX && x < screenW - barXRight) {
-          for (int n = texs.at(currentTexture)->fxs.size() - 1; n >= 0; n--) {
-            Effect* fx = texs.at(currentTexture)->fxs.at(n);
-            bool breaking = false;
-            if (x > fx->x + nodeCX && x < fx->x + fx->w + nodeCX &&
-                y > fx->y + nodeCY && y < fx->y + fx->h + nodeCY) {
-              for (int p = 0; p < fx->params.size(); p++) {
-                Parameter* pa = fx->params.at(p);
-                if (x > fx->x + nodeCX + pa->x &&
-                    x < fx->x + nodeCX + pa->x + pa->w &&
-                    y > fx->y + nodeCY + pa->y &&
-                    y < fx->y + nodeCY + pa->y + pa->h) {
-                  toolTip = pa->tt;
-                  ttSet = true;
-                }
-              }
-              if (x > fx->x + fx->w + nodeCX - 8 - 4 &&
-                  x < fx->x + fx->w + nodeCX - 4 && y > fx->y + nodeCY + 4 &&
-                  y < fx->y + nodeCY + 4 + 8) {
-                toolTip = "Delete node";
-                ttSet = true;
-              }
-              if (x > fx->x + fx->w + nodeCX - 8 - 4 - 8 - 4 &&
-                  x < fx->x + fx->w + nodeCX - 4 - 8 - 4 &&
-                  y > fx->y + nodeCY + 4 && y < fx->y + nodeCY + 4 + 8) {
-                toolTip = "Duplicate node";
-                ttSet = true;
-              }
-              for (int out = 0; out < fx->outputs.size(); out++) {
-                if (x > int(fx->x + fx->w / 2.0 + nodeCX -
-                            int(texSizeX / 2.0)) &&
-                    x < int(fx->x + fx->w / 2.0 + nodeCX +
-                            int(texSizeX / 2.0)) &&
-                    y > int(fx->y + nodeCY + fx->outputs.at(out)->y + 4 -
-                            texSizeY / 2.0) &&
-                    y < int(fx->y + nodeCY + fx->outputs.at(out)->y + 4 +
-                            texSizeY / 2.0)) {
-                  toolTip = "Export tile";
-                  ttSet = true;
-                  preview = fx->outputs.at(out);
-                }
-              }
-              breaking = true;
-            }
-            for (int in = 0; in < fx->inputs.size(); in++) {
-              if (x > fx->x + nodeCX - 4 && x < fx->x + nodeCX + 4 &&
-                  y > fx->y + nodeCY + fx->inputs.at(in)->y &&
-                  y < fx->y + nodeCY + fx->inputs.at(in)->y + 8) {
-                breaking = true;
-              }
-            }
-            for (int out = 0; out < fx->outputs.size(); out++) {
-              if (x > fx->x + nodeCX + fx->w - 4 &&
-                  x < fx->x + nodeCX + fx->w + 4 &&
-                  y > fx->y + nodeCY + fx->outputs.at(out)->y &&
-                  y < fx->y + nodeCY + fx->outputs.at(out)->y + 8) {
-                breaking = true;
-              }
-            }
-            if (breaking) {
-              break;
-            }
-          }
-        }
-        if (y < barY) {
-          int toolsScrolli = toolsScroll;
-          if (x > screenW - 5 - 8 - 5 - 5 - 8 - 5 - 8 - 5 - 8 - 5 - 8 - 7 &&
-              x < screenW - 5 - 5 - 5 - 8 - 5 - 8 - 5 - 8 - 5 - 8 - 7 &&
-              y > 1 + 12 - toolsScrolli + barY3 - 8 - 5 &&
-              y < 1 + 12 - toolsScrolli + barY3 - 5) {
-            toolTip = "New color";
-            ttSet = true;
-          }
-          if (x > screenW - 5 - 8 - 5 - 5 - 8 - 5 - 8 - 5 - 8 - 7 &&
-              x < screenW - 5 - 5 - 5 - 8 - 5 - 8 - 5 - 8 - 7 &&
-              y > 1 + 12 - toolsScrolli + barY3 - 8 - 5 &&
-              y < 1 + 12 - toolsScrolli + barY3 - 5) {
-            toolTip = "Duplicate color";
-            ttSet = true;
-          }
-          if (x > screenW - 5 - 8 - 5 - 5 - 8 - 5 - 8 - 7 &&
-              x < screenW - 5 - 5 - 5 - 8 - 5 - 8 - 7 &&
-              y > 1 + 12 - toolsScrolli + barY3 - 8 - 5 &&
-              y < 1 + 12 - toolsScrolli + barY3 - 5) {
-            toolTip = "Delete color";
-            ttSet = true;
-          }
-          if (x > screenW - 5 - 8 - 5 - 5 - 8 - 7 &&
-              x < screenW - 5 - 5 - 5 - 8 - 7 &&
-              y > 1 + 12 - toolsScrolli + barY3 - 8 - 5 &&
-              y < 1 + 12 - toolsScrolli + barY3 - 5) {
-            // import
-            toolTip = "Load palette";
-            ttSet = true;
-          }
-          if (x > screenW - 5 - 8 - 5 - 7 && x < screenW - 5 - 5 - 7 &&
-              y > 1 + 12 - toolsScrolli + barY3 - 8 - 5 &&
-              y < 1 + 12 - toolsScrolli + barY3 - 5) {
-            // export
-            toolTip = "Save palette";
-            ttSet = true;
-          }
-          /*renderColor(screenW-barXRight+5+offsetA,
-           barY2+9+3+3+offsetA-toolsScrolli, size-offsetA*2, size-offsetA*2,
-           &rampA);
-           renderColor(screenW-(size-offsetB)-5,
-           barY2+9+3+3+offsetB-toolsScrolli, size-offsetB*2, size-offsetB*2,
-           &rampB);*/
-          for (int i = 0; i < colorParams.size(); i++) {
-            Parameter* pr = colorParams.at(i);
-            if (x - (screenW - barXRight) > pr->x &&
-                x - (screenW - barXRight) <= pr->x + pr->w &&
-                y - (barY3 + 2 + 12 - toolsScrolli) > pr->y &&
-                y - (barY3 + 2 + 12 - toolsScrolli) <= pr->y + pr->h) {
-              toolTip = pr->tt;
-              ttSet = true;
-            }
-          }
-        }
-        if (!ttSet) {
-          toolTip = "";
-        }
-
-        int ox = 0;
-        int oy = 0;
-        if (draggingParam) {
-          int mx = 0;
-          int my = 0;
-          SDL_GetGlobalMouseState(&mx, &my);
-          int sx = 0;
-          int sy = 0;
-          int sw = 0;
-          int sh = 0;
-          SDL_GetWindowPosition(window, &sx, &sy);
-          if (OS & Windows) {
-            mx += sx;
-            my += sy;
-          }
-          SDL_GetWindowSize(window, &sw, &sh);
-          while (mx < sx) {
-            mx += sw;
-            ox += sw / screenScale;
-          }
-          while (mx > sx + sw) {
-            mx -= sw;
-            ox -= sw / screenScale;
-          }
-          while (my < sy) {
-            my += sh;
-            oy += sh / screenScale;
-          }
-          while (my > sy + sh) {
-            my -= sh;
-            oy -= sh / screenScale;
-          }
-          if (OS & Windows) {
-            warpMouse(mx - sx, my - sy);
-          } else if (OS & Unix) {
-            warpMouse(mx, my);
-          }
-          x += ox;
-          y += oy;
-        }
-
-        for (int n = texs.at(currentTexture)->fxs.size() - 1; n >= 0; n--) {
-          Effect* fx = texs.at(currentTexture)->fxs.at(n);
-          for (int p = 0; p < fx->params.size(); p++) {
-            Parameter* pa = fx->params.at(p);
-            pa->oldmX += ox;
-            pa->oldmY += oy;
-            pa->mouseMove(x, y, fx->x + nodeCX, fx->y + nodeCY, 0, fx);
-          }
-        }
-
-        if (view == 0) {
-          int toolsScrolli = toolsScroll;
-          for (int i = 0; i < colorParams.size(); i++) {
-            colorParams.at(i)->oldmX += ox;
-            colorParams.at(i)->oldmY += oy;
-            colorParams.at(i)->mouseMove(x, y, screenW - barXRight,
-                                         barY3 + 2 + 12 - toolsScrolli, -1,
-                                         NULL);
-          }
-        }
-      }
-      if (e.type == SDL_FINGERDOWN) {
-        mouseSX = -1;
-        mouseSY = -1;
-        scrollSet = false;
-      }
-      if (e.type == SDL_MULTIGESTURE) {
-        mouseSDX = e.tfinger.x * screenH;
-        mouseSDY = e.tfinger.y * screenH;
-        if (!scrollSet && mouseSX != -1 && mouseSY != -1) {
-          float distX = mouseSDX - mouseSX;
-          float distY = mouseSDY - mouseSY;
-          float dist = sqrt(distX * distX + distY * distY);
-          // if(dist > 2) {
-          if (abs(mouseSDY - mouseSY) >= abs(mouseSDX - mouseSX)) {
-            scrollDir = true;
-            scrollSet = true;
-          } else {
-            scrollDir = false;
-            scrollSet = true;
-          }
-          //}
-        }
-        if (view == 0) {
-          if (scrollSet) {
-            if (!browserOpen) {
-              if (mouseSX != -1 && mouseSY != -1 && mouseX > barX &&
-                  mouseX < screenW - barXRight) {
-                nodeCX += mouseSDX - mouseSX;
-                nodeCY += mouseSDY - mouseSY;
-              }
-            }
-            bool adjust = false;
-            if (mouseSX != -1 && mouseSY != -1 && mouseY > barY &&
-                mouseX < screenW - barXRight && scrollDir) {
-              layersScroll -= mouseSDY - mouseSY;
-              adjust = true;
-            }
-            if (mouseSX != -1 && mouseSY != -1 && mouseY > barY &&
-                mouseX > barX && mouseX < screenW - barXRight && !scrollDir) {
-              layersScrollH -= mouseSDX - mouseSX;
-              adjust = true;
-            }
-            if (mouseSX != -1 && mouseSY != -1 && mouseY < barY &&
-                mouseX < barX) {
-              newEScroll -= mouseSDY - mouseSY;
-              adjust = true;
-            }
-            if (adjust) {
-              adjustLayersScroll();
-            }
-
-            bool adjust2 = false;
-            bool scrollingPal = false;
-            if (mouseSX != -1 && mouseSY != -1 &&
-                mouseX > screenW - barXRight + 5 && mouseX < screenW - 5 &&
-                mouseY < barY && mouseY > 3 + 12 - toolsScroll &&
-                mouseY < 3 + 12 - toolsScroll + barY3 - 2 - 5 - 8 - 5) {
-              palScroll -= mouseSDY - mouseSY;
-              adjust2 = true;
-              scrollingPal = true;
-            }
-            if (mouseSX != -1 && mouseSY != -1 &&
-                mouseX > screenW - barXRight && mouseY < barY &&
-                !scrollingPal) {
-              toolsScroll -= mouseSDY - mouseSY;
-              adjust2 = true;
-            }
-            if (mouseSX != -1 && mouseSY != -1 &&
-                mouseX > screenW - barXRight && mouseY > barY &&
-                mouseY < screenH - 5 - 8 - 5 - (collH - 4) - 5) {
-              texScroll -= mouseSDY - mouseSY;
-              adjust2 = true;
-            }
-            if (adjust2) {
-              adjustToolsScroll();
-            }
-
-            bool adjust3 = false;
-            int title = collH - 4;
-            int bSpace = 5;
-            if (mouseSX != -1 && mouseSY != -1 && mouseX > barX + bSpace &&
-                mouseX < screenW - barXRight - bSpace &&
-                mouseY > bSpace * 2 + title && mouseY < barY - bSpace &&
-                browserOpen) {
-              browserScroll -= mouseSDX - mouseSX;
-              adjust3 = true;
-            }
-            if (adjust3) {
-              adjustBrowserScroll();
-            }
-          }
-        }
-        mouseSX = e.tfinger.x * screenH;
-        mouseSY = e.tfinger.y * screenH;
-      }
-      if (e.type == SDL_MOUSEWHEEL) {
-        if (!browserOpen) {
-          if (e.wheel.y < 0) {
-            if (mouseX > barX && mouseX < screenW - barXRight && mouseY > 0 &&
-                mouseY < barY) {
-              if (zoom < 2) {
-                zoom++;
-              }
-            }
-          } else if (e.wheel.y > 0) {
-            if (mouseX > barX && mouseX < screenW - barXRight && mouseY > 0 &&
-                mouseY < barY) {
-              if (zoom > 1) {
-                zoom--;
-              }
-            }
-          }
-        }
-      }
-      if (e.type == SDL_TEXTINPUT) {
-        if (browserOpen) {
-          filenameB.append(e.text.text);
-          overwrite = false;
-        }
-        if (textType != NULL && (textType->ID == 1 || textType->ID == 2)) {
-          if (textType->typing.length() < 10) {
-            textType->typing.append(e.text.text);
-          }
-        }
-      }
-      if (e.type == SDL_KEYUP) {
-        if (e.key.keysym.sym == SDLK_LSHIFT) {
-          camMoving = false;
-        }
-      }
-      if (e.type == SDL_KEYDOWN) {
-        if (e.key.keysym.sym == SDLK_LSHIFT) {
-          camMoving = true;
-        }
-        if (e.key.keysym.sym == SDLK_BACKSPACE) {
-          if (filenameB.size() > 0) {
-            filenameB.pop_back();
-          }
-          overwrite = false;
-          if (textType != NULL && (textType->ID == 1 || textType->ID == 2)) {
-            if (textType->typing.size() > 0) {
-              textType->typing.pop_back();
-            }
-          }
-        }
-        if (e.key.keysym.sym == SDLK_z &&
-            SDL_GetModState() & (KMOD_GUI | KMOD_CTRL)) {
-          undo();
-        }
-        if (e.key.keysym.sym == SDLK_y &&
-            SDL_GetModState() & (KMOD_GUI | KMOD_CTRL)) {
-          redo();
-        }
-        if (e.key.keysym.sym == SDLK_n &&
-            SDL_GetModState() & (KMOD_GUI | KMOD_CTRL)) {
-          newFile();
-        }
-        if (e.key.keysym.sym == SDLK_s &&
-            SDL_GetModState() & (KMOD_GUI | KMOD_CTRL)) {
-          if (!browserOpen) {
-            openBrowser(currentDir, 0, 5);
-          }
-        }
-        if (e.key.keysym.sym == SDLK_o &&
-            SDL_GetModState() & (KMOD_GUI | KMOD_CTRL)) {
-          if (!browserOpen) {
-            openBrowser(currentDir, 0, 4);
-          }
-        }
-        /*if((e.key.keysym.unicode >= 33 && e.key.keysym.unicode <= 95) ||
-        e.key.keysym.unicode >= 97 && e.key.keysym.unicode <= 126) ||
-        e.key.keysym.unicode == 32) {
-        }*/
-        if (e.key.keysym.sym == SDLK_RETURN) {
-          if (browserOpen) {
-            string fullDir = currentDir;
-            if (fullDir.size() != 1) {
-              fullDir = fullDir.append("/");
-            }
-            fullDir = fullDir.append(filenameB);
-            bool folder = false;
-            for (int i = 0; i < filenames.size(); i++) {
-              if (!strcmp(filenames.at(i)->name.c_str(), filenameB.c_str()) &&
-                  filenames.at(i)->folder) {
-                openBrowser(fullDir, 0, browserMode);
-                folder = true;
-              }
-            }
-            if (!folder) {
-              browserAction(fullDir, filenameB, currentDir);
-            }
-          }
-          if (textType != NULL) {
-            textType->value = atoi(textType->typing.c_str());
-            if (textType->value > textType->value3 && textType->value3 != -1) {
-              textType->value = textType->value3;
-            }
-            if (textType->value < textType->value2 && textType->value2 != -1) {
-              textType->value = textType->value2;
-            }
-            updateDrag(textTypeLayer, textTypeFx, textType);
-          }
-          textType = NULL;
-        }
-        if (e.key.keysym.sym == SDLK_LEFT) {
-          if (SDL_GetModState() & (KMOD_GUI | KMOD_CTRL)) {
-            // swap with left side
-          }
-          currentTexture--;
-          if (currentTexture < 0) {
-            currentTexture = 0;
-          }
-        }
-        if (e.key.keysym.sym == SDLK_RIGHT) {
-          if (SDL_GetModState() & (KMOD_GUI | KMOD_CTRL)) {
-            // swap with right side
-          }
-          currentTexture++;
-          if (currentTexture >= texs.size()) {
-            currentTexture = texs.size() - 1;
-          }
-        }
-        if (e.key.keysym.sym == SDLK_ESCAPE) {
-          if (browserOpen) {
-            browserOpen = false;
-            fnUndo.clear();
-            fnRedo.clear();
-          }
-        }
-      }
-      if (e.type == SDL_KEYUP) {
-      }
-    }
-    SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
-    SDL_RenderClear(gRenderer);
-    double newTime = 0;
-    if (gameStarted) {
-      newTime = SDL_GetTicks();
-    } else {
-      newTime = SDL_GetTicks();
-      currentTime = SDL_GetTicks();
-    }
-    gameStarted = true;
-    double frameTime = (newTime - currentTime) / 1000.0;
-    currentTime = newTime;
-    accumulator += frameTime;
-    if (fpsTimer == 0) {
-      if (frameTime != 0) {
-        fps = 1.0 / frameTime;
-      } else {
-        fps = 0;
-      }
-      fpsTimer = 0;
-    } else {
-      fpsTimer--;
-    }
-    while (accumulator >= dt) {
-      update();
-      accumulator -= dt;
-    }
-    renderGL();
-    SDL_GL_SwapWindow(window);
-
-    double newTime2 = 0;
-    if (gameStarted) {
-      newTime2 = SDL_GetTicks();
-    } else {
-      newTime2 = SDL_GetTicks();
-      lastTime = SDL_GetTicks();
-    }
-    double frameTime2 = (newTime2 - lastTime) / 1000.0;
-    double delayTime = dt - frameTime2;
-    if (delayTime > 0) {
-      SDL_Delay(delayTime * 1000);
-    }
-    lastTime = SDL_GetTicks();
-  }
-  lua_close(L);
-  SDL_DestroyWindow(window);
-  SDL_Quit();
-  return 0;
 }
