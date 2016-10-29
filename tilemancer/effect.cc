@@ -42,14 +42,7 @@ void Effect::clearTree() {
   doneTimer = 0;
   undone = false;
   for (int b = 0; b < outputs.size(); b++) {
-    outputs.at(b)->texData.clear();
-    for (int x = 0; x < texSizeX; x++) {
-      for (int y = 0; y < texSizeY; y++) {
-        for (int c = 0; c < 4; c++) {
-          outputs.at(b)->texData.push_back(0);
-        }
-      }
-    }
+    outputs.at(b)->texData.setAll(0);
   }
   for (int i = 0; i < texs.at(currentTexture)->fxs.size(); i++) {
     Effect* fx = texs.at(currentTexture)->fxs.at(i);
@@ -210,8 +203,7 @@ int Effect::setPixel(lua_State* L) {
     Socket* a = outputs.at((int)lua_tonumber(L, 1));
     Color b(lua_tonumber(L, 4) * 255, lua_tonumber(L, 5) * 255,
             lua_tonumber(L, 6) * 255);
-    ::setColor(a->texData, (int)lua_tonumber(L, 2), (int)lua_tonumber(L, 3), &b,
-               true);
+    a->texData.setColor((int)lua_tonumber(L, 2), (int)lua_tonumber(L, 3), b, true);
   }
   return 0;
 }
@@ -233,13 +225,13 @@ int Effect::getValue(lua_State* L) {
       if (inputs.at(i)->index == (int)lua_tonumber(L, 1)) {
         Socket* a = inputs.at(i);
         if (a->s != NULL) {
-          Color cc1 = getColor(a->s->texData, (int)lua_tonumber(L, 2),
+          Color cc1 = a->s->texData.getColor((int)lua_tonumber(L, 2),
                                (int)lua_tonumber(L, 3), true);
-          Color cc2 = getColor(a->s->texData, (int)lua_tonumber(L, 2) + 1,
+          Color cc2 = a->s->texData.getColor((int)lua_tonumber(L, 2) + 1,
                                (int)lua_tonumber(L, 3), true);
-          Color cc3 = getColor(a->s->texData, (int)lua_tonumber(L, 2),
+          Color cc3 = a->s->texData.getColor((int)lua_tonumber(L, 2),
                                (int)lua_tonumber(L, 3) + 1, true);
-          Color cc4 = getColor(a->s->texData, (int)lua_tonumber(L, 2) + 1,
+          Color cc4 = a->s->texData.getColor((int)lua_tonumber(L, 2) + 1,
                                (int)lua_tonumber(L, 3) + 1, true);
           float alphaX = lua_tonumber(L, 2) - (int)lua_tonumber(L, 2);
           float alphaY = lua_tonumber(L, 3) - (int)lua_tonumber(L, 3);
@@ -270,11 +262,11 @@ int Effect::finalize(lua_State* L) {
     for (int j = 0; j < texSizeY; j++) {
       Color c(0, 0, 0);
       if (inputs.at(0)->s != NULL) {
-        c = getColor(inputs.at(0)->s->texData, i, j, true);
+        c = inputs.at(0)->s->texData.getColor(i, j, true);
       }
       int value = c.r * 99.0 / 255.0;
       Color a = getGrad(params.at(0), value);
-      ::setColor(outputs.at(0)->texData, i, j, &a, true);
+      outputs.at(0)->texData.setColor(i, j, a, true);
     }
   }
   return 0;

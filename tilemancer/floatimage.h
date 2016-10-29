@@ -22,10 +22,22 @@
 #define TILEMANCER_FLOATIMAGE_H
 
 #include <vector>
+#include "tilemancer/gl.h"
 
 class Color;
 
-void setColor(std::vector<float>& data, int x, int y, Color* color, bool wrap);
-Color getColor(std::vector<float>& data, int x, int y, bool wrap);
+class FloatImage {
+ public:
+  void setAll(float v);
+  void setColor(int x, int y, const Color& color, bool wrap);
+  Color getColor(int x, int y, bool wrap) const;
+
+  const std::vector<GLubyte> toByteArray() const;
+
+  const float* ptr() const;
+
+ private:
+  std::vector<float> data;
+};
 
 #endif  // TILEMANCER_FLOATIMAGE_H

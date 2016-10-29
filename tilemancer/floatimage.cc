@@ -22,7 +22,34 @@
 #include "tilemancer/color.h"
 #include "tilemancer/globals.h"
 
-void setColor(std::vector<float>& data, int x, int y, Color* color, bool wrap) {
+void FloatImage::setAll(float v) {
+  data.clear();
+  for (int x = 0; x < texSizeX; x++) {
+    for (int y = 0; y < texSizeY; y++) {
+      for (int c = 0; c < 4; c++) {
+        data.push_back(v);
+      }
+    }
+  }
+}
+
+const float* FloatImage::ptr() const {
+  return &data[0];
+}
+
+const std::vector<GLubyte> FloatImage::toByteArray() const {
+  std::vector<GLubyte> bv;
+  bv.reserve(data.size());
+
+  for (int db = 0; db < data.size(); db++) {
+    GLubyte c = fmax(0.0, fmin(255.0, data.at(db)));
+    bv.push_back(c);
+  }
+
+  return bv;
+}
+
+void FloatImage::setColor(int x, int y, const Color& color, bool wrap) {
   bool render = true;
   if (x >= texSizeX) {
     if (wrap) {
@@ -58,15 +85,15 @@ void setColor(std::vector<float>& data, int x, int y, Color* color, bool wrap) {
       render = false;
     }
   }
-  if (render && data.size() > (y * texSizeX + x) * 4 + 3 && color != NULL) {
-    data[(y * texSizeX + x) * 4 + 0] = color->r;
-    data[(y * texSizeX + x) * 4 + 1] = color->g;
-    data[(y * texSizeX + x) * 4 + 2] = color->b;
-    data[(y * texSizeX + x) * 4 + 3] = color->a;
+  if (render && data.size() > (y * texSizeX + x) * 4 + 3) {
+    data[(y * texSizeX + x) * 4 + 0] = color.r;
+    data[(y * texSizeX + x) * 4 + 1] = color.g;
+    data[(y * texSizeX + x) * 4 + 2] = color.b;
+    data[(y * texSizeX + x) * 4 + 3] = color.a;
   }
 }
 
-Color getColor(std::vector<float>& data, int x, int y, bool wrap) {
+Color FloatImage::getColor(int x, int y, bool wrap) const {
   Color c = Color(0, 0, 0);
   bool render = true;
   if (x >= texSizeX) {

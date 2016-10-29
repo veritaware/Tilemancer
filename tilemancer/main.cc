@@ -1339,16 +1339,12 @@ void update() {
           glGenTextures(1, &output->texture);
           glBindTexture(GL_TEXTURE_2D, output->texture);
           if (OS & Windows) {
-            vector<GLubyte> bv;
-            for (int db = 0; db < output->texData.size(); db++) {
-              GLubyte c = fmax(0.0, fmin(255.0, output->texData.at(db)));
-              bv.push_back(c);
-            }
+            vector<GLubyte> bv = output->texData.toByteArray();
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texSizeX, texSizeY, 0,
                          GL_RGBA, GL_UNSIGNED_BYTE, &bv[0]);
           } else if (OS & Unix) {
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, texSizeX, texSizeY, 0,
-                         GL_RGBA, GL_FLOAT, &output->texData[0]);
+                         GL_RGBA, GL_FLOAT, output->texData.ptr());
           }
           glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
           glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);

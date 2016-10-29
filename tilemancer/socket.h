@@ -24,6 +24,7 @@
 #include <vector>
 
 #include "tilemancer/gl.h"
+#include "tilemancer/floatimage.h"
 
 class Bezier;
 class Effect;
@@ -45,7 +46,7 @@ class Socket {
   int futureN;
   int futureS;
   Effect* parent;
-  std::vector<float> texData;
+  FloatImage texData;
   std::string lastTexDir;
   std::string lastTexName;
 };
