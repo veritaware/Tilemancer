@@ -25,6 +25,7 @@
 
 class Shader {
  public:
+  void load(const char* const name, const char* const vert, const char* const frag);
   GLenum program;
   GLenum vertex_shader;
   GLenum fragment_shader;
