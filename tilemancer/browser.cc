@@ -34,6 +34,8 @@
 
 #include <sys/types.h>
 #include <unistd.h>
+#include <cstring>
+#include <pwd.h>
 #include "dirent.h"
 #include "sys/stat.h"
 

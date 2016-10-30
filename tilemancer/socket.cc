@@ -18,6 +18,8 @@
 
 */
 
+#include <SDL_surface.h>
+#include <SDL_image.h>
 #include "tilemancer/socket.h"
 #include "tilemancer/bezier.h"
 #include "tilemancer/globals.h"

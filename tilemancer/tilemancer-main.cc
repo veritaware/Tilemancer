@@ -37,6 +37,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <SDL2/SDL.h>
 #include "glm/glm.hpp"
 #include "glm/gtc/type_ptr.hpp"
 #include "glm/gtx/transform.hpp"
