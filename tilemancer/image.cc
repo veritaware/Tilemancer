@@ -50,6 +50,7 @@ ImageLoadResult LoadImage(const std::string& path, AlphaLoad alpha) {
     result.components.resize(0);
     result.width = result.height = 0;
     result.has_alpha = false;
+    std::cerr << "Failed to load " << path << ": " << result.error << "\n";
     return result;
   }
 
@@ -58,7 +59,11 @@ ImageLoadResult LoadImage(const std::string& path, AlphaLoad alpha) {
     result.has_alpha = channels == 2 || channels == 4;
   }
 
-  std::cout << "Image: " << path << " " << result.width << "x" << result.height << " alpha " << result.has_alpha << ".\n";
+  std::cout << "Image: " << path
+            << " " << result.width << "x" << result.height
+            << " alpha " << result.has_alpha
+            << " channels " << channels
+            << ".\n";
 
   const unsigned char dest_c = result.has_alpha ? 4 : 3;
   result.components.resize(result.width * result.height * dest_c, 0);
@@ -93,4 +98,5 @@ ImageLoadResult LoadImage(const std::string& path, AlphaLoad alpha) {
 }
 
 std::string SaveImage(const std::string& path, const std::vector<unsigned char>& pixels, int width, int height, AlphaSave has_alpha) {
+  std::cout << "Implement saving the image!\n";
 }
