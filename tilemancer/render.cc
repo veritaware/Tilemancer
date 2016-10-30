@@ -18,6 +18,7 @@
 
 */
 
+#include <iostream>
 #include "tilemancer/render.h"
 #include "tilemancer/bezier.h"
 #include "tilemancer/color.h"
@@ -27,7 +28,11 @@
 #include "glm/gtc/type_ptr.hpp"
 #include "glm/gtx/transform.hpp"
 
+#define DEBUGPRINT(x) do { } while(false)
+// #define DEBUGPRINT(x) do { std::cout << __FUNCTION__ << ": " << x << "\n"; } while(false)
+
 void renderGradient(int x, int y, int w, int h, Color* c, Color* c2) {
+  DEBUGPRINT("");
   glm::mat4 currentMatrix = model;
   currentMatrix = glm::translate(currentMatrix, glm::vec3(x, y, 0.0));
   currentMatrix = glm::scale(currentMatrix, glm::vec3(w, h, 1.0));
@@ -60,6 +65,7 @@ void renderGradient(int x, int y, int w, int h, Color* c, Color* c2) {
 
 void renderColor(int x, int y, int w, int h, Color* c, int cutoff, int cutoff2,
                  int cutoff3, int cutoff4) {
+  DEBUGPRINT("");
   if (x < cutoff && cutoff != -1) {
     w = x + w - cutoff;
     if (w < 0) {
@@ -118,6 +124,8 @@ void renderColor(int x, int y, int w, int h, Color* c, int cutoff, int cutoff2,
 }
 
 void renderBezier(Bezier* b, GLuint tex) {
+  DEBUGPRINT("");
+
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, tex);
   glm::mat4 currentMatrix = model;
@@ -228,6 +236,8 @@ void renderSprite(int frame, float x, float y, float w, float h, GLuint tex,
                   float strength, bool flipX, bool flipY, float offX,
                   float offY, int cutoff, int cutoff2, int cutoff3,
                   int cutoff4) {
+  DEBUGPRINT("");
+
   int tw, th;
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, tex);
@@ -336,6 +346,8 @@ void renderSprite(int frame, float x, float y, float w, float h, GLuint tex,
 
 void renderNumber(int number, int x, int y, GLuint tex, bool percent,
                   bool alignRight, int cutoff) {
+  DEBUGPRINT("");
+
   int kerning[] = {3, 5, 3, 3, 3, 3, 3, 4, 3, 3, 2, 4};
   bool negative = false;
   if (number < 0) {
@@ -376,6 +388,8 @@ void renderNumber(int number, int x, int y, GLuint tex, bool percent,
 
 int renderText(std::string text, int x, int y, GLuint tex, bool alignRight,
                int cutoff, int cutoff2, int cutoff3, int cutoff4, float alpha) {
+  DEBUGPRINT(text << " x " << x << " y " << y);
+
   int kerning[] = {2,  2, 2, 2, 3, 3, 2, 2, 6, 3, 3, 3, 1, 3, 2, 2, 2, 2, 3,
                    2,  3, 2, 1, 3, 2, 2, 2, 2, 2, 2, 2, 3, 2, 2, 5, 4, 3, 5,
                    -1, 2, 2, 2, 2, 2, 3, 3, 2, 2, 1, 3, 2, 2, 2, 2, 6,
@@ -509,6 +523,7 @@ void renderIcon(int x, int y, int w, int h, GLuint tex, int frame, int offX,
 }
 
 void renderWheel(int x, int y, int w, int h, float v) {
+  DEBUGPRINT("");
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, palImgReal);
   glm::mat4 currentMatrix = model;
@@ -544,6 +559,7 @@ void renderWheel(int x, int y, int w, int h, float v) {
 }
 
 void renderWheelTri(int x, int y, int w, int h, float v) {
+  DEBUGPRINT("");
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, palImgReal);
   float r = 0.5 * sqrt(3) * 2 * w / 3.0;
@@ -585,6 +601,7 @@ void renderWheelTri(int x, int y, int w, int h, float v) {
 }
 
 void renderWheelF(int x, int y, int w, int h, float v) {
+  DEBUGPRINT("");
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, palImg);
   glm::mat4 currentMatrix = model;
@@ -620,6 +637,8 @@ void renderWheelF(int x, int y, int w, int h, float v) {
 }
 
 void renderWheelTriF(int x, int y, int w, int h, float v) {
+  DEBUGPRINT("");
+
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, palImg);
   float r = 0.5 * sqrt(3) * 2 * w / 3.0;
@@ -662,6 +681,7 @@ void renderWheelTriF(int x, int y, int w, int h, float v) {
 
 void renderUI(int x, int y, int w, int h, GLuint tex, int cutoff, int cutoff2,
               int cutoff3, int cutoff4) {
+  DEBUGPRINT("w" << w << "h" << h);
   if (w > 0 && h > 0) {
     int tw, th;
     glActiveTexture(GL_TEXTURE0);

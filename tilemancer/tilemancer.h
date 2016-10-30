@@ -21,6 +21,13 @@
 #ifndef TILEMANCER_TILEMANCER_H
 #define TILEMANCER_TILEMANCER_H
 
+void initGL();
+void LoadStuff();
+void renderGL();
+void update();
+void tilemancer_close();
+void resizeWindow(int w, int h);
+
 // run old sdl2 app
 int tilemancer_main();
 

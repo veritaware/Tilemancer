@@ -27,6 +27,8 @@
 #include <wx/glcanvas.h>
 #include "wx.h"
 
+#include "tilemancer/globals.h"
+
 // x11 header included by the gtk canvas defines Bool and that interfers with
 // other code and is also ugly
 #ifdef Bool
@@ -140,6 +142,10 @@ void TilemancerView::OnSize(wxSizeEvent& event) {
 
   const auto size = event.GetSize();
   glViewport(0, 0, size.x, size.y);
+
+  resizeWindow(size.x, size.y);
+
+  Invalidate();
 }
 
 void TilemancerView::OnLeftDown(wxMouseEvent& e) {}
@@ -163,6 +169,18 @@ void TilemancerView::OnWheel(wxMouseEvent& e) { Invalidate(); }
 void TilemancerView::OnPaint(wxPaintEvent& WXUNUSED(event)) {
   wxPaintDC dc(this);
   SetCurrent(rc);
+
+  static bool first = true;
+  if( first ) {
+    initGL();
+    LoadStuff();
+    first = false;
+  }
+  update();
+  renderGL();
+
+  glFlush();
+  SwapBuffers();
 }
 
 void TilemancerView::OnEraseBackground(wxEraseEvent& WXUNUSED(event)) {
@@ -171,32 +189,25 @@ void TilemancerView::OnEraseBackground(wxEraseEvent& WXUNUSED(event)) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-wxBEGIN_EVENT_TABLE(TilemancerFrame,
-                    wxFrame) EVT_MENU(wxID_NEW, TilemancerFrame::OnFileNew)
-    EVT_MENU(wxID_OPEN,
-             TilemancerFrame::OnFileOpen) EVT_MENU(wxID_SAVE,
-                                                   TilemancerFrame::OnFileSave)
-        EVT_MENU(wxID_EXIT, TilemancerFrame::OnFileExit)
+wxBEGIN_EVENT_TABLE(TilemancerFrame, wxFrame)
+  EVT_MENU(wxID_NEW, TilemancerFrame::OnFileNew)
+  EVT_MENU(wxID_OPEN, TilemancerFrame::OnFileOpen)
+  EVT_MENU(wxID_SAVE, TilemancerFrame::OnFileSave)
+  EVT_MENU(wxID_EXIT, TilemancerFrame::OnFileExit)
 
-            EVT_MENU(wxID_UNDO, TilemancerFrame::OnEditUndo)
-                EVT_MENU(wxID_REDO, TilemancerFrame::OnEditRedo)
+  EVT_MENU(wxID_UNDO, TilemancerFrame::OnEditUndo)
+  EVT_MENU(wxID_REDO, TilemancerFrame::OnEditRedo)
 
-                    EVT_MENU(ID_PAL_NEW_COLOR,
-                             TilemancerFrame::OnPaletteNewColor)
-                        EVT_MENU(ID_PAL_DUPLICATE_COLOR,
-                                 TilemancerFrame::OnPaletteDuplicateColor)
-                            EVT_MENU(ID_PAL_DELETE_COLOR,
-                                     TilemancerFrame::OnPaletteDeleteColor)
-                                EVT_MENU(ID_PAL_LOAD,
-                                         TilemancerFrame::OnPaletteLoad)
-                                    EVT_MENU(ID_PAL_SAVE,
-                                             TilemancerFrame::OnPaletteSave)
+  EVT_MENU(ID_PAL_NEW_COLOR, TilemancerFrame::OnPaletteNewColor)
+  EVT_MENU(ID_PAL_DUPLICATE_COLOR, TilemancerFrame::OnPaletteDuplicateColor)
+  EVT_MENU(ID_PAL_DELETE_COLOR, TilemancerFrame::OnPaletteDeleteColor)
+  EVT_MENU(ID_PAL_LOAD, TilemancerFrame::OnPaletteLoad)
+  EVT_MENU(ID_PAL_SAVE, TilemancerFrame::OnPaletteSave)
 
-                                        EVT_MENU(wxID_ABOUT,
-                                                 TilemancerFrame::OnAboutAbout)
-                                            wxEND_EVENT_TABLE()
+  EVT_MENU(wxID_ABOUT, TilemancerFrame::OnAboutAbout)
+wxEND_EVENT_TABLE()
 
-                                                wxIMPLEMENT_APP(TilemancerApp);
+wxIMPLEMENT_APP(TilemancerApp);
 
 bool TilemancerApp::OnInit() {
   TilemancerFrame* frame = new TilemancerFrame();

@@ -61,6 +61,7 @@
 #include "tilemancer/text.h"
 #include "tilemancer/texture.h"
 #include "tilemancer/undoredo.h"
+#include "tilemancer/tilemancer.h"
 
 using namespace std;
 
@@ -1410,10 +1411,14 @@ int tilemancer_main() {
     }
     lastTime = SDL_GetTicks();
   }
-  lua_close(L);
+  tilemancer_close();
   SDL_DestroyWindow(window);
   SDL_Quit();
   return 0;
+}
+
+void tilemancer_close() {
+  lua_close(L);
 }
 
 void onKeyUp(const SDL_Event& e) {
