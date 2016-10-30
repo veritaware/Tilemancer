@@ -343,7 +343,6 @@ void loadGen() {
   iconImg8 = loadTexture("resources/icon8.png");
   iconImg9 = loadTexture("resources/icon9.png");
   iconImg10 = loadTexture("resources/icon10.png");
-  iconImg11 = loadTexture("resources/icon11.png");
   iconImg12 = loadTexture("resources/icon12.png");
   iconImg13 = loadTexture("resources/icon13.png");
   palImg = loadTexture("resources/pal.png");
@@ -447,11 +446,6 @@ void initGlew() {
   glewExperimental = GL_TRUE;
   glewInit();
 }
-
-void warpMouse(int x, int y) { SDL_WarpMouseInWindow(window, x, y); }
-#elif defined(__APPLE__) || defined(__linux__)
-void warpMouse(int x, int y) { SDL_WarpMouseGlobal(x, y); }
-#else
 #endif
 
 void LoadStuff() {
@@ -1376,42 +1370,6 @@ void renderGL() {
     }
   }
 
-  int cursorType = 0;
-  bool noChange = false;
-  for (int i = 0; i < newEffects.size(); i++) {
-    if (mouseX > 2 && mouseX <= barX - 2 &&
-        mouseY > 2 + (collH - 2) * i - newEScroll &&
-        mouseY <= 2 + (collH - 2) * i - newEScroll + collH - 4 &&
-        mouseY < barY) {
-      noChange = true;
-    }
-  }
-  if (mouseX > 0 && mouseX < screenW && mouseY > barY && mouseY < screenH) {
-    Texture* t = texs.at(currentTexture);
-    int h = -layersScroll;
-  }
-  if (mouseX > barX && mouseX < barX + UIdragRange && mouseY < barY &&
-      !noChange) {
-    cursorType = 1;
-  }
-  if (mouseX > screenW - barXRight - UIdragRange &&
-      mouseX < screenW - barXRight && mouseY < barY && !noChange) {
-    cursorType = 1;
-  }
-  if (draggingUI && UIdragType == 0) {
-    cursorType = 1;
-  }
-  if (draggingUI && UIdragType == 2) {
-    cursorType = 1;
-  }
-  if (cursorType == 1) {
-    renderIcon(mouseX - 4, mouseY - 1, 8, 8, iconImg11, cursorType);
-  } else if (cursorType == 2) {
-    renderIcon(mouseX - 1, mouseY - 4, 8, 8, iconImg11, cursorType);
-  } else {
-    renderIcon(mouseX, mouseY, 8, 8, iconImg11, cursorType);
-  }
-
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
   glClear(GL_COLOR_BUFFER_BIT);
   model = glm::mat4(1.0);
@@ -1580,8 +1538,6 @@ int tilemancer_main() {
 
     SDL_SetWindowMinimumSize(window, (128 + 7) * 3 * screenScale,
                              256 * screenScale);
-
-    SDL_ShowCursor(SDL_FALSE);
 
     if (window == NULL) {
       printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
@@ -2003,11 +1959,6 @@ void onMouseMotion(const SDL_Event& e) {
     while (my > sy + sh) {
       my -= sh;
       oy -= sh / screenScale;
-    }
-    if (OS & Windows) {
-      warpMouse(mx - sx, my - sy);
-    } else if (OS & Unix) {
-      warpMouse(mx, my);
     }
     x += ox;
     y += oy;

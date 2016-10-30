@@ -46,7 +46,6 @@ extern GLuint iconImg7;
 extern GLuint iconImg8;
 extern GLuint iconImg9;
 extern GLuint iconImg10;
-extern GLuint iconImg11;
 extern GLuint iconImg12;
 extern GLuint iconImg13;
 extern GLuint palImg;

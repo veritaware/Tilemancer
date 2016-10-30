@@ -42,7 +42,6 @@ GLuint iconImg7;
 GLuint iconImg8;
 GLuint iconImg9;
 GLuint iconImg10;
-GLuint iconImg11;
 GLuint iconImg12;
 GLuint iconImg13;
 GLuint palImg;
