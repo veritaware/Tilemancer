@@ -36,29 +36,29 @@ void renderGradient(int x, int y, int w, int h, Color* c, Color* c2) {
   glm::mat4 currentMatrix = model;
   currentMatrix = glm::translate(currentMatrix, glm::vec3(x, y, 0.0));
   currentMatrix = glm::scale(currentMatrix, glm::vec3(w, h, 1.0));
-  glUseProgram(light_program);
-  glUniform2f(glGetUniformLocation(light_program, "frameSize"), (float)w,
+  glUseProgram(light.program);
+  glUniform2f(glGetUniformLocation(light.program, "frameSize"), (float)w,
               (float)h);
-  glUniform2f(glGetUniformLocation(light_program, "texSize"), (float)w,
+  glUniform2f(glGetUniformLocation(light.program, "texSize"), (float)w,
               (float)h);
-  glUniform1i(glGetUniformLocation(light_program, "frame"), 0);
-  glUniform3f(glGetUniformLocation(light_program, "color"), (float)c->r / 255.0,
+  glUniform1i(glGetUniformLocation(light.program, "frame"), 0);
+  glUniform3f(glGetUniformLocation(light.program, "color"), (float)c->r / 255.0,
               (float)c->g / 255.0, (float)c->b / 255.0);
-  glUniform3f(glGetUniformLocation(light_program, "color2"),
+  glUniform3f(glGetUniformLocation(light.program, "color2"),
               (float)c2->r / 255.0, (float)c2->g / 255.0, (float)c2->b / 255.0);
-  glUniformMatrix4fv(glGetUniformLocation(light_program, "model"), 1, GL_FALSE,
+  glUniformMatrix4fv(glGetUniformLocation(light.program, "model"), 1, GL_FALSE,
                      glm::value_ptr(currentMatrix));
-  glUniformMatrix4fv(glGetUniformLocation(light_program, "proj"), 1, GL_FALSE,
+  glUniformMatrix4fv(glGetUniformLocation(light.program, "proj"), 1, GL_FALSE,
                      glm::value_ptr(proj));
   glBindVertexArray(vao);
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
-  glVertexAttribPointer(glGetAttribLocation(light_program, "position"), 2,
+  glVertexAttribPointer(glGetAttribLocation(light.program, "position"), 2,
                         GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
-  glEnableVertexAttribArray(glGetAttribLocation(light_program, "position"));
-  glVertexAttribPointer(glGetAttribLocation(light_program, "t"), 2, GL_FLOAT,
+  glEnableVertexAttribArray(glGetAttribLocation(light.program, "position"));
+  glVertexAttribPointer(glGetAttribLocation(light.program, "t"), 2, GL_FLOAT,
                         GL_FALSE, 4 * sizeof(float),
                         (void*)(2 * sizeof(float)));
-  glEnableVertexAttribArray(glGetAttribLocation(light_program, "t"));
+  glEnableVertexAttribArray(glGetAttribLocation(light.program, "t"));
   glDrawArrays(GL_TRIANGLES, 0, 6);
   glUseProgram(0);
 }
@@ -95,30 +95,30 @@ void renderColor(int x, int y, int w, int h, Color* c, int cutoff, int cutoff2,
   glm::mat4 currentMatrix = model;
   currentMatrix = glm::translate(currentMatrix, glm::vec3(x, y, 0.0));
   currentMatrix = glm::scale(currentMatrix, glm::vec3(w, h, 1.0));
-  glUseProgram(light_program);
-  glUniform2f(glGetUniformLocation(light_program, "frameSize"), (float)w,
+  glUseProgram(light.program);
+  glUniform2f(glGetUniformLocation(light.program, "frameSize"), (float)w,
               (float)h);
-  glUniform2f(glGetUniformLocation(light_program, "texSize"), (float)w,
+  glUniform2f(glGetUniformLocation(light.program, "texSize"), (float)w,
               (float)h);
-  glUniform1i(glGetUniformLocation(light_program, "frame"), 0);
-  glUniform2f(glGetUniformLocation(light_program, "off"), (float)0, (float)0);
-  glUniform3f(glGetUniformLocation(light_program, "color"), (float)c->r / 255.0,
+  glUniform1i(glGetUniformLocation(light.program, "frame"), 0);
+  glUniform2f(glGetUniformLocation(light.program, "off"), (float)0, (float)0);
+  glUniform3f(glGetUniformLocation(light.program, "color"), (float)c->r / 255.0,
               (float)c->g / 255.0, (float)c->b / 255.0);
-  glUniform3f(glGetUniformLocation(light_program, "color2"),
+  glUniform3f(glGetUniformLocation(light.program, "color2"),
               (float)c->r / 255.0, (float)c->g / 255.0, (float)c->b / 255.0);
-  glUniformMatrix4fv(glGetUniformLocation(light_program, "model"), 1, GL_FALSE,
+  glUniformMatrix4fv(glGetUniformLocation(light.program, "model"), 1, GL_FALSE,
                      glm::value_ptr(currentMatrix));
-  glUniformMatrix4fv(glGetUniformLocation(light_program, "proj"), 1, GL_FALSE,
+  glUniformMatrix4fv(glGetUniformLocation(light.program, "proj"), 1, GL_FALSE,
                      glm::value_ptr(proj));
   glBindVertexArray(vao);
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
-  glVertexAttribPointer(glGetAttribLocation(light_program, "position"), 2,
+  glVertexAttribPointer(glGetAttribLocation(light.program, "position"), 2,
                         GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
-  glEnableVertexAttribArray(glGetAttribLocation(light_program, "position"));
-  glVertexAttribPointer(glGetAttribLocation(light_program, "t"), 2, GL_FLOAT,
+  glEnableVertexAttribArray(glGetAttribLocation(light.program, "position"));
+  glVertexAttribPointer(glGetAttribLocation(light.program, "t"), 2, GL_FLOAT,
                         GL_FALSE, 4 * sizeof(float),
                         (void*)(2 * sizeof(float)));
-  glEnableVertexAttribArray(glGetAttribLocation(light_program, "t"));
+  glEnableVertexAttribArray(glGetAttribLocation(light.program, "t"));
   glDrawArrays(GL_TRIANGLES, 0, 6);
   glUseProgram(0);
 }
@@ -129,7 +129,7 @@ void renderBezier(Bezier* b, GLuint tex) {
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, tex);
   glm::mat4 currentMatrix = model;
-  glUseProgram(my_program);
+  glUseProgram(my.program);
   glUniform1i(mp_tex, 0);
   glUniform1i(mp_texN, 1);
   glUniform2f(mp_frameSize, (float)100, (float)100);
@@ -144,13 +144,13 @@ void renderBezier(Bezier* b, GLuint tex) {
   glUniformMatrix4fv(mp_proj, 1, GL_FALSE, glm::value_ptr(proj));
   glBindVertexArray(vao);
   glBindBuffer(GL_ARRAY_BUFFER, b->bVbo);
-  glVertexAttribPointer(glGetAttribLocation(my_program, "position"), 2,
+  glVertexAttribPointer(glGetAttribLocation(my.program, "position"), 2,
                         GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
-  glEnableVertexAttribArray(glGetAttribLocation(my_program, "position"));
-  glVertexAttribPointer(glGetAttribLocation(my_program, "t"), 2, GL_FLOAT,
+  glEnableVertexAttribArray(glGetAttribLocation(my.program, "position"));
+  glVertexAttribPointer(glGetAttribLocation(my.program, "t"), 2, GL_FLOAT,
                         GL_FALSE, 4 * sizeof(float),
                         (void*)(2 * sizeof(float)));
-  glEnableVertexAttribArray(glGetAttribLocation(my_program, "t"));
+  glEnableVertexAttribArray(glGetAttribLocation(my.program, "t"));
   glDrawArrays(GL_TRIANGLES, 0, 6 * b->d);
   glUseProgram(0);
 }
@@ -316,7 +316,7 @@ void renderSprite(int frame, float x, float y, float w, float h, GLuint tex,
         glm::translate(currentMatrix, glm::vec3(-centerX, -centerY, 0.0));
   }
   currentMatrix = glm::scale(currentMatrix, glm::vec3(w, h, 1.0));
-  glUseProgram(my_program);
+  glUseProgram(my.program);
   glUniform1i(mp_tex, 0);
   glUniform1i(mp_texN, 1);
   glUniform2f(mp_frameSize, (float)frameW, (float)frameH);
@@ -331,13 +331,13 @@ void renderSprite(int frame, float x, float y, float w, float h, GLuint tex,
   glUniformMatrix4fv(mp_proj, 1, GL_FALSE, glm::value_ptr(proj));
   glBindVertexArray(vao);
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
-  glVertexAttribPointer(glGetAttribLocation(my_program, "position"), 2,
+  glVertexAttribPointer(glGetAttribLocation(my.program, "position"), 2,
                         GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
-  glEnableVertexAttribArray(glGetAttribLocation(my_program, "position"));
-  glVertexAttribPointer(glGetAttribLocation(my_program, "t"), 2, GL_FLOAT,
+  glEnableVertexAttribArray(glGetAttribLocation(my.program, "position"));
+  glVertexAttribPointer(glGetAttribLocation(my.program, "t"), 2, GL_FLOAT,
                         GL_FALSE, 4 * sizeof(float),
                         (void*)(2 * sizeof(float)));
-  glEnableVertexAttribArray(glGetAttribLocation(my_program, "t"));
+  glEnableVertexAttribArray(glGetAttribLocation(my.program, "t"));
   if (!disabled) {
     glDrawArrays(GL_TRIANGLES, 0, 6);
   }
@@ -433,7 +433,7 @@ int renderText(std::string text, int x, int y, GLuint tex, bool alignRight,
   glBindTexture(GL_TEXTURE_2D, tex);
   glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &tw);
   glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &th);
-  glUseProgram(my_program);
+  glUseProgram(my.program);
   glUniform1i(mp_tex, 0);
   glUniform1i(mp_texN, 1);
   glUniform2f(mp_texSize, (float)tw, (float)th);
@@ -444,13 +444,13 @@ int renderText(std::string text, int x, int y, GLuint tex, bool alignRight,
   glUniformMatrix4fv(mp_proj, 1, GL_FALSE, glm::value_ptr(proj));
   glBindVertexArray(vao);
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
-  glVertexAttribPointer(glGetAttribLocation(my_program, "position"), 2,
+  glVertexAttribPointer(glGetAttribLocation(my.program, "position"), 2,
                         GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
-  glEnableVertexAttribArray(glGetAttribLocation(my_program, "position"));
-  glVertexAttribPointer(glGetAttribLocation(my_program, "t"), 2, GL_FLOAT,
+  glEnableVertexAttribArray(glGetAttribLocation(my.program, "position"));
+  glVertexAttribPointer(glGetAttribLocation(my.program, "t"), 2, GL_FLOAT,
                         GL_FALSE, 4 * sizeof(float),
                         (void*)(2 * sizeof(float)));
-  glEnableVertexAttribArray(glGetAttribLocation(my_program, "t"));
+  glEnableVertexAttribArray(glGetAttribLocation(my.program, "t"));
 
   int posX = 0;
   for (int i = 0; i < text.size(); i++) {
@@ -529,31 +529,31 @@ void renderWheel(int x, int y, int w, int h, float v) {
   glm::mat4 currentMatrix = model;
   currentMatrix = glm::translate(currentMatrix, glm::vec3(x, y, 0.0));
   currentMatrix = glm::scale(currentMatrix, glm::vec3(w, h, 1.0));
-  glUseProgram(blur_program);
-  glUniform2f(glGetUniformLocation(blur_program, "frameSize"), 16, 16);
-  glUniform2f(glGetUniformLocation(blur_program, "texSize"), 16, 16);
-  glUniform1i(glGetUniformLocation(blur_program, "tex"), 0);
+  glUseProgram(blur.program);
+  glUniform2f(glGetUniformLocation(blur.program, "frameSize"), 16, 16);
+  glUniform2f(glGetUniformLocation(blur.program, "texSize"), 16, 16);
+  glUniform1i(glGetUniformLocation(blur.program, "tex"), 0);
   v /= 50.0;
   if (v > 1.0) {
     v = 1.0;
   } else if (v < 0.0) {
     v = 0.0;
   }
-  glUniform1i(glGetUniformLocation(blur_program, "tri"), false);
-  glUniform1i(glGetUniformLocation(blur_program, "full"), false);
-  glUniformMatrix4fv(glGetUniformLocation(blur_program, "model"), 1, GL_FALSE,
+  glUniform1i(glGetUniformLocation(blur.program, "tri"), false);
+  glUniform1i(glGetUniformLocation(blur.program, "full"), false);
+  glUniformMatrix4fv(glGetUniformLocation(blur.program, "model"), 1, GL_FALSE,
                      glm::value_ptr(currentMatrix));
-  glUniformMatrix4fv(glGetUniformLocation(blur_program, "proj"), 1, GL_FALSE,
+  glUniformMatrix4fv(glGetUniformLocation(blur.program, "proj"), 1, GL_FALSE,
                      glm::value_ptr(proj));
   glBindVertexArray(vao);
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
-  glVertexAttribPointer(glGetAttribLocation(blur_program, "position"), 2,
+  glVertexAttribPointer(glGetAttribLocation(blur.program, "position"), 2,
                         GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
-  glEnableVertexAttribArray(glGetAttribLocation(blur_program, "position"));
-  glVertexAttribPointer(glGetAttribLocation(blur_program, "t"), 2, GL_FLOAT,
+  glEnableVertexAttribArray(glGetAttribLocation(blur.program, "position"));
+  glVertexAttribPointer(glGetAttribLocation(blur.program, "t"), 2, GL_FLOAT,
                         GL_FALSE, 4 * sizeof(float),
                         (void*)(2 * sizeof(float)));
-  glEnableVertexAttribArray(glGetAttribLocation(blur_program, "t"));
+  glEnableVertexAttribArray(glGetAttribLocation(blur.program, "t"));
   glDrawArrays(GL_TRIANGLES, 0, 6);
   glUseProgram(0);
 }
@@ -576,26 +576,26 @@ void renderWheelTri(int x, int y, int w, int h, float v) {
   currentMatrix =
       glm::rotate(currentMatrix, glm::radians(float(v)), glm::vec3(0, 0, 1));
   currentMatrix = glm::scale(currentMatrix, glm::vec3(w, h, 1.0));
-  glUseProgram(blur_program);
-  glUniform2f(glGetUniformLocation(blur_program, "frameSize"), 16, 16);
-  glUniform2f(glGetUniformLocation(blur_program, "texSize"), 16, 16);
-  glUniform1i(glGetUniformLocation(blur_program, "tex"), 0);
-  glUniform1i(glGetUniformLocation(blur_program, "tri"), true);
-  glUniform1i(glGetUniformLocation(blur_program, "full"), false);
-  glUniform1f(glGetUniformLocation(blur_program, "v"), v);
-  glUniformMatrix4fv(glGetUniformLocation(blur_program, "model"), 1, GL_FALSE,
+  glUseProgram(blur.program);
+  glUniform2f(glGetUniformLocation(blur.program, "frameSize"), 16, 16);
+  glUniform2f(glGetUniformLocation(blur.program, "texSize"), 16, 16);
+  glUniform1i(glGetUniformLocation(blur.program, "tex"), 0);
+  glUniform1i(glGetUniformLocation(blur.program, "tri"), true);
+  glUniform1i(glGetUniformLocation(blur.program, "full"), false);
+  glUniform1f(glGetUniformLocation(blur.program, "v"), v);
+  glUniformMatrix4fv(glGetUniformLocation(blur.program, "model"), 1, GL_FALSE,
                      glm::value_ptr(currentMatrix));
-  glUniformMatrix4fv(glGetUniformLocation(blur_program, "proj"), 1, GL_FALSE,
+  glUniformMatrix4fv(glGetUniformLocation(blur.program, "proj"), 1, GL_FALSE,
                      glm::value_ptr(proj));
   glBindVertexArray(vao);
   glBindBuffer(GL_ARRAY_BUFFER, vboTri);
-  glVertexAttribPointer(glGetAttribLocation(blur_program, "position"), 2,
+  glVertexAttribPointer(glGetAttribLocation(blur.program, "position"), 2,
                         GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
-  glEnableVertexAttribArray(glGetAttribLocation(blur_program, "position"));
-  glVertexAttribPointer(glGetAttribLocation(blur_program, "t"), 2, GL_FLOAT,
+  glEnableVertexAttribArray(glGetAttribLocation(blur.program, "position"));
+  glVertexAttribPointer(glGetAttribLocation(blur.program, "t"), 2, GL_FLOAT,
                         GL_FALSE, 4 * sizeof(float),
                         (void*)(2 * sizeof(float)));
-  glEnableVertexAttribArray(glGetAttribLocation(blur_program, "t"));
+  glEnableVertexAttribArray(glGetAttribLocation(blur.program, "t"));
   glDrawArrays(GL_TRIANGLES, 0, 3);
   glUseProgram(0);
 }
@@ -607,31 +607,31 @@ void renderWheelF(int x, int y, int w, int h, float v) {
   glm::mat4 currentMatrix = model;
   currentMatrix = glm::translate(currentMatrix, glm::vec3(x, y, 0.0));
   currentMatrix = glm::scale(currentMatrix, glm::vec3(w, h, 1.0));
-  glUseProgram(blur_program);
-  glUniform2f(glGetUniformLocation(blur_program, "frameSize"), 16, 16);
-  glUniform2f(glGetUniformLocation(blur_program, "texSize"), 16, 16);
-  glUniform1i(glGetUniformLocation(blur_program, "tex"), 0);
+  glUseProgram(blur.program);
+  glUniform2f(glGetUniformLocation(blur.program, "frameSize"), 16, 16);
+  glUniform2f(glGetUniformLocation(blur.program, "texSize"), 16, 16);
+  glUniform1i(glGetUniformLocation(blur.program, "tex"), 0);
   v /= 50.0;
   if (v > 1.0) {
     v = 1.0;
   } else if (v < 0.0) {
     v = 0.0;
   }
-  glUniform1i(glGetUniformLocation(blur_program, "tri"), false);
-  glUniform1i(glGetUniformLocation(blur_program, "full"), true);
-  glUniformMatrix4fv(glGetUniformLocation(blur_program, "model"), 1, GL_FALSE,
+  glUniform1i(glGetUniformLocation(blur.program, "tri"), false);
+  glUniform1i(glGetUniformLocation(blur.program, "full"), true);
+  glUniformMatrix4fv(glGetUniformLocation(blur.program, "model"), 1, GL_FALSE,
                      glm::value_ptr(currentMatrix));
-  glUniformMatrix4fv(glGetUniformLocation(blur_program, "proj"), 1, GL_FALSE,
+  glUniformMatrix4fv(glGetUniformLocation(blur.program, "proj"), 1, GL_FALSE,
                      glm::value_ptr(proj));
   glBindVertexArray(vao);
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
-  glVertexAttribPointer(glGetAttribLocation(blur_program, "position"), 2,
+  glVertexAttribPointer(glGetAttribLocation(blur.program, "position"), 2,
                         GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
-  glEnableVertexAttribArray(glGetAttribLocation(blur_program, "position"));
-  glVertexAttribPointer(glGetAttribLocation(blur_program, "t"), 2, GL_FLOAT,
+  glEnableVertexAttribArray(glGetAttribLocation(blur.program, "position"));
+  glVertexAttribPointer(glGetAttribLocation(blur.program, "t"), 2, GL_FLOAT,
                         GL_FALSE, 4 * sizeof(float),
                         (void*)(2 * sizeof(float)));
-  glEnableVertexAttribArray(glGetAttribLocation(blur_program, "t"));
+  glEnableVertexAttribArray(glGetAttribLocation(blur.program, "t"));
   glDrawArrays(GL_TRIANGLES, 0, 6);
   glUseProgram(0);
 }
@@ -655,26 +655,26 @@ void renderWheelTriF(int x, int y, int w, int h, float v) {
   currentMatrix =
       glm::rotate(currentMatrix, glm::radians(float(v)), glm::vec3(0, 0, 1));
   currentMatrix = glm::scale(currentMatrix, glm::vec3(w, h, 1.0));
-  glUseProgram(blur_program);
-  glUniform2f(glGetUniformLocation(blur_program, "frameSize"), 16, 16);
-  glUniform2f(glGetUniformLocation(blur_program, "texSize"), 16, 16);
-  glUniform1i(glGetUniformLocation(blur_program, "tex"), 0);
-  glUniform1i(glGetUniformLocation(blur_program, "tri"), true);
-  glUniform1i(glGetUniformLocation(blur_program, "full"), true);
-  glUniform1f(glGetUniformLocation(blur_program, "v"), v);
-  glUniformMatrix4fv(glGetUniformLocation(blur_program, "model"), 1, GL_FALSE,
+  glUseProgram(blur.program);
+  glUniform2f(glGetUniformLocation(blur.program, "frameSize"), 16, 16);
+  glUniform2f(glGetUniformLocation(blur.program, "texSize"), 16, 16);
+  glUniform1i(glGetUniformLocation(blur.program, "tex"), 0);
+  glUniform1i(glGetUniformLocation(blur.program, "tri"), true);
+  glUniform1i(glGetUniformLocation(blur.program, "full"), true);
+  glUniform1f(glGetUniformLocation(blur.program, "v"), v);
+  glUniformMatrix4fv(glGetUniformLocation(blur.program, "model"), 1, GL_FALSE,
                      glm::value_ptr(currentMatrix));
-  glUniformMatrix4fv(glGetUniformLocation(blur_program, "proj"), 1, GL_FALSE,
+  glUniformMatrix4fv(glGetUniformLocation(blur.program, "proj"), 1, GL_FALSE,
                      glm::value_ptr(proj));
   glBindVertexArray(vao);
   glBindBuffer(GL_ARRAY_BUFFER, vboTri);
-  glVertexAttribPointer(glGetAttribLocation(blur_program, "position"), 2,
+  glVertexAttribPointer(glGetAttribLocation(blur.program, "position"), 2,
                         GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
-  glEnableVertexAttribArray(glGetAttribLocation(blur_program, "position"));
-  glVertexAttribPointer(glGetAttribLocation(blur_program, "t"), 2, GL_FLOAT,
+  glEnableVertexAttribArray(glGetAttribLocation(blur.program, "position"));
+  glVertexAttribPointer(glGetAttribLocation(blur.program, "t"), 2, GL_FLOAT,
                         GL_FALSE, 4 * sizeof(float),
                         (void*)(2 * sizeof(float)));
-  glEnableVertexAttribArray(glGetAttribLocation(blur_program, "t"));
+  glEnableVertexAttribArray(glGetAttribLocation(blur.program, "t"));
   glDrawArrays(GL_TRIANGLES, 0, 3);
   glUseProgram(0);
 }
@@ -688,7 +688,7 @@ void renderUI(int x, int y, int w, int h, GLuint tex, int cutoff, int cutoff2,
     glBindTexture(GL_TEXTURE_2D, tex);
     glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &tw);
     glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &th);
-    glUseProgram(my_program);
+    glUseProgram(my.program);
     glUniform1i(mp_tex, 0);
     glUniform1i(mp_texN, 1);
     glUniform2f(mp_texSize, (float)tw, (float)th);
@@ -698,13 +698,13 @@ void renderUI(int x, int y, int w, int h, GLuint tex, int cutoff, int cutoff2,
     glUniformMatrix4fv(mp_proj, 1, GL_FALSE, glm::value_ptr(proj));
     glBindVertexArray(vao);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glVertexAttribPointer(glGetAttribLocation(my_program, "position"), 2,
+    glVertexAttribPointer(glGetAttribLocation(my.program, "position"), 2,
                           GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
-    glEnableVertexAttribArray(glGetAttribLocation(my_program, "position"));
-    glVertexAttribPointer(glGetAttribLocation(my_program, "t"), 2, GL_FLOAT,
+    glEnableVertexAttribArray(glGetAttribLocation(my.program, "position"));
+    glVertexAttribPointer(glGetAttribLocation(my.program, "t"), 2, GL_FLOAT,
                           GL_FALSE, 4 * sizeof(float),
                           (void*)(2 * sizeof(float)));
-    glEnableVertexAttribArray(glGetAttribLocation(my_program, "t"));
+    glEnableVertexAttribArray(glGetAttribLocation(my.program, "t"));
 
     renderGlyph(0, x, y, 2, 2, tex, 2, 2, 0, 0, 0, 1, 0, 0, 0.0, false, false,
                 cutoff, cutoff2, cutoff3, cutoff4);

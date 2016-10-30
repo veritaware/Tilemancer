@@ -49,21 +49,10 @@ GLuint palImgReal;
 GLuint fontImg;
 GLuint fontImg2;
 
-GLenum my_program;
-GLenum my_vertex_shader;
-GLenum my_fragment_shader;
-
-GLenum light_program;
-GLenum light_vertex_shader;
-GLenum light_fragment_shader;
-
-GLenum blur_program;
-GLenum blur_vertex_shader;
-GLenum blur_fragment_shader;
-
-GLenum transition_program;
-GLenum transition_vertex_shader;
-GLenum transition_fragment_shader;
+Shader my;
+Shader light;
+Shader blur;
+Shader transition;
 
 GLuint screenFbo;
 GLuint screenTex;

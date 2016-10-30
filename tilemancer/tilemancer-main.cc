@@ -275,108 +275,108 @@ void initGlew() {
 void LoadStuff() {
   srand(time(NULL));
 
-  light_program = glCreateProgram();
-  light_vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-  light_fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
+  light.program = glCreateProgram();
+  light.vertex_shader = glCreateShader(GL_VERTEX_SHADER);
+  light.fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
 
   // Load Shader Sources
-  glShaderSource(light_vertex_shader, 1, &shader_source_transition_vert, NULL);
-  glShaderSource(light_fragment_shader, 1, &shader_source_light_frag, NULL);
+  glShaderSource(light.vertex_shader, 1, &shader_source_light_vert, NULL);
+  glShaderSource(light.fragment_shader, 1, &shader_source_light_frag, NULL);
 
   // Compile The Shaders
-  glCompileShader(light_vertex_shader);
-  glCompileShader(light_fragment_shader);
+  glCompileShader(light.vertex_shader);
+  glCompileShader(light.fragment_shader);
 
   // Attach The Shader Objects To The Program Object
-  glAttachShader(light_program, light_vertex_shader);
-  glAttachShader(light_program, light_fragment_shader);
+  glAttachShader(light.program, light.vertex_shader);
+  glAttachShader(light.program, light.fragment_shader);
 
   // Link The Program Object
-  glLinkProgram(light_program);
+  glLinkProgram(light.program);
 
   // Use The Program Object Instead Of Fixed Function OpenGL
-  glUseProgram(light_program);
+  glUseProgram(light.program);
 
-  blur_program = glCreateProgram();
-  blur_vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-  blur_fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
+  blur.program = glCreateProgram();
+  blur.vertex_shader = glCreateShader(GL_VERTEX_SHADER);
+  blur.fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
 
   // Load Shader Sources
-  glShaderSource(blur_vertex_shader, 1, &shader_source_blur_frag, NULL);
-  glShaderSource(blur_fragment_shader, 1, &shader_source_blur_vert, NULL);
+  glShaderSource(blur.vertex_shader, 1, &shader_source_blur_frag, NULL);
+  glShaderSource(blur.fragment_shader, 1, &shader_source_blur_vert, NULL);
 
   // Compile The Shaders
-  glCompileShader(blur_vertex_shader);
-  glCompileShader(blur_fragment_shader);
+  glCompileShader(blur.vertex_shader);
+  glCompileShader(blur.fragment_shader);
 
   // Attach The Shader Objects To The Program Object
-  glAttachShader(blur_program, blur_vertex_shader);
-  glAttachShader(blur_program, blur_fragment_shader);
+  glAttachShader(blur.program, blur.vertex_shader);
+  glAttachShader(blur.program, blur.fragment_shader);
 
   // Link The Program Object
-  glLinkProgram(blur_program);
+  glLinkProgram(blur.program);
 
   // Use The Program Object Instead Of Fixed Function OpenGL
-  glUseProgram(blur_program);
+  glUseProgram(blur.program);
 
-  transition_program = glCreateProgram();
-  transition_vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-  transition_fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
+  transition.program = glCreateProgram();
+  transition.vertex_shader = glCreateShader(GL_VERTEX_SHADER);
+  transition.fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
 
   // Load Shader Sources
-  glShaderSource(transition_vertex_shader, 1, &shader_source_transition_vert,
+  glShaderSource(transition.vertex_shader, 1, &shader_source_transition_vert,
                  NULL);
-  glShaderSource(transition_fragment_shader, 1, &shader_source_transition_frag,
+  glShaderSource(transition.fragment_shader, 1, &shader_source_transition_frag,
                  NULL);
 
   // Compile The Shaders
-  glCompileShader(transition_vertex_shader);
-  glCompileShader(transition_fragment_shader);
+  glCompileShader(transition.vertex_shader);
+  glCompileShader(transition.fragment_shader);
 
   // Attach The Shader Objects To The Program Object
-  glAttachShader(transition_program, transition_vertex_shader);
-  glAttachShader(transition_program, transition_fragment_shader);
+  glAttachShader(transition.program, transition.vertex_shader);
+  glAttachShader(transition.program, transition.fragment_shader);
 
   // Link The Program Object
-  glLinkProgram(transition_program);
+  glLinkProgram(transition.program);
 
   // Use The Program Object Instead Of Fixed Function OpenGL
-  glUseProgram(transition_program);
+  glUseProgram(transition.program);
 
-  my_program = glCreateProgram();
-  my_vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-  my_fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
+  my.program = glCreateProgram();
+  my.vertex_shader = glCreateShader(GL_VERTEX_SHADER);
+  my.fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
 
   // Load Shader Sources
-  glShaderSource(my_vertex_shader, 1, &shader_source_my_vert, NULL);
-  glShaderSource(my_fragment_shader, 1, &shader_source_my_frag, NULL);
+  glShaderSource(my.vertex_shader, 1, &shader_source_my_vert, NULL);
+  glShaderSource(my.fragment_shader, 1, &shader_source_my_frag, NULL);
 
   // Compile The Shaders
-  glCompileShader(my_vertex_shader);
-  glCompileShader(my_fragment_shader);
+  glCompileShader(my.vertex_shader);
+  glCompileShader(my.fragment_shader);
 
   // Attach The Shader Objects To The Program Object
-  glAttachShader(my_program, my_vertex_shader);
-  glAttachShader(my_program, my_fragment_shader);
+  glAttachShader(my.program, my.vertex_shader);
+  glAttachShader(my.program, my.fragment_shader);
 
   // Link The Program Object
-  glLinkProgram(my_program);
+  glLinkProgram(my.program);
 
   // Use The Program Object Instead Of Fixed Function OpenGL
-  glUseProgram(my_program);
+  glUseProgram(my.program);
 
-  mp_tex = glGetUniformLocation(my_program, "tex");
-  mp_texN = glGetUniformLocation(my_program, "texN");
-  mp_frameSize = glGetUniformLocation(my_program, "frameSize");
-  mp_texSize = glGetUniformLocation(my_program, "texSize");
-  mp_off = glGetUniformLocation(my_program, "off");
-  mp_frame = glGetUniformLocation(my_program, "frame");
-  mp_depth = glGetUniformLocation(my_program, "depth");
-  mp_alpha = glGetUniformLocation(my_program, "alpha");
-  mp_strength = glGetUniformLocation(my_program, "strength");
-  mp_model = glGetUniformLocation(my_program, "model");
-  mp_flip = glGetUniformLocation(my_program, "flip");
-  mp_proj = glGetUniformLocation(my_program, "proj");
+  mp_tex = glGetUniformLocation(my.program, "tex");
+  mp_texN = glGetUniformLocation(my.program, "texN");
+  mp_frameSize = glGetUniformLocation(my.program, "frameSize");
+  mp_texSize = glGetUniformLocation(my.program, "texSize");
+  mp_off = glGetUniformLocation(my.program, "off");
+  mp_frame = glGetUniformLocation(my.program, "frame");
+  mp_depth = glGetUniformLocation(my.program, "depth");
+  mp_alpha = glGetUniformLocation(my.program, "alpha");
+  mp_strength = glGetUniformLocation(my.program, "strength");
+  mp_model = glGetUniformLocation(my.program, "model");
+  mp_flip = glGetUniformLocation(my.program, "flip");
+  mp_proj = glGetUniformLocation(my.program, "proj");
 
   float texRect[] = {0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0,
                      1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0,
@@ -386,7 +386,7 @@ void LoadStuff() {
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
   glBufferData(GL_ARRAY_BUFFER, sizeof(texRect), texRect, GL_STATIC_DRAW);
   // glVertexAttribPointer(shaderPos, 2, GL_FLOAT, GL_FALSE, 0, 0);
-  glEnableVertexAttribArray(glGetAttribLocation(my_program, "position"));
+  glEnableVertexAttribArray(glGetAttribLocation(my.program, "position"));
 
   float texTri[] = {-float(0.5 * sqrt(3) / 3.0),
                     -0.5,

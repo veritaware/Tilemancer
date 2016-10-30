@@ -23,6 +23,7 @@
 
 #include "glm/glm.hpp"
 #include "tilemancer/gl.h"
+#include "tilemancer/shader.h"
 
 extern GLuint gridImg;
 extern GLuint effectImg;
@@ -53,21 +54,10 @@ extern GLuint palImgReal;
 extern GLuint fontImg;
 extern GLuint fontImg2;
 
-extern GLenum my_program;
-extern GLenum my_vertex_shader;
-extern GLenum my_fragment_shader;
-
-extern GLenum light_program;
-extern GLenum light_vertex_shader;
-extern GLenum light_fragment_shader;
-
-extern GLenum blur_program;
-extern GLenum blur_vertex_shader;
-extern GLenum blur_fragment_shader;
-
-extern GLenum transition_program;
-extern GLenum transition_vertex_shader;
-extern GLenum transition_fragment_shader;
+extern Shader my;
+extern Shader light;
+extern Shader blur;
+extern Shader transition;
 
 extern GLuint screenFbo;
 extern GLuint screenTex;
