@@ -23,6 +23,7 @@
 
 #include <dirent.h>
 #define _USE_MATH_DEFINES
+#include <SDL2/SDL.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -37,7 +38,6 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#include <SDL2/SDL.h>
 #include "glm/glm.hpp"
 #include "glm/gtc/type_ptr.hpp"
 #include "glm/gtx/transform.hpp"
@@ -72,166 +72,6 @@ void initLua() {
   luaL_openlibs(L);
 }
 
-static string executable_path() {
-  char cwd[1024];
-  uint32_t size = sizeof(cwd);
-#if defined(__WIN32)
-  GetModuleFileName(NULL, cwd, size);
-#elif defined(__APPLE__)
-  _NSGetExecutablePath(cwd, &size);
-#else
-  ssize_t readSize = readlink("/proc/self/exe", cwd, size);
-  if (readSize <= 0 || readSize == size) {
-    printf("Could not determine executable path!\n");
-    exit(1);
-  }
-  cwd[readSize] = 0;
-#endif
-  return string(cwd);
-}
-
-#ifdef _WIN32
-void importFxs() {
-  string cwd2 = executable_path();
-  cwd2.erase(cwd2.rfind('\\'));
-  if (cwd2.size() < 1) {
-    cwd2 = "\\Nodes";
-  } else {
-    cwd2 += "\\Nodes";
-  }
-  DIR* dirr;
-  struct dirent* ent;
-  vector<BrowserFile*> temp;
-  if ((dirr = opendir(cwd2.c_str())) != NULL) {
-    while ((ent = readdir(dirr)) != NULL) {
-      if (ent->d_name[0] != '.') {
-        string fn = ent->d_name;
-        if (fn.substr(fn.find_last_of(".") + 1) == "lua") {
-          string fullfn = cwd2 + "\\" + fn;
-          lua_settop(L, 0);
-          lua_pushnil(L);
-          lua_setglobal(L, "init");
-          lua_settop(L, 0);
-          lua_pushnil(L);
-          lua_setglobal(L, "apply");
-          int s = luaL_dofile(L, fullfn.c_str());
-          if (s == 0) {
-            // cout << "Loaded" << endl;
-            // checking if everything works
-            bool OK = true;
-            lua_getglobal(L, "init");
-            lua_getglobal(L, "apply");
-            if (!lua_isfunction(L, -2)) {
-              OK = false;
-            }
-            if (!lua_isfunction(L, -1)) {
-              OK = false;
-            }
-            if (OK) {
-              // cout << "Success" << endl;
-              newEffects.push_back(new Effect(fullfn, fn));
-            }
-          }
-        }
-      }
-    }
-    closedir(dirr);
-  } else {
-  }
-}
-
-void importPresets() {
-  string cwd2 = executable_path();
-  cwd2.erase(cwd2.rfind('\\'));
-  if (cwd2.size() < 1) {
-    cwd2 = "\\Presets";
-  } else {
-    cwd2 += "\\Presets";
-  }
-  DIR* dirr;
-  struct dirent* ent;
-  vector<BrowserFile*> temp;
-  if ((dirr = opendir(cwd2.c_str())) != NULL) {
-    while ((ent = readdir(dirr)) != NULL) {
-      if (ent->d_name[0] != '.') {
-        string fn = ent->d_name;
-        if (fn.substr(fn.find_last_of(".") + 1) == "lua") {
-          string fullfn = cwd2 + "\\" + fn;
-          lua_settop(L, 0);
-          lua_pushnil(L);
-          lua_setglobal(L, "init");
-          lua_settop(L, 0);
-          lua_pushnil(L);
-          lua_setglobal(L, "apply");
-          int s = luaL_dofile(L, fullfn.c_str());
-          if (s == 0) {
-            // cout << "Loaded" << endl;
-            // checking if everything works
-            bool OK = true;
-            lua_getglobal(L, "init");
-            lua_getglobal(L, "apply");
-            if (!lua_isfunction(L, -2)) {
-              OK = false;
-            }
-            if (!lua_isfunction(L, -1)) {
-              OK = false;
-            }
-            if (OK) {
-              // cout << "Success" << endl;
-              newEffects.push_back(new Effect(fullfn, fn, true));
-            }
-          }
-        }
-      }
-    }
-    closedir(dirr);
-  } else {
-  }
-}
-#elif defined(__APPLE__) || defined(__linux__)
-
-std::string GetFolder(const std::string& folder) {
-  string cwd2 = executable_path();
-  cwd2.erase(cwd2.rfind('/'));
-#if defined(__APPLE__)
-  cwd2.erase(cwd2.rfind('/'));
-  cwd2.erase(cwd2.rfind('/'));
-  cwd2.erase(cwd2.rfind('/'));
-#endif
-  if (cwd2.size() < 1) {
-    cwd2 = "/" + folder;
-  } else {
-    cwd2 += "/" + folder;
-  }
-  return cwd2;
-}
-
-std::vector<std::string> FilesInFolder(const std::string& folder,
-                                       const char* ext) {
-  int num_entries;
-  struct dirent** entries = NULL;
-  num_entries = scandir(folder.c_str(), &entries, NULL, NULL);
-
-  std::vector<std::string> files;
-  files.reserve(num_entries);
-
-  for (int i = 0; i < num_entries; i++) {
-    if (entries[i]->d_name[0] != '.') {
-      const std::string& fn = entries[i]->d_name;
-      if (ext) {
-        if (fn.substr(fn.find_last_of(".") + 1) != "lua") {
-          continue;
-        }
-      }
-      files.push_back(fn);
-    }
-  }
-
-  return files;
-}
-
-const std::string FOLDER_SEP = "/";
-
 void LoadEffect(const string& fn, const string& fullfn, bool loadAsPreset) {
   lua_settop(L, 0);
   lua_pushnil(L);
@@ -264,7 +104,7 @@ void importFxs() {
   const std::vector<std::string> files = FilesInFolder(cwd2, "lua");
 
   for (const std::string& fn : files) {
-    const string fullfn = cwd2 + FOLDER_SEP + fn;
+    const string fullfn = cwd2 + OS_SEPARATOR_STRING + fn;
     LoadEffect(fn, fullfn, false);
   }
 }
@@ -274,13 +114,10 @@ void importPresets() {
   const std::vector<std::string> files = FilesInFolder(cwd2, "lua");
 
   for (const std::string& fn : files) {
-    const string fullfn = cwd2 + FOLDER_SEP + fn;
+    const string fullfn = cwd2 + OS_SEPARATOR_STRING + fn;
     LoadEffect(fn, fullfn, true);
   }
 }
-
-#else
-#endif
 
 void getHome();
 
@@ -488,8 +325,8 @@ void LoadStuff() {
   // Load Shader Sources
   glShaderSource(transition_vertex_shader, 1, &shader_source_transition_vert,
                  NULL);
-  glShaderSource(transition_fragment_shader, 1,
-                 &shader_source_transition_frag, NULL);
+  glShaderSource(transition_fragment_shader, 1, &shader_source_transition_frag,
+                 NULL);
 
   // Compile The Shaders
   glCompileShader(transition_vertex_shader);
@@ -866,12 +703,12 @@ void update() {
           glGenTextures(1, &output->texture);
           glBindTexture(GL_TEXTURE_2D, output->texture);
 #ifdef TILEMANCER_WINDOWS
-            vector<GLubyte> bv = output->texData.toByteArray();
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texSizeX, texSizeY, 0,
-                         GL_RGBA, GL_UNSIGNED_BYTE, &bv[0]);
+          vector<GLubyte> bv = output->texData.toByteArray();
+          glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texSizeX, texSizeY, 0,
+                       GL_RGBA, GL_UNSIGNED_BYTE, &bv[0]);
 #else
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, texSizeX, texSizeY, 0,
-                         GL_RGBA, GL_FLOAT, output->texData.ptr());
+          glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, texSizeX, texSizeY, 0,
+                       GL_RGBA, GL_FLOAT, output->texData.ptr());
 #endif
           glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
           glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -1923,8 +1760,8 @@ void onMouseMotion(const SDL_Event& e) {
     int sh = 0;
     SDL_GetWindowPosition(window, &sx, &sy);
 #ifdef TILEMANCER_WINDOWS
-      mx += sx;
-      my += sy;
+    mx += sx;
+    my += sy;
 #endif
     SDL_GetWindowSize(window, &sw, &sh);
     while (mx < sx) {

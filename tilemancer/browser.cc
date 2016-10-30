@@ -26,16 +26,16 @@
 #include "tilemancer/globals.h"
 #include "tilemancer/graphics_globals.h"
 #include "tilemancer/load_texture.h"
+#include "tilemancer/os.h"
 #include "tilemancer/palette.h"
 #include "tilemancer/render.h"
 #include "tilemancer/saveload.h"
 #include "tilemancer/socket.h"
-#include "tilemancer/os.h"
 
+#include <pwd.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <cstring>
-#include <pwd.h>
 #include "dirent.h"
 #include "sys/stat.h"
 
@@ -70,9 +70,9 @@ void browserAction(std::string dir, std::string subDir, std::string parent) {
   if (browserMode == BrowserMode::e0Import) {
     if (exists) {
 #ifdef TILEMANCER_OS_WINDOWS
-        palImg = loadTexture2(dir);
+      palImg = loadTexture2(dir);
 #else
-        palImg = loadTexture(dir);
+      palImg = loadTexture(dir);
 #endif
       loadPalette();
       browserOpen = false;

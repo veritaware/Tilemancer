@@ -19,6 +19,7 @@
 */
 
 #include "tilemancer/effect.h"
+#include <cmath>
 #include "tilemancer/floatimage.h"
 #include "tilemancer/globals.h"
 #include "tilemancer/palette.h"
@@ -27,7 +28,6 @@
 #include "tilemancer/text.h"
 #include "tilemancer/texture.h"
 #include "tilemancer/tmlua.h"
-#include <cmath>
 
 void Effect::sideUpdate() {
   luaL_dofile(this->L, luafn.c_str());

@@ -18,9 +18,9 @@
 
 */
 
-#include <SDL_surface.h>
-#include <SDL_image.h>
 #include "tilemancer/socket.h"
+#include <SDL_image.h>
+#include <SDL_surface.h>
 #include "tilemancer/bezier.h"
 #include "tilemancer/globals.h"
 #include "tilemancer/os.h"
@@ -46,20 +46,19 @@ void exportTexSingle(const std::string& dir) {
   glBindTexture(GL_TEXTURE_2D, currentSocket->texture);
   GLfloat* pixels = new GLfloat[int(texSizeX * texSizeY * 4)];
 #ifdef TILEMANCER_OS_WINDOWS
-    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, surface->pixels);
+  glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, surface->pixels);
 #else
-    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, pixels);
-    for (int i = 0; i < texSizeX * texSizeY * 4; i++) {
-      Uint8* p =
-          (Uint8*)surface->pixels + i * surface->format->BytesPerPixel / 4;
-      int val = pixels[i];
-      if (val > 255) {
-        val = 255;
-      } else if (val < 0) {
-        val = 0;
-      }
-      p[0] = (Uint8)val;
+  glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, pixels);
+  for (int i = 0; i < texSizeX * texSizeY * 4; i++) {
+    Uint8* p = (Uint8*)surface->pixels + i * surface->format->BytesPerPixel / 4;
+    int val = pixels[i];
+    if (val > 255) {
+      val = 255;
+    } else if (val < 0) {
+      val = 0;
     }
+    p[0] = (Uint8)val;
+  }
 #endif
   IMG_SavePNG(surface, dir.c_str());
   SDL_FreeSurface(surface);

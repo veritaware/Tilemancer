@@ -22,6 +22,7 @@
 #define TILEMANCER_OS_H
 
 #include <string>
+#include <vector>
 
 #ifdef _WIN32
 #define TILEMANCER_OS_WINDOWS
@@ -37,5 +38,12 @@
 
 extern const char OS_SEPARATOR_CHAR;
 extern const std::string OS_SEPARATOR_STRING;
+
+const std::string executable_path();
+
+std::string GetFolder(const std::string& folder);
+
+std::vector<std::string> FilesInFolder(const std::string& folder,
+                                       const char* ext);
 
 #endif  // TILEMANCER_OS_H

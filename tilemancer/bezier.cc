@@ -20,8 +20,8 @@
 
 #include "tilemancer/bezier.h"
 
-#include <vector>
 #include <cmath>
+#include <vector>
 
 Bezier::Bezier() {}
 
