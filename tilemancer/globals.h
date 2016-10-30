@@ -44,8 +44,6 @@ extern double dt;
 extern double currentTime;
 extern double lastTime;
 extern double accumulator;
-extern unsigned int fps;
-extern int fpsTimer;
 
 extern float texSizeX;
 extern float texSizeY;

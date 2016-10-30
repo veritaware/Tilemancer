@@ -24,8 +24,6 @@ double dt = 1.0 / 60.0;
 double currentTime;
 double lastTime;
 double accumulator;
-unsigned int fps;
-int fpsTimer;
 
 float texSizeX;
 float texSizeY;

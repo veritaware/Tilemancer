@@ -1202,31 +1202,6 @@ void renderGL() {
 
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
   model = glm::mat4(1.0);
-
-  bool renderfps = false;
-
-  if (renderfps) {
-    int numDigits = 1;
-    if (fps > 0) {
-      numDigits = log10(fps) + 1;
-    }
-    int f = fps;
-    int kerning[] = {6, 4, 6, 6, 6, 6, 6, 5, 6, 6};
-    float width = 0;
-    for (int d = 0; d < numDigits; d++) {
-      width += kerning[f % 10] * 16 / 16.0;
-      f /= 10;
-    }
-    f = fps;
-    int pos = 0;
-    for (int d = 0; d < numDigits; d++) {
-      pos -= kerning[f % 10] * 16 / 16.0;
-      renderSprite(f % 10, (width + pos) * screenScale, 0, 16 * screenScale,
-                   16 * screenScale, digitsImg, 16, 16, 0, 0, 0, 1, 0, 0, 0.0,
-                   false, false);
-      f /= 10;
-    }
-  }
 }
 
 void renderNodes(int barX, int barXRight, const Texture* t) {  // render nodes
@@ -1416,16 +1391,6 @@ int tilemancer_main() {
     double frameTime = (newTime - currentTime) / 1000.0;
     currentTime = newTime;
     accumulator += frameTime;
-    if (fpsTimer == 0) {
-      if (frameTime != 0) {
-        fps = 1.0 / frameTime;
-      } else {
-        fps = 0;
-      }
-      fpsTimer = 0;
-    } else {
-      fpsTimer--;
-    }
     while (accumulator >= dt) {
       update();
       accumulator -= dt;
