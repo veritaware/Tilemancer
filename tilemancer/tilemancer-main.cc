@@ -19,6 +19,7 @@
 */
 
 #include "os.h"
+#include "shaders.h"
 
 #include <dirent.h>
 #define _USE_MATH_DEFINES
@@ -440,8 +441,8 @@ void LoadStuff() {
   light_fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
 
   // Load Shader Sources
-  glShaderSource(light_vertex_shader, 1, &light_vertex_shader_source, NULL);
-  glShaderSource(light_fragment_shader, 1, &light_fragment_shader_source, NULL);
+  glShaderSource(light_vertex_shader, 1, &shader_source_transition_vert, NULL);
+  glShaderSource(light_fragment_shader, 1, &shader_source_light_frag, NULL);
 
   // Compile The Shaders
   glCompileShader(light_vertex_shader);
@@ -462,8 +463,8 @@ void LoadStuff() {
   blur_fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
 
   // Load Shader Sources
-  glShaderSource(blur_vertex_shader, 1, &blur_vertex_shader_source, NULL);
-  glShaderSource(blur_fragment_shader, 1, &blur_fragment_shader_source, NULL);
+  glShaderSource(blur_vertex_shader, 1, &shader_source_blur_frag, NULL);
+  glShaderSource(blur_fragment_shader, 1, &shader_source_blur_vert, NULL);
 
   // Compile The Shaders
   glCompileShader(blur_vertex_shader);
@@ -484,10 +485,10 @@ void LoadStuff() {
   transition_fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
 
   // Load Shader Sources
-  glShaderSource(transition_vertex_shader, 1, &transition_vertex_shader_source,
+  glShaderSource(transition_vertex_shader, 1, &shader_source_transition_vert,
                  NULL);
   glShaderSource(transition_fragment_shader, 1,
-                 &transition_fragment_shader_source, NULL);
+                 &shader_source_transition_frag, NULL);
 
   // Compile The Shaders
   glCompileShader(transition_vertex_shader);
@@ -508,8 +509,8 @@ void LoadStuff() {
   my_fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
 
   // Load Shader Sources
-  glShaderSource(my_vertex_shader, 1, &my_vertex_shader_source, NULL);
-  glShaderSource(my_fragment_shader, 1, &my_fragment_shader_source, NULL);
+  glShaderSource(my_vertex_shader, 1, &shader_source_my_vert, NULL);
+  glShaderSource(my_fragment_shader, 1, &shader_source_my_frag, NULL);
 
   // Compile The Shaders
   glCompileShader(my_vertex_shader);

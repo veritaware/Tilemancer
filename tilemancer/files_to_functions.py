@@ -30,9 +30,8 @@ define = "GENERTED_HEADER"
 header.write('#ifndef ' + define + "\n")
 header.write('#define ' + define + "\n")
 header.write("\n")
-header.write("#include <string>\n")
-header.write("\n")
-source.write("#include <string>\n")
+
+source.write('#include "shaders.h"\n')
 source.write("\n")
 
 def escape_cpp(line):
@@ -45,14 +44,12 @@ for relative in args.input:
 
   print("Exported " + function_name)
 
-  header.write("std::string " + function_name + "();\n")
-  source.write("std::string " + function_name + "() {\n")
-  source.write("  return ""\n")
+  header.write("extern const char* const " + function_name + ";\n")
+  source.write("const char* const " + function_name + " = \n")
   with open(f, 'r') as fi:
     for line in fi:
-      source.write('    "' + escape_cpp(line.rstrip()) + '\\n"\n')
-  source.write("    ;\n")
-  source.write("}\n")
+      source.write('  "' + escape_cpp(line.rstrip()) + '\\n"\n')
+  source.write("  ;\n")
   source.write("\n")
 
 
