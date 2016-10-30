@@ -24,9 +24,7 @@
 #include <string>
 
 // e3 is used by code, but never used in calls, remove?
-enum class BrowserMode {
-  e5Save, e4Open, e2ExportTex, e0Import, e1Export, e3
-};
+enum class BrowserMode { e5Save, e4Open, e2ExportTex, e0Import, e1Export, e3 };
 
 void browserOnBackspace();
 bool browserIsOpen();
@@ -36,7 +34,7 @@ void browserOnText(const std::string &text);
 void browserButtonDown(int x, int y);
 void browserAction(std::string dir, std::string subDir, std::string parent);
 void openBrowser(std::string dir, int type, BrowserMode mode);
-void adjustBrowserScroll(float adjust) ;
+void adjustBrowserScroll(float adjust);
 void onBrowserResize();
 void renderFileBrowser(int barX, int barY, int barXRight, int scrollW);
 

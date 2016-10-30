@@ -24,11 +24,11 @@
 #include "tilemancer/color.h"
 #include "tilemancer/cpoint.h"
 #include "tilemancer/effect.h"
+#include "tilemancer/gl.h"
 #include "tilemancer/globals.h"
+#include "tilemancer/graphics_globals.h"
 #include "tilemancer/parameter.h"
 #include "tilemancer/texture.h"
-#include "tilemancer/gl.h"
-#include "tilemancer/graphics_globals.h"
 
 Color* getPalColor(float H, float S, float V) {
   float C = V * S;
@@ -234,4 +234,3 @@ void exportPalette(const std::string& dir) {
   IMG_SavePNG(surface, dir.c_str());
   SDL_FreeSurface(surface);
 }
-

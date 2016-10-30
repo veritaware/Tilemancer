@@ -122,4 +122,3 @@ std::string lastSaveName;
 std::string lastTexDir;
 std::string lastTexName;
 lua_State* L;
-

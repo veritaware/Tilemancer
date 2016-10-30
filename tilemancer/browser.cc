@@ -22,32 +22,32 @@
 
 #include <vector>
 
+#include "tilemancer/browserfile.h"
 #include "tilemancer/globals.h"
 #include "tilemancer/graphics_globals.h"
-#include "tilemancer/browserfile.h"
-#include "tilemancer/socket.h"
-#include "tilemancer/saveload.h"
+#include "tilemancer/load_texture.h"
 #include "tilemancer/palette.h"
 #include "tilemancer/render.h"
-#include "tilemancer/load_texture.h"
+#include "tilemancer/saveload.h"
+#include "tilemancer/socket.h"
 
+#include <sys/types.h>
+#include <unistd.h>
 #include "dirent.h"
 #include "sys/stat.h"
-#include <unistd.h>
-#include <sys/types.h>
 
 namespace {
-  BrowserMode browserMode = BrowserMode::e5Save;
-  float browserScroll;
-  bool browserOpen;
-  std::vector<BrowserFile*> filenames;
+BrowserMode browserMode = BrowserMode::e5Save;
+float browserScroll;
+bool browserOpen;
+std::vector<BrowserFile*> filenames;
 
-  std::vector<std::string> fnUndo;
-  std::vector<std::string> fnRedo;
+std::vector<std::string> fnUndo;
+std::vector<std::string> fnRedo;
 
-  int selectedFile;
+int selectedFile;
 
-  bool overwrite;
+bool overwrite;
 }
 
 void browserOnBackspace() {
@@ -184,7 +184,8 @@ void openBrowser(std::string dir, int type, int mode) {
         fullDir = fullDir.append(std::string(ent->d_name));
         struct stat path_stat;
         stat(fullDir.c_str(), &path_stat);
-        BrowserFile* a = new BrowserFile(std::string(ent->d_name), !S_ISREG(path_stat.st_mode));
+        BrowserFile* a = new BrowserFile(std::string(ent->d_name),
+                                         !S_ISREG(path_stat.st_mode));
         if (a->folder) {
           filenames.push_back(a);
         } else {
@@ -241,13 +242,14 @@ void openBrowser(std::string dir, int type, BrowserMode mode) {
   selectedFile = -1;
   currentDir = dir;
   filenameB = "";
-  if (browserMode == BrowserMode::e1Export && lastPalDir.size() > 0 && !browserOpen) {
+  if (browserMode == BrowserMode::e1Export && lastPalDir.size() > 0 &&
+      !browserOpen) {
     currentDir = lastPalDir;
     filenameB = lastPalName;
   }
   Texture* t = texs.at(currentTexture);
-  if (browserMode == BrowserMode::e2ExportTex && currentSocket->lastTexDir.size() > 0 &&
-      !browserOpen) {
+  if (browserMode == BrowserMode::e2ExportTex &&
+      currentSocket->lastTexDir.size() > 0 && !browserOpen) {
     currentDir = currentSocket->lastTexDir;
     filenameB = currentSocket->lastTexName;
   }
@@ -255,7 +257,8 @@ void openBrowser(std::string dir, int type, BrowserMode mode) {
     currentDir = lastTexDir;
     filenameB = lastTexName;
   }
-  if (browserMode == BrowserMode::e5Save && lastSaveDir.size() > 0 && !browserOpen) {
+  if (browserMode == BrowserMode::e5Save && lastSaveDir.size() > 0 &&
+      !browserOpen) {
     currentDir = lastSaveDir;
     filenameB = lastSaveName;
   }
@@ -274,8 +277,8 @@ void openBrowser(std::string dir, int type, BrowserMode mode) {
       fullDir = fullDir.append(std::string(entries[i]->d_name));
       struct stat path_stat;
       stat(fullDir.c_str(), &path_stat);
-      BrowserFile* a =
-          new BrowserFile(std::string(entries[i]->d_name), !S_ISREG(path_stat.st_mode));
+      BrowserFile* a = new BrowserFile(std::string(entries[i]->d_name),
+                                       !S_ISREG(path_stat.st_mode));
       if (a->folder) {
         filenames.push_back(a);
       } else {
@@ -306,13 +309,9 @@ void getHome() {
 #else
 #endif
 
-void onBrowserResize() {
-  adjustBrowserScroll(0.0f);
-}
+void onBrowserResize() { adjustBrowserScroll(0.0f); }
 
-bool browserIsOpen() {
-  return browserOpen;
-}
+bool browserIsOpen() { return browserOpen; }
 
 void adjustBrowserScroll(float adjust) {
   browserScroll += adjust;
@@ -352,49 +351,173 @@ void renderFileBrowser(int barX, int barY, int barXRight, int scrollW) {
   int bSpace = 5;
   float tS = title / 2 - 4;
   renderUI(barX + 1 + bSpace * 4 + 8 * 3, bSpace,
-             screenW - barX - barXRight - 2 - bSpace * 6 - 8 * 4, title,
-             effectImg6);
+           screenW - barX - barXRight - 2 - bSpace * 6 - 8 * 4, title,
+           effectImg6);
   int ln = textW(currentDir, barX + 1 + bSpace * 4 + 8 * 3 + tS, bSpace + tS,
-                   fontImg, 0);
+                 fontImg, 0);
   if (ln > screenW - barX - barXRight - 2 - bSpace * 6 - 8 * 4 - tS * 2) {
-      renderText(currentDir, screenW - barXRight - 1 - bSpace * 2 - 8 - tS,
-                 bSpace + tS, fontImg, 1);
-    } else {
-      renderText(currentDir, barX + 1 + bSpace * 4 + 8 * 3 + tS, bSpace + tS,
-                 fontImg, 0);
-    }
+    renderText(currentDir, screenW - barXRight - 1 - bSpace * 2 - 8 - tS,
+               bSpace + tS, fontImg, 1);
+  } else {
+    renderText(currentDir, barX + 1 + bSpace * 4 + 8 * 3 + tS, bSpace + tS,
+               fontImg, 0);
+  }
   renderUI(barX + 1 + bSpace, title + bSpace * 2,
-             screenW - barX - barXRight - 2 - bSpace * 3 - 8, title,
-             effectImg6);
+           screenW - barX - barXRight - 2 - bSpace * 3 - 8, title, effectImg6);
   if (overwrite) {
-      renderText(filenameB, barX + 1 + bSpace + tS, bSpace * 2 + tS + title,
-                 fontImg2, 0);
-    } else {
-      renderText(filenameB, barX + 1 + bSpace + tS, bSpace * 2 + tS + title,
-                 fontImg, 0);
-    }
+    renderText(filenameB, barX + 1 + bSpace + tS, bSpace * 2 + tS + title,
+               fontImg2, 0);
+  } else {
+    renderText(filenameB, barX + 1 + bSpace + tS, bSpace * 2 + tS + title,
+               fontImg, 0);
+  }
   renderUI(barX + 1 + bSpace, title * 2 + bSpace * 3,
-             screenW - barX - barXRight - 2 - bSpace * 2,
-             barY - 1 - bSpace * 4 - title * 2, effectImg6);
+           screenW - barX - barXRight - 2 - bSpace * 2,
+           barY - 1 - bSpace * 4 - title * 2, effectImg6);
   int fh = tS;
   int fw = tS - browserScroll;
   int fwNext = 0;
   for (int i = 0; i < filenames.size(); i++) {
+    int n = textW(filenames.at(i)->name, barX + 1 + bSpace + fw + tS + 8,
+                  title * 2 + bSpace * 3 + fh, fontImg, 0);
+    if (barX + 1 + bSpace + fw - tS + n + 8 * 2 + tS > barX &&
+        barX + 1 + bSpace + fw - tS < screenW - barXRight) {
+      if (i == selectedFile) {
+        renderUI(barX + 1 + bSpace + fw - tS, title * 2 + bSpace * 3 + fh - tS,
+                 n + 8 * 2 + tS, title, effectImg5);
+      }
+      renderIcon(barX + 1 + bSpace + fw, title * 2 + bSpace * 3 + fh, 8, 8,
+                 iconImg9, filenames.at(i)->folder);
+      renderText(filenames.at(i)->name, barX + 1 + bSpace + fw + tS + 8,
+                 title * 2 + bSpace * 3 + fh, fontImg, 0);
+    }
+
+    if (n > fwNext) {
+      fwNext = n;
+    }
+    fh += title;
+    if (fh + title * 2 + title + bSpace * 3 >
+            title + bSpace * 2 + barY - 1 - bSpace * 3 - title - 6 &&
+        i != filenames.size() - 1) {
+      fh = tS;
+      fw += fwNext + tS * 2 + 8 * 3;
+      fwNext = 0;
+    }
+  }
+  fw += fwNext + tS * 2 + 8 * 3;
+  int scrollH = fw + browserScroll;
+  if (scrollH < screenW - barX - barXRight - bSpace * 2) {
+    scrollH = screenW - barX - barXRight - bSpace * 2;
+  }
+  renderUI(barX + bSpace + 1 +
+               int(int(browserScroll) *
+                   (screenW - barX - barXRight - bSpace * 2) / float(scrollH)),
+           barY - bSpace - scrollW - 1,
+           int((screenW - barX - barXRight - bSpace * 2) *
+               (screenW - barX - barXRight - bSpace * 2) / float(scrollH)),
+           scrollW, effectImg14);
+
+  renderUI(barX, 0, bSpace, barY - 1, effectImg);
+  renderUI(screenW - barXRight - bSpace, 0, bSpace, barY - 1, effectImg);
+  renderUI(barX + 1, 0, bSpace, barY - 1, effectImg5);
+  renderUI(barX + 1, 0, bSpace * 4 + 8 * 3, title + bSpace, effectImg5);
+  renderUI(screenW - barXRight - bSpace - 1, 0, bSpace, barY - 1, effectImg5);
+  renderUI(screenW - barXRight - bSpace * 2 - 1 - 8, 0, bSpace * 2 + 8,
+           title * 2 + bSpace * 2, effectImg5);
+  bool leftActive = (fnUndo.size() > 1);
+  bool rightActive = (fnRedo.size() > 0);
+  bool upActive = (currentDir.size() != 1);
+  renderIcon(barX + 1 + bSpace, bSpace + tS, 8, 8, iconImg10, 0 + leftActive);
+  renderIcon(barX + 1 + bSpace + 8 + bSpace, bSpace + tS, 8, 8, iconImg10,
+             2 + rightActive);
+  renderIcon(barX + 1 + bSpace + 8 * 2 + bSpace * 2, bSpace + tS, 8, 8,
+             iconImg10, 4 + upActive);
+  renderIcon(screenW - barXRight - 8 - bSpace - 1, bSpace + tS, 8, 8, iconImg10,
+             6);
+  int impexp = 0;
+  if (browserMode == BrowserMode::e1Export ||
+      browserMode == BrowserMode::e2ExportTex) {
+    impexp = 1;
+  } else if (browserMode == BrowserMode::e3) {
+    impexp = 2;
+  } else if (browserMode == BrowserMode::e4Open) {
+    impexp = 4;
+  } else if (browserMode == BrowserMode::e5Save) {
+    impexp = 3;
+  }
+  renderIcon(screenW - barXRight - 8 - bSpace - 1, bSpace * 2 + title + tS, 8,
+             8, iconImg7, impexp);
+}
+
+void browserOnEscape() {
+  browserOpen = false;
+  fnUndo.clear();
+  fnRedo.clear();
+}
+
+void browserOnEnter() {
+  std::string fullDir = currentDir;
+  if (fullDir.size() != 1) {
+    fullDir = fullDir.append("/");
+  }
+  fullDir = fullDir.append(filenameB);
+  bool folder = false;
+  for (int i = 0; i < filenames.size(); i++) {
+    if (!strcmp(filenames.at(i)->name.c_str(), filenameB.c_str()) &&
+        filenames.at(i)->folder) {
+      openBrowser(fullDir, 0, browserMode);
+      folder = true;
+    }
+  }
+  if (!folder) {
+    browserAction(fullDir, filenameB, currentDir);
+  }
+}
+
+void browserOnText(const std::string& text) {
+  filenameB.append(text);
+  overwrite = false;
+}
+
+void browserButtonDown(int x, int y) {
+  int title = collH - 4;
+  int bSpace = 5;
+  float tS = title / 2 - 4;
+  if (x > barX + bSpace && x < screenW - barXRight - bSpace) {
+    int fh = tS;
+    int fw = tS - browserScroll;
+    int fwNext = 0;
+    for (int i = 0; i < filenames.size(); i++) {
       int n = textW(filenames.at(i)->name, barX + 1 + bSpace + fw + tS + 8,
                     title * 2 + bSpace * 3 + fh, fontImg, 0);
-      if (barX + 1 + bSpace + fw - tS + n + 8 * 2 + tS > barX &&
-          barX + 1 + bSpace + fw - tS < screenW - barXRight) {
-        if (i == selectedFile) {
-          renderUI(barX + 1 + bSpace + fw - tS,
-                   title * 2 + bSpace * 3 + fh - tS, n + 8 * 2 + tS, title,
-                   effectImg5);
+      if (x > barX + 1 + bSpace + fw - tS &&
+          x < barX + 1 + bSpace + fw - tS + n + 8 * 2 + tS &&
+          y > title * 2 + bSpace * 3 + fh - tS &&
+          y < title * 2 + bSpace * 3 + fh - tS + title) {
+        if (doubleClickTimer <= 20 && selectedFile == i) {
+          std::string fullDir = currentDir;
+          if (fullDir.size() != 1) {
+            if (OS & Windows) {
+              fullDir = fullDir.append("\\");
+            } else if (OS & Unix) {
+              fullDir = fullDir.append("/");
+            }
+          }
+          fullDir = fullDir.append(std::string(filenames.at(i)->name));
+          if (filenames.at(i)->folder) {
+            openBrowser(fullDir, 0, browserMode);
+          } else {
+            browserAction(fullDir, filenames.at(i)->name, currentDir);
+          }
+        } else {
+          if (selectedFile != i) {
+            overwrite = false;
+          }
+          selectedFile = i;
+          filenameB = filenames.at(i)->name;
         }
-        renderIcon(barX + 1 + bSpace + fw, title * 2 + bSpace * 3 + fh, 8, 8,
-                   iconImg9, filenames.at(i)->folder);
-        renderText(filenames.at(i)->name, barX + 1 + bSpace + fw + tS + 8,
-                   title * 2 + bSpace * 3 + fh, fontImg, 0);
+        doubleClickTimer = 0;
       }
-
       if (n > fwNext) {
         fwNext = n;
       }
@@ -407,222 +530,94 @@ void renderFileBrowser(int barX, int barY, int barXRight, int scrollW) {
         fwNext = 0;
       }
     }
-  fw += fwNext + tS * 2 + 8 * 3;
-  int scrollH = fw + browserScroll;
-  if (scrollH < screenW - barX - barXRight - bSpace * 2) {
+    fw += fwNext + tS * 2 + 8 * 3;
+    int scrollH = fw + browserScroll;
+    if (scrollH < screenW - barX - barXRight - bSpace * 2) {
       scrollH = screenW - barX - barXRight - bSpace * 2;
     }
-  renderUI(barX + bSpace + 1 + int(int(browserScroll) *
-                                     (screenW - barX - barXRight - bSpace * 2) /
-                                     float(scrollH)),
-             barY - bSpace - scrollW - 1,
-             int((screenW - barX - barXRight - bSpace * 2) *
-                 (screenW - barX - barXRight - bSpace * 2) / float(scrollH)),
-             scrollW, effectImg14);
-
-  renderUI(barX, 0, bSpace, barY - 1, effectImg);
-  renderUI(screenW - barXRight - bSpace, 0, bSpace, barY - 1, effectImg);
-  renderUI(barX + 1, 0, bSpace, barY - 1, effectImg5);
-  renderUI(barX + 1, 0, bSpace * 4 + 8 * 3, title + bSpace, effectImg5);
-  renderUI(screenW - barXRight - bSpace - 1, 0, bSpace, barY - 1, effectImg5);
-  renderUI(screenW - barXRight - bSpace * 2 - 1 - 8, 0, bSpace * 2 + 8,
-             title * 2 + bSpace * 2, effectImg5);
-  bool leftActive = (fnUndo.size() > 1);
-  bool rightActive = (fnRedo.size() > 0);
-  bool upActive = (currentDir.size() != 1);
-  renderIcon(barX + 1 + bSpace, bSpace + tS, 8, 8, iconImg10, 0 + leftActive);
-  renderIcon(barX + 1 + bSpace + 8 + bSpace, bSpace + tS, 8, 8, iconImg10,
-               2 + rightActive);
-  renderIcon(barX + 1 + bSpace + 8 * 2 + bSpace * 2, bSpace + tS, 8, 8,
-               iconImg10, 4 + upActive);
-  renderIcon(screenW - barXRight - 8 - bSpace - 1, bSpace + tS, 8, 8,
-               iconImg10, 6);
-  int impexp = 0;
-  if (browserMode == BrowserMode::e1Export || browserMode == BrowserMode::e2ExportTex) {
-      impexp = 1;
-    } else if (browserMode == BrowserMode::e3) {
-      impexp = 2;
-    } else if (browserMode == BrowserMode::e4Open) {
-      impexp = 4;
-    } else if (browserMode == BrowserMode::e5Save) {
-      impexp = 3;
+    if (x > barX + bSpace + 1 + int(int(browserScroll) *
+                                    (screenW - barX - barXRight - bSpace * 2) /
+                                    float(scrollH)) &&
+        x < barX + bSpace + 1 + int(int(browserScroll) *
+                                    (screenW - barX - barXRight - bSpace * 2) /
+                                    float(scrollH)) +
+                int((screenW - barX - barXRight - bSpace * 2) *
+                    (screenW - barX - barXRight - bSpace * 2) /
+                    float(scrollH)) &&
+        y > barY - bSpace - 6 - 1 && y < barY - bSpace - 1) {
+      draggingSBar = true;
+      mouseOX = x;
+      mouseOY = y;
+      mouseX = x;
+      mouseY = y;
+      sBarDrag = 6;
+      sRatio = scrollH / float(screenW - barX - barXRight - bSpace * 2);
     }
-  renderIcon(screenW - barXRight - 8 - bSpace - 1, bSpace * 2 + title + tS, 8,
-               8, iconImg7, impexp);
-}
-
-void browserOnEscape() {
-  browserOpen = false;
-  fnUndo.clear();
-  fnRedo.clear();
-}
-
-void browserOnEnter() {
-  std::string fullDir = currentDir;
-  if (fullDir.size() != 1) {
+  }
+  if (x > barX + 1 + bSpace && x < barX + 1 + bSpace + 8 && y > bSpace + tS &&
+      y < bSpace + tS + 8) {
+    // left
+    if (fnUndo.size() > 1) {
+      openBrowser(fnUndo.back(), 1, browserMode);
+    }
+  }
+  if (x > barX + 1 + bSpace + 8 + bSpace &&
+      x < barX + 1 + bSpace + 8 + 8 + bSpace && y > bSpace + tS &&
+      y < bSpace + tS + 8) {
+    // right
+    if (fnRedo.size() > 0) {
+      openBrowser(fnRedo.back(), 2, browserMode);
+    }
+  }
+  if (x > barX + 1 + bSpace + 8 * 2 + bSpace * 2 &&
+      x < barX + 1 + bSpace + 8 + 8 * 2 + bSpace * 2 && y > bSpace + tS &&
+      y < bSpace + tS + 8) {
+    // up
+    std::string newDir = currentDir;
+    if (OS & Windows) {
+      newDir.erase(newDir.rfind('\\'));
+    } else if (OS & Unix) {
+      newDir.erase(newDir.rfind('/'));
+    }
+    if (newDir.size() < 1) {
+      if (OS & Windows) {
+        newDir = "\\";
+      } else if (OS & Unix) {
+        newDir = "/";
+      }
+    }
+    openBrowser(newDir, 0, browserMode);
+  }
+  if (x > screenW - barXRight - 8 - bSpace - 1 &&
+      x < screenW - barXRight - bSpace - 1 && y > bSpace + tS &&
+      y < bSpace + tS + 8) {
+    browserOpen = false;
+    fnUndo.clear();
+    fnRedo.clear();
+  }
+  if (x > screenW - barXRight - 8 - bSpace - 1 &&
+      x < screenW - barXRight - bSpace - 1 && y > bSpace * 2 + title + tS &&
+      y < bSpace * 2 + title + tS + 8) {
+    // action
+    std::string fullDir = currentDir;
+    if (fullDir.size() != 1) {
+      if (OS & Windows) {
+        fullDir = fullDir.append("\\");
+      } else if (OS & Unix) {
         fullDir = fullDir.append("/");
       }
-  fullDir = fullDir.append(filenameB);
-  bool folder = false;
-  for (int i = 0; i < filenames.size(); i++) {
-        if (!strcmp(filenames.at(i)->name.c_str(), filenameB.c_str()) &&
-            filenames.at(i)->folder) {
-          openBrowser(fullDir, 0, browserMode);
-          folder = true;
-        }
+    }
+    fullDir = fullDir.append(filenameB);
+    bool folder = false;
+    for (int i = 0; i < filenames.size(); i++) {
+      if (!strcmp(filenames.at(i)->name.c_str(), filenameB.c_str()) &&
+          filenames.at(i)->folder) {
+        openBrowser(fullDir, 0, browserMode);
+        folder = true;
       }
-  if (!folder) {
-        browserAction(fullDir, filenameB, currentDir);
-      }
-}
-
-void browserOnText(const std::string &text) {
-  filenameB.append(text);
-  overwrite = false;
-}
-
-void browserButtonDown(int x, int y) {
-  int title = collH - 4;
-  int bSpace = 5;
-  float tS = title / 2 - 4;
-  if (x > barX + bSpace && x < screenW - barXRight - bSpace) {
-          int fh = tS;
-          int fw = tS - browserScroll;
-          int fwNext = 0;
-          for (int i = 0; i < filenames.size(); i++) {
-            int n =
-                textW(filenames.at(i)->name, barX + 1 + bSpace + fw + tS + 8,
-                      title * 2 + bSpace * 3 + fh, fontImg, 0);
-            if (x > barX + 1 + bSpace + fw - tS &&
-                x < barX + 1 + bSpace + fw - tS + n + 8 * 2 + tS &&
-                y > title * 2 + bSpace * 3 + fh - tS &&
-                y < title * 2 + bSpace * 3 + fh - tS + title) {
-              if (doubleClickTimer <= 20 && selectedFile == i) {
-                std::string fullDir = currentDir;
-                if (fullDir.size() != 1) {
-                  if (OS & Windows) {
-                    fullDir = fullDir.append("\\");
-                  } else if (OS & Unix) {
-                    fullDir = fullDir.append("/");
-                  }
-                }
-                fullDir = fullDir.append(std::string(filenames.at(i)->name));
-                if (filenames.at(i)->folder) {
-                  openBrowser(fullDir, 0, browserMode);
-                } else {
-                  browserAction(fullDir, filenames.at(i)->name, currentDir);
-                }
-              } else {
-                if (selectedFile != i) {
-                  overwrite = false;
-                }
-                selectedFile = i;
-                filenameB = filenames.at(i)->name;
-              }
-              doubleClickTimer = 0;
-            }
-            if (n > fwNext) {
-              fwNext = n;
-            }
-            fh += title;
-            if (fh + title * 2 + title + bSpace * 3 >
-                    title + bSpace * 2 + barY - 1 - bSpace * 3 - title - 6 &&
-                i != filenames.size() - 1) {
-              fh = tS;
-              fw += fwNext + tS * 2 + 8 * 3;
-              fwNext = 0;
-            }
-          }
-          fw += fwNext + tS * 2 + 8 * 3;
-          int scrollH = fw + browserScroll;
-          if (scrollH < screenW - barX - barXRight - bSpace * 2) {
-            scrollH = screenW - barX - barXRight - bSpace * 2;
-          }
-          if (x > barX + bSpace + 1 +
-                      int(int(browserScroll) *
-                          (screenW - barX - barXRight - bSpace * 2) /
-                          float(scrollH)) &&
-              x < barX + bSpace + 1 +
-                      int(int(browserScroll) *
-                          (screenW - barX - barXRight - bSpace * 2) /
-                          float(scrollH)) +
-                      int((screenW - barX - barXRight - bSpace * 2) *
-                          (screenW - barX - barXRight - bSpace * 2) /
-                          float(scrollH)) &&
-              y > barY - bSpace - 6 - 1 && y < barY - bSpace - 1) {
-            draggingSBar = true;
-            mouseOX = x;
-            mouseOY = y;
-            mouseX = x;
-            mouseY = y;
-            sBarDrag = 6;
-            sRatio = scrollH / float(screenW - barX - barXRight - bSpace * 2);
-          }
-        }
-  if (x > barX + 1 + bSpace && x < barX + 1 + bSpace + 8 &&
-            y > bSpace + tS && y < bSpace + tS + 8) {
-          // left
-          if (fnUndo.size() > 1) {
-            openBrowser(fnUndo.back(), 1, browserMode);
-          }
-        }
-  if (x > barX + 1 + bSpace + 8 + bSpace &&
-            x < barX + 1 + bSpace + 8 + 8 + bSpace && y > bSpace + tS &&
-            y < bSpace + tS + 8) {
-          // right
-          if (fnRedo.size() > 0) {
-            openBrowser(fnRedo.back(), 2, browserMode);
-          }
-        }
-  if (x > barX + 1 + bSpace + 8 * 2 + bSpace * 2 &&
-            x < barX + 1 + bSpace + 8 + 8 * 2 + bSpace * 2 && y > bSpace + tS &&
-            y < bSpace + tS + 8) {
-          // up
-          std::string newDir = currentDir;
-          if (OS & Windows) {
-            newDir.erase(newDir.rfind('\\'));
-          } else if (OS & Unix) {
-            newDir.erase(newDir.rfind('/'));
-          }
-          if (newDir.size() < 1) {
-            if (OS & Windows) {
-              newDir = "\\";
-            } else if (OS & Unix) {
-              newDir = "/";
-            }
-          }
-          openBrowser(newDir, 0, browserMode);
-        }
-  if (x > screenW - barXRight - 8 - bSpace - 1 &&
-            x < screenW - barXRight - bSpace - 1 && y > bSpace + tS &&
-            y < bSpace + tS + 8) {
-          browserOpen = false;
-          fnUndo.clear();
-          fnRedo.clear();
-        }
-  if (x > screenW - barXRight - 8 - bSpace - 1 &&
-            x < screenW - barXRight - bSpace - 1 &&
-            y > bSpace * 2 + title + tS && y < bSpace * 2 + title + tS + 8) {
-          // action
-          std::string fullDir = currentDir;
-          if (fullDir.size() != 1) {
-            if (OS & Windows) {
-              fullDir = fullDir.append("\\");
-            } else if (OS & Unix) {
-              fullDir = fullDir.append("/");
-            }
-          }
-          fullDir = fullDir.append(filenameB);
-          bool folder = false;
-          for (int i = 0; i < filenames.size(); i++) {
-            if (!strcmp(filenames.at(i)->name.c_str(), filenameB.c_str()) &&
-                filenames.at(i)->folder) {
-              openBrowser(fullDir, 0, browserMode);
-              folder = true;
-            }
-          }
-          if (!folder) {
-            browserAction(fullDir, filenameB, currentDir);
-          }
-        }
+    }
+    if (!folder) {
+      browserAction(fullDir, filenameB, currentDir);
+    }
+  }
 }

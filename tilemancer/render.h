@@ -71,5 +71,4 @@ int renderText(std::string text, int x, int y, GLuint tex, bool alignRight,
 int textW(const std::string& text, int x, int y, GLuint tex, bool alignRight);
 int textH(const std::string& text, int x, int y, GLuint tex, bool alignRight);
 
-
 #endif  // TILEMANCER_RENDER_H

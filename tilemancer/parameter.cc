@@ -25,13 +25,13 @@
 #include "tilemancer/effect.h"
 #include "tilemancer/gl.h"
 #include "tilemancer/globals.h"
+#include "tilemancer/graphics_globals.h"
 #include "tilemancer/math.h"
 #include "tilemancer/palette.h"
 #include "tilemancer/render.h"
 #include "tilemancer/socket.h"
 #include "tilemancer/texture.h"
 #include "tilemancer/undoredo.h"
-#include "tilemancer/graphics_globals.h"
 
 Parameter::~Parameter() {}
 

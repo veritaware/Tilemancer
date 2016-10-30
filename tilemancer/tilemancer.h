@@ -21,8 +21,6 @@
 #ifndef TILEMANCER_TILEMANCER_H
 #define TILEMANCER_TILEMANCER_H
 
-
-
 // run old sdl2 app
 int tilemancer_main();
 

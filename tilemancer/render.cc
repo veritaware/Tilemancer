@@ -753,4 +753,3 @@ int textH(const std::string& text, int x, int y, GLuint tex, bool alignRight) {
   }
   return h;
 }
-

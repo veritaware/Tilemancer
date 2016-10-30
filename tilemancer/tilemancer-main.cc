@@ -42,12 +42,14 @@
 #include "lua.hpp"
 
 #include "tilemancer/bezier.h"
+#include "tilemancer/browser.h"
 #include "tilemancer/color.h"
 #include "tilemancer/cpoint.h"
 #include "tilemancer/drag.h"
 #include "tilemancer/effect.h"
-#include "tilemancer/browser.h"
 #include "tilemancer/globals.h"
+#include "tilemancer/graphics_globals.h"
+#include "tilemancer/load_texture.h"
 #include "tilemancer/math.h"
 #include "tilemancer/palette.h"
 #include "tilemancer/parameter.h"
@@ -57,8 +59,6 @@
 #include "tilemancer/text.h"
 #include "tilemancer/texture.h"
 #include "tilemancer/undoredo.h"
-#include "tilemancer/load_texture.h"
-#include "tilemancer/graphics_globals.h"
 
 using namespace std;
 
@@ -204,7 +204,8 @@ std::string GetFolder(const std::string& folder) {
   return cwd2;
 }
 
-std::vector<std::string> FilesInFolder(const std::string& folder, const char* ext) {
+std::vector<std::string> FilesInFolder(const std::string& folder,
+                                       const char* ext) {
   int num_entries;
   struct dirent** entries = NULL;
   num_entries = scandir(folder.c_str(), &entries, NULL, NULL);
@@ -215,7 +216,7 @@ std::vector<std::string> FilesInFolder(const std::string& folder, const char* ex
   for (int i = 0; i < num_entries; i++) {
     if (entries[i]->d_name[0] != '.') {
       const std::string& fn = entries[i]->d_name;
-      if( ext ) {
+      if (ext) {
         if (fn.substr(fn.find_last_of(".") + 1) != "lua") {
           continue;
         }
@@ -229,8 +230,7 @@ std::vector<std::string> FilesInFolder(const std::string& folder, const char* ex
 
 const std::string FOLDER_SEP = "/";
 
-
-void LoadEffect(const string &fn, const string &fullfn, bool loadAsPreset) {
+void LoadEffect(const string& fn, const string& fullfn, bool loadAsPreset) {
   lua_settop(L, 0);
   lua_pushnil(L);
   lua_setglobal(L, "init");
@@ -277,7 +277,6 @@ void importPresets() {
   }
 }
 
-
 #else
 #endif
 
@@ -299,7 +298,7 @@ void onKeyUp(const SDL_Event& e);
 
 void renderFileBrowser(int barX, int barY, int barXRight, int scrollW);
 
-void renderNodes(int barX, int barXRight, const Texture *t);
+void renderNodes(int barX, int barXRight, const Texture* t);
 
 void loadGen() {
   texSizeX = 32;
@@ -425,8 +424,6 @@ void initGL() {
   proj = glm::ortho(0.0, (double)screenW * screenScale,
                     (double)screenH * screenScale, 0.0, -1.0, 1.0);
 }
-
-
 
 #ifdef _WIN32
 void initGlew() {
@@ -1393,96 +1390,93 @@ void renderGL() {
   }
 }
 
-void renderNodes(int barX, int barXRight, const Texture *t) {// render nodes
-  model =
-        translate(glm::mat4(1.0), glm::vec3(-camXFinal, -camYFinal, 0.0));
-  model =
-        translate(model, glm::vec3(0, screenH * (screenScale - 1.0), 0.0));
+void renderNodes(int barX, int barXRight, const Texture* t) {  // render nodes
+  model = translate(glm::mat4(1.0), glm::vec3(-camXFinal, -camYFinal, 0.0));
+  model = translate(model, glm::vec3(0, screenH * (screenScale - 1.0), 0.0));
   if (draggingSocket) {
-      Effect* fx = t->fxs.at(draggedNode);
-      Socket* out = fx->outputs.at(draggedSocket);
-      renderBezier(out->b, bezierFill);
-    }
+    Effect* fx = t->fxs.at(draggedNode);
+    Socket* out = fx->outputs.at(draggedSocket);
+    renderBezier(out->b, bezierFill);
+  }
   for (int i = 0; i < t->fxs.size(); i++) {
-      Effect* fx = t->fxs.at(i);
+    Effect* fx = t->fxs.at(i);
+    for (int in = 0; in < fx->inputs.size(); in++) {
+      if (fx->inputs.at(in)->s != NULL) {
+        if (fx->inputs.at(in)->infloop) {
+          renderBezier(fx->inputs.at(in)->b, bezierFillError);
+        } else {
+          renderBezier(fx->inputs.at(in)->b, bezierFill);
+        }
+      }
+    }
+  }
+  for (int i = 0; i < t->fxs.size(); i++) {
+    Effect* fx = t->fxs.at(i);
+    if (fx->x + fx->w + 4 + int(nodeCX) > barX &&
+        fx->x - 4 + int(nodeCX) < screenW - barXRight &&
+        fx->y + fx->h + 4 + int(nodeCY) > 0 &&
+        fx->y - 4 + int(nodeCY) < screenH) {
+      model =
+          translate(model, glm::vec3(fx->x + int(nodeCX) + fx->w / 2.0,
+                                     fx->y + int(nodeCY) + fx->h / 2.0, 0.0));
+      model = rotate(model, glm::radians(fx->r), glm::vec3(0, 0, 1));
+      model = translate(model,
+                        glm::vec3(-(fx->x + int(nodeCX) + fx->w / 2.0),
+                                  -(fx->y + int(nodeCY) + fx->h / 2.0), 0.0));
+
+      renderUI(fx->x + int(nodeCX), fx->y + int(nodeCY), fx->w, fx->h,
+               effectImg4);
+      renderUI(fx->x + int(nodeCX), fx->y + int(nodeCY), fx->w, 9 + 8,
+               effectImg16);
+      renderText(fx->name, fx->x + int(nodeCX) + 4, fx->y + int(nodeCY) + 4,
+                 fontImg, false);
+      renderIcon(fx->x + fx->w + int(nodeCX) - 8 - 4, fx->y + int(nodeCY) + 4,
+                 8, 8, iconImg3, 1);
+      renderIcon(fx->x + fx->w + int(nodeCX) - 8 - 4 - 8 - 4,
+                 fx->y + int(nodeCY) + 4, 8, 8, iconImg3, 2);
+      for (int p = 0; p < fx->texts.size(); p++) {
+        renderText(fx->texts.at(p)->name, fx->x + int(nodeCX) + 7,
+                   fx->y + fx->texts.at(p)->y + int(nodeCY), fontImg, false);
+      }
+      for (int p = 0; p < fx->params.size(); p++) {
+        fx->params.at(p)->render(fx->x + int(nodeCX), fx->y + int(nodeCY));
+      }
+      for (int out = 0; out < fx->outputs.size(); out++) {
+        int size = 8;
+        int size2 = 64;
+        renderUI(fx->x + fx->w / 2.0 + int(nodeCX) - int(size2 / 2.0),
+                 fx->y + int(nodeCY) + fx->outputs.at(out)->y + size / 2.0 -
+                     size2 / 2.0,
+                 size2, size2, effectImg);
+        if (fx->doneTimer < 3) {
+          renderSprite(
+              0, int(fx->x + fx->w / 2.0 + int(nodeCX) - int(texSizeX / 2.0)),
+              int(fx->y + int(nodeCY) + fx->outputs.at(out)->y + size / 2.0 -
+                  texSizeY / 2.0),
+              texSizeX, texSizeY, fx->outputs.at(out)->texture, texSizeX,
+              texSizeY, 0, 0, 0, 1, 0, 0, 0, 0, 0);
+        } else {
+          renderRotIcon(int(fx->x + fx->w / 2.0 + int(nodeCX) - 4),
+                        int(fx->y + int(nodeCY) + fx->outputs.at(out)->y +
+                            size / 2.0 - 4),
+                        8, 8, iconImg8, 0);
+        }
+        renderIcon(fx->x + fx->w + int(nodeCX) - size / 2.0,
+                   fx->y + int(nodeCY) + fx->outputs.at(out)->y, size, size,
+                   iconImg6, 1);
+      }
       for (int in = 0; in < fx->inputs.size(); in++) {
-        if (fx->inputs.at(in)->s != NULL) {
-          if (fx->inputs.at(in)->infloop) {
-            renderBezier(fx->inputs.at(in)->b, bezierFillError);
-          } else {
-            renderBezier(fx->inputs.at(in)->b, bezierFill);
-          }
-        }
+        int size = 8;
+        renderIcon(fx->x + int(nodeCX) - size / 2.0,
+                   fx->y + int(nodeCY) + fx->inputs.at(in)->y, size, size,
+                   iconImg6, 1);
       }
-    }
-  for (int i = 0; i < t->fxs.size(); i++) {
-      Effect* fx = t->fxs.at(i);
-      if (fx->x + fx->w + 4 + int(nodeCX) > barX &&
-          fx->x - 4 + int(nodeCX) < screenW - barXRight &&
-          fx->y + fx->h + 4 + int(nodeCY) > 0 &&
-          fx->y - 4 + int(nodeCY) < screenH) {
-        model = translate(
-            model, glm::vec3(fx->x + int(nodeCX) + fx->w / 2.0,
-                             fx->y + int(nodeCY) + fx->h / 2.0, 0.0));
-        model = rotate(model, glm::radians(fx->r), glm::vec3(0, 0, 1));
-        model = translate(
-            model, glm::vec3(-(fx->x + int(nodeCX) + fx->w / 2.0),
-                             -(fx->y + int(nodeCY) + fx->h / 2.0), 0.0));
 
-        renderUI(fx->x + int(nodeCX), fx->y + int(nodeCY), fx->w, fx->h,
-                 effectImg4);
-        renderUI(fx->x + int(nodeCX), fx->y + int(nodeCY), fx->w, 9 + 8,
-                 effectImg16);
-        renderText(fx->name, fx->x + int(nodeCX) + 4, fx->y + int(nodeCY) + 4,
-                   fontImg, false);
-        renderIcon(fx->x + fx->w + int(nodeCX) - 8 - 4, fx->y + int(nodeCY) + 4,
-                   8, 8, iconImg3, 1);
-        renderIcon(fx->x + fx->w + int(nodeCX) - 8 - 4 - 8 - 4,
-                   fx->y + int(nodeCY) + 4, 8, 8, iconImg3, 2);
-        for (int p = 0; p < fx->texts.size(); p++) {
-          renderText(fx->texts.at(p)->name, fx->x + int(nodeCX) + 7,
-                     fx->y + fx->texts.at(p)->y + int(nodeCY), fontImg, false);
-        }
-        for (int p = 0; p < fx->params.size(); p++) {
-          fx->params.at(p)->render(fx->x + int(nodeCX), fx->y + int(nodeCY));
-        }
-        for (int out = 0; out < fx->outputs.size(); out++) {
-          int size = 8;
-          int size2 = 64;
-          renderUI(fx->x + fx->w / 2.0 + int(nodeCX) - int(size2 / 2.0),
-                   fx->y + int(nodeCY) + fx->outputs.at(out)->y + size / 2.0 -
-                       size2 / 2.0,
-                   size2, size2, effectImg);
-          if (fx->doneTimer < 3) {
-            renderSprite(
-                0, int(fx->x + fx->w / 2.0 + int(nodeCX) - int(texSizeX / 2.0)),
-                int(fx->y + int(nodeCY) + fx->outputs.at(out)->y + size / 2.0 -
-                    texSizeY / 2.0),
-                texSizeX, texSizeY, fx->outputs.at(out)->texture, texSizeX,
-                texSizeY, 0, 0, 0, 1, 0, 0, 0, 0, 0);
-          } else {
-            renderRotIcon(int(fx->x + fx->w / 2.0 + int(nodeCX) - 4),
-                          int(fx->y + int(nodeCY) + fx->outputs.at(out)->y +
-                              size / 2.0 - 4),
-                          8, 8, iconImg8, 0);
-          }
-          renderIcon(fx->x + fx->w + int(nodeCX) - size / 2.0,
-                     fx->y + int(nodeCY) + fx->outputs.at(out)->y, size, size,
-                     iconImg6, 1);
-        }
-        for (int in = 0; in < fx->inputs.size(); in++) {
-          int size = 8;
-          renderIcon(fx->x + int(nodeCX) - size / 2.0,
-                     fx->y + int(nodeCY) + fx->inputs.at(in)->y, size, size,
-                     iconImg6, 1);
-        }
-
-        model = translate(glm::mat4(1.0),
-                          glm::vec3(-camXFinal, -camYFinal, 0.0));
-        model = translate(
-            model, glm::vec3(0, screenH * (screenScale - 1.0), 0.0));
-      }
+      model = translate(glm::mat4(1.0), glm::vec3(-camXFinal, -camYFinal, 0.0));
+      model =
+          translate(model, glm::vec3(0, screenH * (screenScale - 1.0), 0.0));
     }
+  }
 }
 
 int tilemancer_main() {

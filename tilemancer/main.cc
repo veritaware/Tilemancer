@@ -24,8 +24,8 @@
 
 #ifdef USE_WX
 
-#include "wx.h"
 #include <wx/glcanvas.h>
+#include "wx.h"
 
 // x11 header included by the gtk canvas defines Bool and that interfers with
 // other code and is also ugly
@@ -33,37 +33,37 @@
 #undef Bool
 #endif
 
-class TilemancerApp: public wxApp
-{
+class TilemancerApp : public wxApp {
  public:
   virtual bool OnInit();
 };
 
 class TilemancerView;
 
-class TilemancerFrame: public wxFrame
-{
+class TilemancerFrame : public wxFrame {
  public:
   TilemancerFrame();
+
  private:
-  void OnFileNew(wxCommandEvent &event);
-  void OnFileOpen(wxCommandEvent &event);
-  void OnFileSave(wxCommandEvent &event);
-  void OnFileExit(wxCommandEvent &event);
+  void OnFileNew(wxCommandEvent& event);
+  void OnFileOpen(wxCommandEvent& event);
+  void OnFileSave(wxCommandEvent& event);
+  void OnFileExit(wxCommandEvent& event);
 
-  void OnEditUndo(wxCommandEvent &event);
-  void OnEditRedo(wxCommandEvent &event);
+  void OnEditUndo(wxCommandEvent& event);
+  void OnEditRedo(wxCommandEvent& event);
 
-  void OnPaletteNewColor(wxCommandEvent &event);
-  void OnPaletteDuplicateColor(wxCommandEvent &event);
-  void OnPaletteDeleteColor(wxCommandEvent &event);
-  void OnPaletteLoad(wxCommandEvent &event);
-  void OnPaletteSave(wxCommandEvent &event);
+  void OnPaletteNewColor(wxCommandEvent& event);
+  void OnPaletteDuplicateColor(wxCommandEvent& event);
+  void OnPaletteDeleteColor(wxCommandEvent& event);
+  void OnPaletteLoad(wxCommandEvent& event);
+  void OnPaletteSave(wxCommandEvent& event);
 
-  void OnAboutAbout(wxCommandEvent &event);
+  void OnAboutAbout(wxCommandEvent& event);
+
  private:
   TilemancerView* view;
- wxDECLARE_EVENT_TABLE();
+  wxDECLARE_EVENT_TABLE();
 };
 
 class TilemancerView : public wxGLCanvas {
@@ -88,11 +88,10 @@ class TilemancerView : public wxGLCanvas {
 
  private:
   wxGLContext rc;
- DECLARE_EVENT_TABLE()
+  DECLARE_EVENT_TABLE()
 };
 
-enum
-{
+enum {
   ID_DUMMY_FIRST = 0,
   ID_PAL_NEW_COLOR,
   ID_PAL_DUPLICATE_COLOR,
@@ -103,7 +102,6 @@ enum
 
 ////////////////////////////////////////////////////////////////////////////////
 
-
 #if wxUSE_GLCANVAS
 // #pragma message("wxGL is included")
 #else
@@ -111,24 +109,25 @@ enum
 #endif
 
 BEGIN_EVENT_TABLE(TilemancerView, wxGLCanvas)
-        EVT_SIZE(TilemancerView::OnSize)
-        EVT_PAINT(TilemancerView::OnPaint)
-        EVT_ERASE_BACKGROUND(TilemancerView::OnEraseBackground)
+EVT_SIZE(TilemancerView::OnSize)
+EVT_PAINT(TilemancerView::OnPaint)
+EVT_ERASE_BACKGROUND(TilemancerView::OnEraseBackground)
 
-        EVT_LEFT_DOWN(TilemancerView::OnLeftDown)
-        EVT_LEFT_UP(TilemancerView::OnLeftUp)
-        EVT_MIDDLE_DOWN(TilemancerView::OnMiddleDown)
-        EVT_MIDDLE_UP(TilemancerView::OnMiddleUp)
-        EVT_RIGHT_DOWN(TilemancerView::OnRightDown)
-        EVT_RIGHT_UP(TilemancerView::OnRightUp)
-        EVT_MOTION(TilemancerView::OnMotion)
-        EVT_MOUSEWHEEL(TilemancerView::OnWheel)
+EVT_LEFT_DOWN(TilemancerView::OnLeftDown)
+EVT_LEFT_UP(TilemancerView::OnLeftUp)
+EVT_MIDDLE_DOWN(TilemancerView::OnMiddleDown)
+EVT_MIDDLE_UP(TilemancerView::OnMiddleUp)
+EVT_RIGHT_DOWN(TilemancerView::OnRightDown)
+EVT_RIGHT_UP(TilemancerView::OnRightUp)
+EVT_MOTION(TilemancerView::OnMotion)
+EVT_MOUSEWHEEL(TilemancerView::OnWheel)
 END_EVENT_TABLE()
 
 int wx_gl_args[] = {WX_GL_RGBA, WX_GL_DOUBLEBUFFER, WX_GL_DEPTH_SIZE, 16, 0};
 
 TilemancerView::TilemancerView(wxWindow* parent)
-    : wxGLCanvas(parent, wxID_ANY, wx_gl_args, wxDefaultPosition, wxDefaultSize, wxFULL_REPAINT_ON_RESIZE),
+    : wxGLCanvas(parent, wxID_ANY, wx_gl_args, wxDefaultPosition, wxDefaultSize,
+                 wxFULL_REPAINT_ON_RESIZE),
       rc(this) {
   Invalidate();
 }
@@ -143,8 +142,7 @@ void TilemancerView::OnSize(wxSizeEvent& event) {
   glViewport(0, 0, size.x, size.y);
 }
 
-void TilemancerView::OnLeftDown(wxMouseEvent& e) {
-}
+void TilemancerView::OnLeftDown(wxMouseEvent& e) {}
 
 void TilemancerView::OnLeftUp(wxMouseEvent& e) {}
 
@@ -156,15 +154,11 @@ void TilemancerView::OnRightDown(wxMouseEvent& e) {}
 
 void TilemancerView::OnRightUp(wxMouseEvent& e) {}
 
-void TilemancerView::OnMotion(wxMouseEvent& e) {
-  Invalidate();
-}
+void TilemancerView::OnMotion(wxMouseEvent& e) { Invalidate(); }
 
 void TilemancerView::Invalidate() { Refresh(false); }
 
-void TilemancerView::OnWheel(wxMouseEvent& e) {
-  Invalidate();
-}
+void TilemancerView::OnWheel(wxMouseEvent& e) { Invalidate(); }
 
 void TilemancerView::OnPaint(wxPaintEvent& WXUNUSED(event)) {
   wxPaintDC dc(this);
@@ -175,39 +169,43 @@ void TilemancerView::OnEraseBackground(wxEraseEvent& WXUNUSED(event)) {
   // Do nothing, to avoid flashing.
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 
+wxBEGIN_EVENT_TABLE(TilemancerFrame,
+                    wxFrame) EVT_MENU(wxID_NEW, TilemancerFrame::OnFileNew)
+    EVT_MENU(wxID_OPEN,
+             TilemancerFrame::OnFileOpen) EVT_MENU(wxID_SAVE,
+                                                   TilemancerFrame::OnFileSave)
+        EVT_MENU(wxID_EXIT, TilemancerFrame::OnFileExit)
 
-wxBEGIN_EVENT_TABLE(TilemancerFrame, wxFrame)
-        EVT_MENU(wxID_NEW,   TilemancerFrame::OnFileNew)
-        EVT_MENU(wxID_OPEN,   TilemancerFrame::OnFileOpen)
-        EVT_MENU(wxID_SAVE,   TilemancerFrame::OnFileSave)
-        EVT_MENU(wxID_EXIT,  TilemancerFrame::OnFileExit)
+            EVT_MENU(wxID_UNDO, TilemancerFrame::OnEditUndo)
+                EVT_MENU(wxID_REDO, TilemancerFrame::OnEditRedo)
 
-        EVT_MENU(wxID_UNDO,  TilemancerFrame::OnEditUndo)
-        EVT_MENU(wxID_REDO,  TilemancerFrame::OnEditRedo)
+                    EVT_MENU(ID_PAL_NEW_COLOR,
+                             TilemancerFrame::OnPaletteNewColor)
+                        EVT_MENU(ID_PAL_DUPLICATE_COLOR,
+                                 TilemancerFrame::OnPaletteDuplicateColor)
+                            EVT_MENU(ID_PAL_DELETE_COLOR,
+                                     TilemancerFrame::OnPaletteDeleteColor)
+                                EVT_MENU(ID_PAL_LOAD,
+                                         TilemancerFrame::OnPaletteLoad)
+                                    EVT_MENU(ID_PAL_SAVE,
+                                             TilemancerFrame::OnPaletteSave)
 
-        EVT_MENU(ID_PAL_NEW_COLOR,   TilemancerFrame::OnPaletteNewColor)
-        EVT_MENU(ID_PAL_DUPLICATE_COLOR,   TilemancerFrame::OnPaletteDuplicateColor)
-        EVT_MENU(ID_PAL_DELETE_COLOR,   TilemancerFrame::OnPaletteDeleteColor)
-        EVT_MENU(ID_PAL_LOAD,   TilemancerFrame::OnPaletteLoad)
-        EVT_MENU(ID_PAL_SAVE,   TilemancerFrame::OnPaletteSave)
+                                        EVT_MENU(wxID_ABOUT,
+                                                 TilemancerFrame::OnAboutAbout)
+                                            wxEND_EVENT_TABLE()
 
-        EVT_MENU(wxID_ABOUT, TilemancerFrame::OnAboutAbout)
-wxEND_EVENT_TABLE()
+                                                wxIMPLEMENT_APP(TilemancerApp);
 
-wxIMPLEMENT_APP(TilemancerApp);
-
-bool TilemancerApp::OnInit()
-{
-  TilemancerFrame *frame = new TilemancerFrame();
-  frame->Show( true );
+bool TilemancerApp::OnInit() {
+  TilemancerFrame* frame = new TilemancerFrame();
+  frame->Show(true);
   return true;
 }
 
 wxMenu* BuildMenuFile() {
-  wxMenu *menuFile = new wxMenu;
+  wxMenu* menuFile = new wxMenu;
 
   menuFile->Append(wxID_NEW);
   menuFile->Append(wxID_OPEN);
@@ -220,7 +218,7 @@ wxMenu* BuildMenuFile() {
 }
 
 wxMenu* BuildMenuEdit() {
-  wxMenu *menuFile = new wxMenu;
+  wxMenu* menuFile = new wxMenu;
 
   menuFile->Append(wxID_UNDO);
   menuFile->Append(wxID_REDO);
@@ -228,7 +226,7 @@ wxMenu* BuildMenuEdit() {
 }
 
 wxMenu* BuildMenuPalette() {
-  wxMenu *menuFile = new wxMenu;
+  wxMenu* menuFile = new wxMenu;
 
   menuFile->Append(ID_PAL_NEW_COLOR, "&New color", "");
   menuFile->Append(ID_PAL_DUPLICATE_COLOR, "D&uplicate color", "");
@@ -240,26 +238,25 @@ wxMenu* BuildMenuPalette() {
 }
 
 wxMenu* BuildHelpMenu() {
-  wxMenu *menuHelp = new wxMenu;
+  wxMenu* menuHelp = new wxMenu;
   menuHelp->Append(wxID_ABOUT);
   return menuHelp;
 }
 
 wxMenuBar* BuildMenuBar() {
-  wxMenuBar *menuBar = new wxMenuBar;
-  menuBar->Append(BuildMenuFile(), "&File" );
-  menuBar->Append(BuildMenuEdit(), "&Edit" );
-  menuBar->Append(BuildMenuPalette(), "&Palette" );
-  menuBar->Append(BuildHelpMenu(), "&Help" );
+  wxMenuBar* menuBar = new wxMenuBar;
+  menuBar->Append(BuildMenuFile(), "&File");
+  menuBar->Append(BuildMenuEdit(), "&Edit");
+  menuBar->Append(BuildMenuPalette(), "&Palette");
+  menuBar->Append(BuildHelpMenu(), "&Help");
   return menuBar;
 }
 
 TilemancerFrame::TilemancerFrame()
-    : wxFrame(NULL, wxID_ANY, "Tilemancer", wxPoint(50, 50), wxSize(450, 340))
-{
-  SetMenuBar( BuildMenuBar() );
+    : wxFrame(NULL, wxID_ANY, "Tilemancer", wxPoint(50, 50), wxSize(450, 340)) {
+  SetMenuBar(BuildMenuBar());
   CreateStatusBar();
-  SetStatusText( "" );
+  SetStatusText("");
 
   view = new TilemancerView(this);
 
@@ -268,29 +265,24 @@ TilemancerFrame::TilemancerFrame()
   this->SetSizer(sizer);
 }
 
-void TilemancerFrame::OnFileNew(wxCommandEvent &event) {}
-void TilemancerFrame::OnFileOpen(wxCommandEvent &event) {}
-void TilemancerFrame::OnFileSave(wxCommandEvent &event) {}
-void TilemancerFrame::OnFileExit(wxCommandEvent &event)
-{
-  Close( true );
+void TilemancerFrame::OnFileNew(wxCommandEvent& event) {}
+void TilemancerFrame::OnFileOpen(wxCommandEvent& event) {}
+void TilemancerFrame::OnFileSave(wxCommandEvent& event) {}
+void TilemancerFrame::OnFileExit(wxCommandEvent& event) { Close(true); }
+
+void TilemancerFrame::OnEditUndo(wxCommandEvent& event) {}
+void TilemancerFrame::OnEditRedo(wxCommandEvent& event) {}
+
+void TilemancerFrame::OnPaletteNewColor(wxCommandEvent& event) {}
+void TilemancerFrame::OnPaletteDuplicateColor(wxCommandEvent& event) {}
+void TilemancerFrame::OnPaletteDeleteColor(wxCommandEvent& event) {}
+void TilemancerFrame::OnPaletteLoad(wxCommandEvent& event) {}
+void TilemancerFrame::OnPaletteSave(wxCommandEvent& event) {}
+
+void TilemancerFrame::OnAboutAbout(wxCommandEvent& event) {
+  wxMessageBox("This is a wxWidgets' Hello world sample", "About Hello World",
+               wxOK | wxICON_INFORMATION);
 }
-
-void TilemancerFrame::OnEditUndo(wxCommandEvent &event) {}
-void TilemancerFrame::OnEditRedo(wxCommandEvent &event) {}
-
-void TilemancerFrame::OnPaletteNewColor(wxCommandEvent &event) {}
-void TilemancerFrame::OnPaletteDuplicateColor(wxCommandEvent &event) {}
-void TilemancerFrame::OnPaletteDeleteColor(wxCommandEvent &event) {}
-void TilemancerFrame::OnPaletteLoad(wxCommandEvent &event) {}
-void TilemancerFrame::OnPaletteSave(wxCommandEvent &event) {}
-
-void TilemancerFrame::OnAboutAbout(wxCommandEvent &event)
-{
-  wxMessageBox( "This is a wxWidgets' Hello world sample",
-                "About Hello World", wxOK | wxICON_INFORMATION );
-}
-
 
 #else
 
