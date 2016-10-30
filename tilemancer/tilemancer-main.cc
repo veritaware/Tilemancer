@@ -187,108 +187,97 @@ void importPresets() {
   }
 }
 #elif defined(__APPLE__) || defined(__linux__)
+
+std::string GetFolder(const std::string& folder) {
+  string cwd2 = executable_path();
+  cwd2.erase(cwd2.rfind('/'));
+#if defined(__APPLE__)
+  cwd2.erase(cwd2.rfind('/'));
+  cwd2.erase(cwd2.rfind('/'));
+  cwd2.erase(cwd2.rfind('/'));
+#endif
+  if (cwd2.size() < 1) {
+    cwd2 = "/" + folder;
+  } else {
+    cwd2 += "/" + folder;
+  }
+  return cwd2;
+}
+
+
+void LoadEffect(const string &fn, const string &fullfn, bool loadAsPreset) {
+  lua_settop(L, 0);
+  lua_pushnil(L);
+  lua_setglobal(L, "init");
+  lua_settop(L, 0);
+  lua_pushnil(L);
+  lua_setglobal(L, "apply");
+  int s = luaL_dofile(L, fullfn.c_str());
+  if (s == 0) {
+    // cout << "Loaded" << endl;
+    // checking if everything works
+    bool OK = true;
+    lua_getglobal(L, "init");
+    lua_getglobal(L, "apply");
+    if (!lua_isfunction(L, -2)) {
+      OK = false;
+    }
+    if (!lua_isfunction(L, -1)) {
+      OK = false;
+    }
+    if (OK) {
+      // cout << "Success" << endl;
+      newEffects.push_back(new Effect(fullfn, fn, loadAsPreset));
+    }
+  }
+}
+
+std::vector<std::string> FilesInFolder(const std::string& folder, const char* ext) {
+  int num_entries;
+  struct dirent** entries = NULL;
+  num_entries = scandir(folder.c_str(), &entries, NULL, NULL);
+
+  std::vector<std::string> files;
+  files.reserve(num_entries);
+
+  for (int i = 0; i < num_entries; i++) {
+    if (entries[i]->d_name[0] != '.') {
+      const std::string& fn = entries[i]->d_name;
+      if( ext ) {
+        if (fn.substr(fn.find_last_of(".") + 1) != "lua") {
+          continue;
+        }
+      }
+      files.push_back(fn);
+    }
+  }
+
+  return files;
+}
+
+const std::string FOLDER_SEP = "/";
+
 void importFxs() {
-  string cwd2 = executable_path();
-  cwd2.erase(cwd2.rfind('/'));
-#if defined(__APPLE__)
-  cwd2.erase(cwd2.rfind('/'));
-  cwd2.erase(cwd2.rfind('/'));
-  cwd2.erase(cwd2.rfind('/'));
-#endif
-  if (cwd2.size() < 1) {
-    cwd2 = "/Nodes";
-  } else {
-    cwd2 += "/Nodes";
-  }
+  const string cwd2 = GetFolder("Nodes");
+  const std::vector<std::string> files = FilesInFolder(cwd2, "lua");
 
-  int num_entries;
-  struct dirent** entries = NULL;
-  num_entries = scandir(cwd2.c_str(), &entries, NULL, NULL);
-
-  for (int i = 0; i < num_entries; i++) {
-    if (entries[i]->d_name[0] != '.') {
-      string fn = entries[i]->d_name;
-      if (fn.substr(fn.find_last_of(".") + 1) == "lua") {
-        string fullfn = cwd2 + "/" + fn;
-        lua_settop(L, 0);
-        lua_pushnil(L);
-        lua_setglobal(L, "init");
-        lua_settop(L, 0);
-        lua_pushnil(L);
-        lua_setglobal(L, "apply");
-        int s = luaL_dofile(L, fullfn.c_str());
-        if (s == 0) {
-          // cout << "Loaded" << endl;
-          // checking if everything works
-          bool OK = true;
-          lua_getglobal(L, "init");
-          lua_getglobal(L, "apply");
-          if (!lua_isfunction(L, -2)) {
-            OK = false;
-          }
-          if (!lua_isfunction(L, -1)) {
-            OK = false;
-          }
-          if (OK) {
-            // cout << "Success" << endl;
-            newEffects.push_back(new Effect(fullfn, fn));
-          }
-        }
-      }
-    }
+  for (const std::string& fn : files) {
+    const string fullfn = cwd2 + FOLDER_SEP + fn;
+    LoadEffect(fn, fullfn, false);
   }
 }
+
 void importPresets() {
-  string cwd2 = executable_path();
-  cwd2.erase(cwd2.rfind('/'));
-#if defined(__APPLE__)
-  cwd2.erase(cwd2.rfind('/'));
-  cwd2.erase(cwd2.rfind('/'));
-  cwd2.erase(cwd2.rfind('/'));
-#endif
-  if (cwd2.size() < 1) {
-    cwd2 = "/Presets";
-  } else {
-    cwd2 += "/Presets";
-  }
+  const string cwd2 = GetFolder("Presets");
+  const std::vector<std::string> files = FilesInFolder(cwd2, "lua");
 
-  int num_entries;
-  struct dirent** entries = NULL;
-  num_entries = scandir(cwd2.c_str(), &entries, NULL, NULL);
-
-  for (int i = 0; i < num_entries; i++) {
-    if (entries[i]->d_name[0] != '.') {
-      string fn = entries[i]->d_name;
-      if (fn.substr(fn.find_last_of(".") + 1) == "lua") {
-        string fullfn = cwd2 + "/" + fn;
-        lua_settop(L, 0);
-        lua_pushnil(L);
-        lua_setglobal(L, "init");
-        lua_settop(L, 0);
-        lua_pushnil(L);
-        lua_setglobal(L, "apply");
-        int s = luaL_dofile(L, fullfn.c_str());
-        if (s == 0) {
-          // cout << "Loaded" << endl;
-          // checking if everything works
-          bool OK = true;
-          lua_getglobal(L, "init");
-          lua_getglobal(L, "apply");
-          if (!lua_isfunction(L, -2)) {
-            OK = false;
-          }
-          if (!lua_isfunction(L, -1)) {
-            OK = false;
-          }
-          if (OK) {
-            // cout << "Success" << endl;
-            newEffects.push_back(new Effect(fullfn, fn, true));
-          }
-        }
-      }
-    }
+  for (const std::string& fn : files) {
+    const string fullfn = cwd2 + FOLDER_SEP + fn;
+    LoadEffect(fn, fullfn, true);
   }
 }
+
+
 #else
 #endif
 

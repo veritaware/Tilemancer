@@ -18,7 +18,7 @@
 
 */
 
-#define USE_WX
+// #define USE_WX
 
 #include "tilemancer/tilemancer.h"
 
