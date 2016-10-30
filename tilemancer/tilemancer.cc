@@ -1598,7 +1598,7 @@ int tilemancer_main() {
   bool quit = false;
   SDL_Event e;
   currentTime = SDL_GetTicks();
-  
+
   while (!quit) {
     while (SDL_PollEvent(&e) != 0) {
       if (e.type == SDL_QUIT) {
@@ -1674,13 +1674,13 @@ int tilemancer_main() {
 
 void onKeyUp(const SDL_Event& e) {
   if (e.key.keysym.sym == SDLK_LSHIFT) {
-    camMoving = false;
+    shiftIsDown = false;
   }
 }
 
 void onKeyDown(const SDL_Event& e) {
   if (e.key.keysym.sym == SDLK_LSHIFT) {
-    camMoving = true;
+    shiftIsDown = true;
   }
   if (e.key.keysym.sym == SDLK_BACKSPACE) {
     browserOnBackspace();
@@ -2100,7 +2100,7 @@ void mouseButtonDown(const SDL_Event& e) {
         browserButtonDown(x, y);
       } else {
         if (x > barX && x < screenW - barXRight) {
-          if (camMoving) {
+          if (shiftIsDown) {
             draggingCam = true;
             mouseOX = x;
             mouseOY = y;

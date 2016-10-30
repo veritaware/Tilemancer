@@ -39,7 +39,7 @@ float nodeCSX;
 float nodeCSY;
 float nodeCX;
 float nodeCY;
-bool camMoving = false;
+bool shiftIsDown = false;
 bool draggingCam = false;
 bool draggingCam2 = false;
 float camOffset;

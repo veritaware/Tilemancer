@@ -59,7 +59,7 @@ extern float nodeCSX;
 extern float nodeCSY;
 extern float nodeCX;
 extern float nodeCY;
-extern bool camMoving;
+extern bool shiftIsDown;
 extern bool draggingCam;
 extern bool draggingCam2;
 extern float camOffset;
@@ -142,6 +142,7 @@ extern std::string lastSaveDir;
 extern std::string lastSaveName;
 extern std::string lastTexDir;
 extern std::string lastTexName;
+
 extern lua_State* L;
 
 #endif  // TILEMANCER_GLOBALS_H
