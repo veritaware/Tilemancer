@@ -65,8 +65,6 @@ using namespace std;
 SDL_Window* window = NULL;
 SDL_Renderer* gRenderer = NULL;
 
-class Layer;
-
 void initLua() {
   L = luaL_newstate();
   luaL_openlibs(L);
