@@ -66,6 +66,8 @@ include_directories(${SDL2_INCLUDE_DIR})
 
 include_directories(../external/glm/include)
 
+include_directories(../external/stb)
+
 set(app_src ${app_src_glob})
 
 source_group("" FILES ${app_src})
@@ -85,7 +87,6 @@ target_link_libraries(tilemancer
                       ${OPENGL_LIBRARIES}
                       ${wxWidgets_LIBRARIES}
                       ${SDL2_LIBRARY}
-                      SDL2_image # we are using absolute reference to sdl2 image, but that's oke. the plan is to remove sdl and use wx or some other image library
                       )
 target_link_libraries(tilemancer ${CMAKE_DL_LIBS})
 target_link_libraries(tilemancer ${CMAKE_THREAD_LIBS_INIT})

@@ -19,10 +19,8 @@
 */
 
 #include "tilemancer/load_texture.h"
-
 #include <iostream>
-
-#include <SDL2/SDL_image.h>
+#include "tilemancer/image.h"
 
 #ifdef _WIN32
 GLuint loadTexture(const std::string& path) {
@@ -91,26 +89,22 @@ GLuint loadTexture2(const std::string& path) {
 #elif defined(__APPLE__) || defined(__linux__)
 GLuint loadTexture(const std::string& path) {
   GLuint tex;
-  SDL_Surface* ls = IMG_Load(path.c_str());
-  if (ls != NULL) {
-    glGenTextures(1, &tex);
-    glBindTexture(GL_TEXTURE_2D, tex);
-    int mode = GL_RGB;
-    int mode2 = GL_BGR;
-    if (ls->format->BytesPerPixel == 4) {
-      mode = GL_RGBA;
-      mode2 = GL_BGRA;
-    }
-    glTexImage2D(GL_TEXTURE_2D, 0, mode, ls->w, ls->h, 0, mode2,
-                 GL_UNSIGNED_BYTE, ls->pixels);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    // SDL_FreeSurface(ls);
-  } else {
-    std::cout << "Failed to load image: " + path << std::endl;
+  ImageLoadResult ls = LoadImage(path, AlphaLoad::Include);
+  if (ls.height <= 0 ){
+    std::cout << "Failed to load image " + path << ": " << ls.error << std::endl;
+    return 0;
   }
+
+  glGenTextures(1, &tex);
+  glBindTexture(GL_TEXTURE_2D, tex);
+  const int mode = ls.has_alpha ? GL_RGBA : GL_RGB;
+  glTexImage2D(GL_TEXTURE_2D, 0, mode, ls.width, ls.height, 0, mode,
+               GL_UNSIGNED_BYTE, &ls.components[0]);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
   return tex;
 }
 

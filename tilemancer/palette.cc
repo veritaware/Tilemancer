@@ -31,6 +31,7 @@
 #include "tilemancer/graphics_globals.h"
 #include "tilemancer/parameter.h"
 #include "tilemancer/texture.h"
+#include "tilemancer/image.h"
 
 Color* getPalColor(float H, float S, float V) {
   float C = V * S;
@@ -229,10 +230,10 @@ void loadPalette() {
 }
 
 void exportPalette(const std::string& dir) {
-  SDL_Surface* surface = SDL_CreateRGBSurface(
-      SDL_SWSURFACE, 16, 16, 24, 0x000000FF, 0x0000FF00, 0x00FF0000, 0);
+  const int WIDTH = 16;
+  const int HEIGHT = 16;
+  std::vector<unsigned char> pixels(WIDTH * HEIGHT * 3, 0);
   glBindTexture(GL_TEXTURE_2D, palImgReal);
-  glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE, surface->pixels);
-  IMG_SavePNG(surface, dir.c_str());
-  SDL_FreeSurface(surface);
+  glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE, &pixels[0]);
+  SaveImage(dir, pixels, WIDTH, HEIGHT, AlphaSave::HasNot);
 }

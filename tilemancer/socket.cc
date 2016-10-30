@@ -26,6 +26,7 @@
 #include "tilemancer/os.h"
 
 #include "dirent.h"
+#include "image.h"
 
 Socket::Socket() {
   futureN = -1;
@@ -40,26 +41,24 @@ Socket::Socket() {
 Socket::~Socket() { delete b; }
 
 void exportTexSingle(const std::string& dir) {
-  SDL_Surface* surface =
-      SDL_CreateRGBSurface(SDL_SWSURFACE, texSizeX, texSizeY, 32, 0x000000FF,
-                           0x0000FF00, 0x00FF0000, 0xFF000000);
+  const unsigned long size = texSizeX * texSizeY * 4;
+  std::vector<unsigned char> pixels(size, 0);
   glBindTexture(GL_TEXTURE_2D, currentSocket->texture);
-  GLfloat* pixels = new GLfloat[int(texSizeX * texSizeY * 4)];
 #ifdef TILEMANCER_OS_WINDOWS
-  glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, surface->pixels);
+  glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, &pixels[0]);
 #else
-  glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, pixels);
-  for (int i = 0; i < texSizeX * texSizeY * 4; i++) {
-    Uint8* p = (Uint8*)surface->pixels + i * surface->format->BytesPerPixel / 4;
-    int val = pixels[i];
+  std::vector<GLfloat> fpixels(size, 0.0f);
+  glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, &fpixels[0]);
+  for (unsigned long i = 0; i < size; i++) {
+    // scale?
+    int val = fpixels[i];
     if (val > 255) {
       val = 255;
     } else if (val < 0) {
       val = 0;
     }
-    p[0] = (Uint8)val;
+    pixels[0] = (Uint8)val;
   }
 #endif
-  IMG_SavePNG(surface, dir.c_str());
-  SDL_FreeSurface(surface);
+  SaveImage(dir, pixels, texSizeX, texSizeY, AlphaSave::Has);
 }
