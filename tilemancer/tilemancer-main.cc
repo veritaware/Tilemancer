@@ -276,7 +276,7 @@ void LoadStuff() {
   srand(time(NULL));
 
   light.load("light", shader_source_light_vert, shader_source_light_frag);
-  blur.load("blur", shader_source_blur_frag, shader_source_blur_vert);
+  blur.load("blur", shader_source_blur_vert, shader_source_blur_frag);
   transition.load("transition", shader_source_transition_vert, shader_source_transition_frag);
   my.load("my", shader_source_my_vert, shader_source_my_frag);
 
