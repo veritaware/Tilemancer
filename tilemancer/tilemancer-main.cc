@@ -204,6 +204,31 @@ std::string GetFolder(const std::string& folder) {
   return cwd2;
 }
 
+std::vector<std::string> FilesInFolder(const std::string& folder, const char* ext) {
+  int num_entries;
+  struct dirent** entries = NULL;
+  num_entries = scandir(folder.c_str(), &entries, NULL, NULL);
+
+  std::vector<std::string> files;
+  files.reserve(num_entries);
+
+  for (int i = 0; i < num_entries; i++) {
+    if (entries[i]->d_name[0] != '.') {
+      const std::string& fn = entries[i]->d_name;
+      if( ext ) {
+        if (fn.substr(fn.find_last_of(".") + 1) != "lua") {
+          continue;
+        }
+      }
+      files.push_back(fn);
+    }
+  }
+
+  return files;
+}
+
+const std::string FOLDER_SEP = "/";
+
 
 void LoadEffect(const string &fn, const string &fullfn, bool loadAsPreset) {
   lua_settop(L, 0);
@@ -231,31 +256,6 @@ void LoadEffect(const string &fn, const string &fullfn, bool loadAsPreset) {
     }
   }
 }
-
-std::vector<std::string> FilesInFolder(const std::string& folder, const char* ext) {
-  int num_entries;
-  struct dirent** entries = NULL;
-  num_entries = scandir(folder.c_str(), &entries, NULL, NULL);
-
-  std::vector<std::string> files;
-  files.reserve(num_entries);
-
-  for (int i = 0; i < num_entries; i++) {
-    if (entries[i]->d_name[0] != '.') {
-      const std::string& fn = entries[i]->d_name;
-      if( ext ) {
-        if (fn.substr(fn.find_last_of(".") + 1) != "lua") {
-          continue;
-        }
-      }
-      files.push_back(fn);
-    }
-  }
-
-  return files;
-}
-
-const std::string FOLDER_SEP = "/";
 
 void importFxs() {
   const string cwd2 = GetFolder("Nodes");
