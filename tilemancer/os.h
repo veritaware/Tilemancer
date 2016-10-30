@@ -21,24 +21,21 @@
 #ifndef TILEMANCER_OS_H
 #define TILEMANCER_OS_H
 
-enum { Windows = 0x1, Apple = 0x2, Linux = 0x4, Unix = Apple | Linux };
+#include <string>
 
 #ifdef _WIN32
-
-#include "os_windows.h"
-
+#define TILEMANCER_OS_WINDOWS
 #elif defined(__APPLE__)
-
-#include "os_osx.h"
-
+#define TILEMANCER_OS_OSX
+#define TILEMANCER_OS_UNIX
 #elif defined(__linux__)
-
-#include "os_linux.h"
-
+#define TILEMANCER_OS_LINUX
+#define TILEMANCER_OS_UNIX
 #else
-
 #error "Unsupported OS"
-
 #endif
+
+extern const char OS_SEPARATOR_CHAR;
+extern const std::string OS_SEPARATOR_STRING;
 
 #endif  // TILEMANCER_OS_H

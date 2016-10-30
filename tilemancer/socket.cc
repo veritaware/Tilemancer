@@ -45,9 +45,9 @@ void exportTexSingle(const std::string& dir) {
                            0x0000FF00, 0x00FF0000, 0xFF000000);
   glBindTexture(GL_TEXTURE_2D, currentSocket->texture);
   GLfloat* pixels = new GLfloat[int(texSizeX * texSizeY * 4)];
-  if (OS & Windows) {
+#ifdef TILEMANCER_OS_WINDOWS
     glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, surface->pixels);
-  } else if (OS & Unix) {
+#else
     glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, pixels);
     for (int i = 0; i < texSizeX * texSizeY * 4; i++) {
       Uint8* p =
@@ -60,7 +60,7 @@ void exportTexSingle(const std::string& dir) {
       }
       p[0] = (Uint8)val;
     }
-  }
+#endif
   IMG_SavePNG(surface, dir.c_str());
   SDL_FreeSurface(surface);
 }

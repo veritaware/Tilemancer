@@ -865,14 +865,14 @@ void update() {
           Socket* output = fx->outputs.at(out);
           glGenTextures(1, &output->texture);
           glBindTexture(GL_TEXTURE_2D, output->texture);
-          if (OS & Windows) {
+#ifdef TILEMANCER_WINDOWS
             vector<GLubyte> bv = output->texData.toByteArray();
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texSizeX, texSizeY, 0,
                          GL_RGBA, GL_UNSIGNED_BYTE, &bv[0]);
-          } else if (OS & Unix) {
+#else
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, texSizeX, texSizeY, 0,
                          GL_RGBA, GL_FLOAT, output->texData.ptr());
-          }
+#endif
           glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
           glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
           glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -1922,10 +1922,10 @@ void onMouseMotion(const SDL_Event& e) {
     int sw = 0;
     int sh = 0;
     SDL_GetWindowPosition(window, &sx, &sy);
-    if (OS & Windows) {
+#ifdef TILEMANCER_WINDOWS
       mx += sx;
       my += sy;
-    }
+#endif
     SDL_GetWindowSize(window, &sw, &sh);
     while (mx < sx) {
       mx += sw;
