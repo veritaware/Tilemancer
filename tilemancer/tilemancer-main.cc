@@ -1348,7 +1348,10 @@ int tilemancer_main() {
   }
   bool quit = false;
   SDL_Event e;
-  currentTime = SDL_GetTicks();
+  const double dt = 1.0 / 60.0;
+  double lastTime = 0.0f;
+  double currentTime = SDL_GetTicks();
+  double accumulator = 0.0;
 
   while (!quit) {
     while (SDL_PollEvent(&e) != 0) {

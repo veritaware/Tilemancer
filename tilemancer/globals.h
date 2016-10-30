@@ -40,11 +40,6 @@ const int Vmajor = 0;
 const int Vminor = 2;
 const int Vrevision = 1;
 
-extern double dt;
-extern double currentTime;
-extern double lastTime;
-extern double accumulator;
-
 extern float texSizeX;
 extern float texSizeY;
 extern int screenW;

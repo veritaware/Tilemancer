@@ -20,11 +20,6 @@
 
 #include "tilemancer/globals.h"
 
-double dt = 1.0 / 60.0;
-double currentTime;
-double lastTime;
-double accumulator;
-
 float texSizeX;
 float texSizeY;
 int screenW;
