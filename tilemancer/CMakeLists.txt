@@ -41,6 +41,23 @@ set(src_lua
 source_group("lua" FILES ${src_lua})
 include_directories(SYSTEM ${CMAKE_SOURCE_DIR}/external/lua/src/)
 
+# generate shader headers
+set(src_shaders
+    ${CMAKE_BINARY_DIR}/shaders.h
+    ${CMAKE_BINARY_DIR}/shaders.cc
+    )
+source_group("generated shader" FILES ${src_shaders})
+add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/shaders.h ${CMAKE_BINARY_DIR}/shaders.cc
+    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/files_to_functions.py ${CMAKE_BINARY_DIR}/shaders.h ${CMAKE_BINARY_DIR}/shaders.cc shader_source_
+                   shaders/linux/my.vert shaders/linux/my.frag
+                   shaders/linux/blur.vert shaders/linux/blur.frag
+                   shaders/linux/light.vert shaders/linux/light.frag
+                   shaders/linux/transition.vert shaders/linux/transition.frag
+    DEPENDS files_to_functions.py shaders/linux/my.vert shaders/linux/my.frag
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    COMMENT "Generating shaders."
+)
+
 find_package(wxWidgets COMPONENTS core base gl)
 include( "${wxWidgets_USE_FILE}" )
 
@@ -53,7 +70,7 @@ set(app_src ${app_src_glob})
 
 source_group("" FILES ${app_src})
 
-set(all_src ${src_lua} ${app_src})
+set(all_src ${src_lua} ${app_src} ${src_shaders})
 
 add_executable(tilemancer WIN32 MACOSX_BUNDLE ${all_src})
 set_target_properties(tilemancer
