@@ -22,6 +22,8 @@
 
 #include <iostream>
 
+#include <SDL2/SDL_image.h>
+
 #ifdef _WIN32
 GLuint loadTexture(const std::string& path) {
   GLuint tex;

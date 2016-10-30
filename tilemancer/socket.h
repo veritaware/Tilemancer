@@ -25,6 +25,7 @@
 
 #include "tilemancer/floatimage.h"
 #include "tilemancer/gl.h"
+#include <string>
 
 class Bezier;
 class Effect;

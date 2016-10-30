@@ -27,6 +27,7 @@
 #include "tilemancer/text.h"
 #include "tilemancer/texture.h"
 #include "tilemancer/tmlua.h"
+#include <cmath>
 
 void Effect::sideUpdate() {
   luaL_dofile(this->L, luafn.c_str());

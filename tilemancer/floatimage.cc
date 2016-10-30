@@ -21,6 +21,7 @@
 #include "tilemancer/floatimage.h"
 #include "tilemancer/color.h"
 #include "tilemancer/globals.h"
+#include <cmath>
 
 void FloatImage::setAll(float v) {
   data.clear();

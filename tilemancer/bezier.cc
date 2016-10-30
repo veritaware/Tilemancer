@@ -21,6 +21,7 @@
 #include "tilemancer/bezier.h"
 
 #include <vector>
+#include <cmath>
 
 Bezier::Bezier() {}
 

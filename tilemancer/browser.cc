@@ -30,6 +30,7 @@
 #include "tilemancer/render.h"
 #include "tilemancer/saveload.h"
 #include "tilemancer/socket.h"
+#include "tilemancer/os.h"
 
 #include <sys/types.h>
 #include <unistd.h>

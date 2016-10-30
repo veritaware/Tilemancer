@@ -21,6 +21,8 @@
 #include "tilemancer/palette.h"
 #include <cmath>
 #include <cstdlib>
+#include <SDL_surface.h>
+#include <SDL_image.h>
 #include "tilemancer/color.h"
 #include "tilemancer/cpoint.h"
 #include "tilemancer/effect.h"

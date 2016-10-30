@@ -21,6 +21,7 @@
 #include "tilemancer/socket.h"
 #include "tilemancer/bezier.h"
 #include "tilemancer/globals.h"
+#include "tilemancer/os.h"
 
 #include "dirent.h"
 
