@@ -25,12 +25,21 @@
 #ifdef USE_WX
 
 #include "wx.h"
+#include <wx/glcanvas.h>
+
+// x11 header included by the gtk canvas defines Bool and that interfers with
+// other code and is also ugly
+#ifdef Bool
+#undef Bool
+#endif
 
 class TilemancerApp: public wxApp
 {
  public:
   virtual bool OnInit();
 };
+
+class TilemancerView;
 
 class TilemancerFrame: public wxFrame
 {
@@ -52,7 +61,34 @@ class TilemancerFrame: public wxFrame
   void OnPaletteSave(wxCommandEvent &event);
 
   void OnAboutAbout(wxCommandEvent &event);
+ private:
+  TilemancerView* view;
  wxDECLARE_EVENT_TABLE();
+};
+
+class TilemancerView : public wxGLCanvas {
+ public:
+  TilemancerView(wxWindow* parent);
+  ~TilemancerView();
+
+  void OnPaint(wxPaintEvent& event);
+  void OnSize(wxSizeEvent& event);
+  void OnEraseBackground(wxEraseEvent& event);
+
+  void OnLeftDown(wxMouseEvent& e);
+  void OnLeftUp(wxMouseEvent& e);
+  void OnMiddleDown(wxMouseEvent& e);
+  void OnMiddleUp(wxMouseEvent& e);
+  void OnRightDown(wxMouseEvent& e);
+  void OnRightUp(wxMouseEvent& e);
+  void OnMotion(wxMouseEvent& e);
+  void OnWheel(wxMouseEvent& e);
+
+  void Invalidate();
+
+ private:
+  wxGLContext rc;
+ DECLARE_EVENT_TABLE()
 };
 
 enum
@@ -64,6 +100,84 @@ enum
   ID_PAL_LOAD,
   ID_PAL_SAVE
 };
+
+////////////////////////////////////////////////////////////////////////////////
+
+
+#if wxUSE_GLCANVAS
+// #pragma message("wxGL is included")
+#else
+#error "No wxGL"
+#endif
+
+BEGIN_EVENT_TABLE(TilemancerView, wxGLCanvas)
+        EVT_SIZE(TilemancerView::OnSize)
+        EVT_PAINT(TilemancerView::OnPaint)
+        EVT_ERASE_BACKGROUND(TilemancerView::OnEraseBackground)
+
+        EVT_LEFT_DOWN(TilemancerView::OnLeftDown)
+        EVT_LEFT_UP(TilemancerView::OnLeftUp)
+        EVT_MIDDLE_DOWN(TilemancerView::OnMiddleDown)
+        EVT_MIDDLE_UP(TilemancerView::OnMiddleUp)
+        EVT_RIGHT_DOWN(TilemancerView::OnRightDown)
+        EVT_RIGHT_UP(TilemancerView::OnRightUp)
+        EVT_MOTION(TilemancerView::OnMotion)
+        EVT_MOUSEWHEEL(TilemancerView::OnWheel)
+END_EVENT_TABLE()
+
+int wx_gl_args[] = {WX_GL_RGBA, WX_GL_DOUBLEBUFFER, WX_GL_DEPTH_SIZE, 16, 0};
+
+TilemancerView::TilemancerView(wxWindow* parent)
+    : wxGLCanvas(parent, wxID_ANY, wx_gl_args, wxDefaultPosition, wxDefaultSize, wxFULL_REPAINT_ON_RESIZE),
+      rc(this) {
+  Invalidate();
+}
+
+TilemancerView::~TilemancerView() {}
+
+void TilemancerView::OnSize(wxSizeEvent& event) {
+  if (!IsShownOnScreen()) return;
+  SetCurrent(rc);
+
+  const auto size = event.GetSize();
+  glViewport(0, 0, size.x, size.y);
+}
+
+void TilemancerView::OnLeftDown(wxMouseEvent& e) {
+}
+
+void TilemancerView::OnLeftUp(wxMouseEvent& e) {}
+
+void TilemancerView::OnMiddleDown(wxMouseEvent& e) {}
+
+void TilemancerView::OnMiddleUp(wxMouseEvent& e) {}
+
+void TilemancerView::OnRightDown(wxMouseEvent& e) {}
+
+void TilemancerView::OnRightUp(wxMouseEvent& e) {}
+
+void TilemancerView::OnMotion(wxMouseEvent& e) {
+  Invalidate();
+}
+
+void TilemancerView::Invalidate() { Refresh(false); }
+
+void TilemancerView::OnWheel(wxMouseEvent& e) {
+  Invalidate();
+}
+
+void TilemancerView::OnPaint(wxPaintEvent& WXUNUSED(event)) {
+  wxPaintDC dc(this);
+  SetCurrent(rc);
+}
+
+void TilemancerView::OnEraseBackground(wxEraseEvent& WXUNUSED(event)) {
+  // Do nothing, to avoid flashing.
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+
 
 wxBEGIN_EVENT_TABLE(TilemancerFrame, wxFrame)
         EVT_MENU(wxID_NEW,   TilemancerFrame::OnFileNew)
@@ -146,6 +260,12 @@ TilemancerFrame::TilemancerFrame()
   SetMenuBar( BuildMenuBar() );
   CreateStatusBar();
   SetStatusText( "" );
+
+  view = new TilemancerView(this);
+
+  wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+  sizer->Add(view, wxSizerFlags(1).Expand());
+  this->SetSizer(sizer);
 }
 
 void TilemancerFrame::OnFileNew(wxCommandEvent &event) {}
