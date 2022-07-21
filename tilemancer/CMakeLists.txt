@@ -78,28 +78,23 @@ if(WIN32)
     add_executable(tilemancer WIN32 ${all_src})
 endif(WIN32)
 if(APPLE)
-    execute_process(COMMAND iconutil -c icns --output ${CMAKE_SOURCE_DIR}/dist/resources/tilemancer.icns ${CMAKE_SOURCE_DIR}/dist/resources/tilemancer.iconset)
     file(GLOB res ${CMAKE_SOURCE_DIR}/dist/resources/*.png)
-
-    set(app_icon ${CMAKE_SOURCE_DIR}/dist/resources/tilemancer.icns)
-    set_source_files_properties(${app_icon} PROPERTIES
-            MACOSX_PACKAGE_LOCATION "Resources")
-
-    add_executable(tilemancer MACOSX_BUNDLE ${all_src} ${res} ${app_icon})
+    set(all_res ${res} ${res_nodes} ${res_presets})
+    
+    add_executable(tilemancer MACOSX_BUNDLE ${all_src} ${res})
 
     set_target_properties(tilemancer PROPERTIES
             MACOSX_BUNDLE TRUE
             MACOSX_FRAMEWORK_IDENTIFIER com.Veritaware.Tilemancer
-            MACOSX_BUNDLE_INFO_PLIST ${CMAKE_SOURCE_DIR}/dist/Info.plist.in
             RESOURCE "${res}")
 endif(APPLE)
 
 set_target_properties(tilemancer
                       PROPERTIES
                       RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_SOURCE_DIR}/dist"
-                      DEBUG_OUTPUT_NAME "Tilemancer-debug"
+                      DEBUG_OUTPUT_NAME "tilemancer-debug"
                       RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_SOURCE_DIR}/dist"
-                      RELEASE_OUTPUT_NAME "Tilemancer"
+                      RELEASE_OUTPUT_NAME "tilemancer"
                       )
 
 target_link_libraries(tilemancer
