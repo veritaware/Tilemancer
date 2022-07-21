@@ -9,6 +9,7 @@
 #include <SDL_ttf.h>
 #include <Shlobj.h>
 #include <gl\glu.h>
+#include <string>
 #include <windows.h>
 #include "mingw.mutex.h"
 #include "mingw.thread.h"
@@ -36,5 +37,7 @@ extern const char* my_vertex_shader_source;
 extern const char* my_fragment_shader_source;
 
 extern int OS;
+
+std::string getResourcePath(const char* fileName, const char* ext);
 
 #endif  // TILEMANCER_OS_WINDOWS_H
