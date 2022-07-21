@@ -21,7 +21,7 @@ const std::string executable_path() {
 #ifdef TILEMANCER_OS_WINDOWS
   GetModuleFileName(NULL, cwd, size);
 #elif defined(TILEMANCER_OS_OSX)
-  _NSGetExecutablePath(cwd, (uint32_t*)&size);
+  _NSGetExecutablePath(cwd, &size);
 #else
   ssize_t readSize = readlink("/proc/self/exe", cwd, size);
   if (readSize <= 0 || readSize == size) {
