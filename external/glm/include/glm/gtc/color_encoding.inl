@@ -1,4 +1,4 @@
-/// @ref gtc_color_encoding
+﻿/// @ref gtc_color_encoding
 /// @file glm/gtc/color_encoding.inl
 
 namespace glm
