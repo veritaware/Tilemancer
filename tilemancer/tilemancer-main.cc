@@ -147,6 +147,7 @@ void loadGen() {
   nodeCX = 0;
   nodeCY = 0;
 
+#ifdef TILEMANCER_OS_WINDOWS
   gridImg = loadTexture("resources/grid.png");
   effectImg = loadTexture("resources/effect0.png");
   effectImg2 = loadTexture("resources/effect1.png");
@@ -174,6 +175,35 @@ void loadGen() {
   palImg = loadTexture("resources/pal.png");
   fontImg = loadTexture("resources/font.png");
   fontImg2 = loadTexture("resources/font2.png");
+#elifdef TILEMANCER_OS_OSX
+    gridImg = loadTexture(getResourcePath("grid", "png"));
+    effectImg = loadTexture(getResourcePath("effect0", "png"));
+    effectImg2 = loadTexture(getResourcePath("effect1", "png"));
+    effectImg3 = loadTexture(getResourcePath("effect2", "png"));
+    effectImg4 = loadTexture(getResourcePath("effect3", "png"));
+    effectImg5 = loadTexture(getResourcePath("effect4", "png"));
+    effectImg6 = loadTexture(getResourcePath("effect5", "png"));
+    effectImg8 = loadTexture(getResourcePath("effect7", "png"));
+    effectImg10 = loadTexture(getResourcePath("effect9", "png"));
+    effectImg11 = loadTexture(getResourcePath("effect10", "png"));
+    effectImg14 = loadTexture(getResourcePath("effect13", "png"));
+    effectImg15 = loadTexture(getResourcePath("effect14", "png"));
+    effectImg16 = loadTexture(getResourcePath("effect15", "png"));
+    bezierFill = loadTexture(getResourcePath("bezierFill", "png"));
+    bezierFillError = loadTexture(getResourcePath("bezierFillError", "png"));
+    iconImg2 = loadTexture(getResourcePath("icon2", "png"));
+    iconImg3 = loadTexture(getResourcePath("icon3", "png"));
+    iconImg6 = loadTexture(getResourcePath("icon6", "png"));
+    iconImg7 = loadTexture(getResourcePath("icon7", "png"));
+    iconImg8 = loadTexture(getResourcePath("icon8", "png"));
+    iconImg9 = loadTexture(getResourcePath("icon9", "png"));
+    iconImg10 = loadTexture(getResourcePath("icon10", "png"));
+    iconImg12 = loadTexture(getResourcePath("icon12", "png"));
+    iconImg13 = loadTexture(getResourcePath("icon13", "png"));
+    palImg = loadTexture(getResourcePath("pal", "png"));
+    fontImg = loadTexture(getResourcePath("font", "png"));
+    fontImg2 = loadTexture(getResourcePath("font2", "png"));
+#endif
 
   glGenTextures(1, &screenTexFinal2);
   glBindTexture(GL_TEXTURE_2D, screenTexFinal2);
@@ -358,7 +388,11 @@ void LoadStuff() {
   glDrawBuffers(4, d);
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+#ifdef TILEMANCER_OS_WINDOWS
   logoImage = loadTexture("resources/logo.png");
+#elifdef TILEMANCER_OS_OSX
+  logoImage = loadTexture(getResourcePath("logo", "png"));
+#endif
   camOffset = 1.0;
   camOffsetMagnitude = 1.2;
 
