@@ -1,9 +1,9 @@
 .idea/*
 
-dist/tilemancer
-dist/tilemancer.exe
-dist/tilemancer-debug
-dist/tilemancer-debug.exe
+dist/Tilemancer
+dist/Tilemancer.exe
+dist/Tilemancer-debug
+dist/Tilemancer-debug.exe
 
 cmake-build-*
 
@@ -32,3 +32,4 @@ cmake-build-*
 *.exe
 *.out
 *.app
+*.icns
