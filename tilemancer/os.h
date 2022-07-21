@@ -26,9 +26,11 @@
 
 #ifdef _WIN32
 #define TILEMANCER_OS_WINDOWS
+#include "os_windows.h"
 #elif defined(__APPLE__)
 #define TILEMANCER_OS_OSX
 #define TILEMANCER_OS_UNIX
+#include "os_osx.h"
 #elif defined(__linux__)
 #define TILEMANCER_OS_LINUX
 #define TILEMANCER_OS_UNIX
