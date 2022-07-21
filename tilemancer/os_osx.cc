@@ -17,4 +17,24 @@ const char* my_fragment_shader_source = (char*)"#version 330\nlayout(location = 
 CFBundleRef mainBundle;
 
 int OS = (int)OS::Apple;
+
+std::string getResourcePath(const char* fileName, const char* ext) {
+    mainBundle = CFBundleGetMainBundle();
+    CFURLRef imageURL = CFBundleCopyResourceURL(
+        mainBundle,
+        CFStringCreateWithCString(nullptr, fileName, kCFStringEncodingUTF8),
+        CFStringCreateWithCString(nullptr, ext, kCFStringEncodingUTF8),
+        nullptr);
+
+    if(imageURL == nullptr) {
+        throw std::runtime_error("Could not find resource: " + std::string(fileName) + "." + std::string(ext));
+    }
+
+    CFStringRef imagePath = CFURLCopyFileSystemPath(imageURL, kCFURLPOSIXPathStyle);
+    CFStringEncoding encodingMethod = CFStringGetSystemEncoding();
+    const char *path = CFStringGetCStringPtr(imagePath, encodingMethod);
+
+    return {path};
+}
+
 #endif
