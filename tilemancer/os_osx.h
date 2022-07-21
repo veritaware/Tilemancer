@@ -9,7 +9,7 @@
 #include <mach-o/dyld.h>
 #include <pwd.h>
 #include <future>
-#include <CoreFoundation/CFBundle.h>
+#include "CoreFoundation/CFBundle.h"
 
 extern const char* light_vertex_shader_source;
 extern const char* light_fragment_shader_source;
@@ -25,7 +25,5 @@ extern const char* my_fragment_shader_source;
 extern CFBundleRef mainBundle;
 
 extern int OS;
-
-std::string getResourcePath(const char* fileName, const char* ext);
 
 #endif  // TILEMANCER_OS_OSX_H
