@@ -16,8 +16,4 @@ const char* my_vertex_shader_source = (char*)"#version 130\nin vec4 position; un
 const char* my_fragment_shader_source = (char*)"#version 130\n uniform sampler2D tex; in vec2 txc; out vec4 fragColor; uniform float alpha; void main() { fragColor = vec4(texture2D(tex, txc).xyz, texture2D(tex, txc).w*alpha); }";
 
 int OS = (int)OS::Windows;
-
-std::string getResourcePath(const char* fileName, const char* ext) {
-    return "resources/" + std::string(fileName) + "." + std::string(ext);
-}
 #endif
