@@ -7,6 +7,8 @@ dist/tilemancer-debug.exe
 
 cmake-build-*
 
+.DS_Store
+
 *.slo
 *.lo
 *.o
@@ -30,4 +32,3 @@ cmake-build-*
 *.exe
 *.out
 *.app
-
