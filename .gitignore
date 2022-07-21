@@ -5,6 +5,8 @@ dist/tilemancer.exe
 dist/tilemancer-debug
 dist/tilemancer-debug.exe
 
+cmake-build-*
+
 *.slo
 *.lo
 *.o
