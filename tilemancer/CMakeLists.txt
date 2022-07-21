@@ -74,7 +74,21 @@ source_group("" FILES ${app_src})
 
 set(all_src ${src_lua} ${app_src} ${src_shaders})
 
-add_executable(tilemancer WIN32 MACOSX_BUNDLE ${all_src})
+if(WIN32)
+    add_executable(tilemancer WIN32 ${all_src})
+endif(WIN32)
+if(APPLE)
+    file(GLOB res ${CMAKE_SOURCE_DIR}/dist/resources/*.png)
+    set(all_res ${res} ${res_nodes} ${res_presets})
+    
+    add_executable(tilemancer MACOSX_BUNDLE ${all_src} ${res})
+
+    set_target_properties(tilemancer PROPERTIES
+            MACOSX_BUNDLE TRUE
+            MACOSX_FRAMEWORK_IDENTIFIER com.Veritaware.Tilemancer
+            RESOURCE "${res}")
+endif(APPLE)
+
 set_target_properties(tilemancer
                       PROPERTIES
                       RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_SOURCE_DIR}/dist"
